@@ -60,7 +60,7 @@ target/
 .env
 
 # Database
-*.db
+#*.db
 *.rdb
 
 # Pycharm
@@ -89,3 +89,4 @@ target/
 .mypy_cache/
 
 data/raw/
+NLP/api_key.py
