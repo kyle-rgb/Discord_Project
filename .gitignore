@@ -91,3 +91,4 @@ target/
 data/raw/
 NLP/api_key.py
 notebooks/api_key.py
+notebooks/old_financial/
