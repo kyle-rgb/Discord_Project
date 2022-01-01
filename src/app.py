@@ -13,9 +13,9 @@ import sys
 import numpy as np
 import os
 import csv
-import ETL
-import yfinancex
-import word_cloud
+# import ETL
+# # import yfinancex
+# # import word_cloud
 
 
 
@@ -25,12 +25,10 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # word_cloud.Word_Cloud() # Writes HTML Figure hword
     return render_template('index.html')
 
 @app.route('/', methods=['POST']) 
 def Stock_Select(): 
-    ETL.Stock_Select(request)
     return render_template('index.html')
 
 @app.route('/profile/')
@@ -39,15 +37,7 @@ def profile():
 
 @app.route('/StockETL/')
 def StockETL():
-    return render_template('StockETL.html') # Candle Stick Figure from ETL.py y-finance's scrape; the placeholder for all candlesticks on prev. dashboard
-
-@app.route('/Searched_Stock/')
-def Searched_Stock():
-    return render_template('Stocksearch.html')  # Candle in Dashboard Enviroment
-
-@app.route('/Searched_Ticker/')
-def mSearched_Stock():
-    return render_template('ticker.html')
+    return render_template('charts/StockETL.html') # Candle Stick Figure from ETL.py y-finance's scrape; the placeholder for all candlesticks on prev. dashboard
 
 @app.route('/dashboard')
 def dash():
@@ -56,11 +46,11 @@ def dash():
 
 @app.route('/frequency/')
 def sword():
-    return render_template('word.html')
+    return render_template('charts/word.html')
 
-@app.route('/hfrequency/')
+@app.route('/lword/')
 def hword():
-    return render_template('lword.html')
+    return render_template('charts/lword.html')
 
 
 @app.route('/User-Profile/')
@@ -69,12 +59,8 @@ def user():
 
 @app.route('/gather-stock-data') 
 def candle():
-        yfinancex.updateTable(request)
         return render_template("symbol.html")
 
-@app.route('/i7')
-def index7():
-    return render_template('candle.html') # test typography for template
 
 
 if __name__ == "__main__":
