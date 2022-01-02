@@ -85,7 +85,7 @@ def stockData(symbol):
     daily_close = ydata_df[['Adj Close']]
     daily_pct_change = daily_close.pct_change()
     daily_pct_change.fillna(0, inplace=True)
-    daily_pct_change
+    #daily_pct_change
     min_periods = 2
 
     # Calculate the volatility
