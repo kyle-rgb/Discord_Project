@@ -1,21 +1,29 @@
 /* Container
 /* =============================================== */
 #demobox {
-    margin: auto; 
+    margin: 0px; 
     min-height: 310px; 
     min-width: 700px; 
-    max-width: 800px; 
     padding-left: 30px; 
     color: #333; }
 
 #csbox {
     color: #fff; 
     background: #292f3b;
-    margin: 10px auto; 
-    width: 670px;
-    height: 500px;
+    margin: auto; 
+    width: 1180px;
+    height: 1050px;
     font-size: small;
     text-align: center; }
+
+#Selectedstock{
+  color: #fff; 
+  background: #292f3b;
+  margin-left: 200px;
+  margin-right: 200px;  
+  min-width: 800px;
+  min-height: 400px;
+}
 
 /* Candlestick Chart
 /* =============================================== */
@@ -28,8 +36,8 @@
 #chart1 .bands rect { fill: darkgrey; fill-opacity: 0; stroke-opacity: 0; pointer-events: all; shape-rendering: crispEdges; }
 #chart1 .bands .hoved { fill-opacity: .6; }
 #chart1 .sticks rect { pointer-events: none; shape-rendering: crispEdges; }
-#chart1 .sticks .rise, #chart1 .candles .rise { fill: lightgrey; } 
-#chart1 .sticks .fall, #chart1 .candles .fall { fill: turquoise; }
+#chart1 .sticks .rise, #chart1 .candles .rise { fill: rgb(0, 255, 200); } 
+#chart1 .sticks .fall, #chart1 .candles .fall { fill: rgb(255, 0, 0); }
 #chart1 .sticks .hoved { stroke: white; }
 #chart1 .candles .hoved { stroke: white; }
 #chart1 .candles rect { pointer-events: none; shape-rendering: crispEdges; }
@@ -45,7 +53,7 @@
 #chart1 .sigmabar rect { pointer-events: none; }
 #chart1 .sigmabar .hoved { fill: white; }
 
-#option    { width: 230px; height: 25px; float: left; padding-top: 5px; }
+#option    { width: 350px; height: 50px; float: left; padding-top: 10px; padding-left: 20px;}
 #option input { cursor: pointer; border-radius: 5px; color: #fff; background: #696d75; border: none; }
 #option input {
                 -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.75);
@@ -58,9 +66,9 @@
                 -moz-box-shadow: none;
                 box-shadow: none;
               }
-#infobar   { width: 440px; height: 25px; float: left; padding-top: 5px; text-align: left; font-family: sans-serif; }
+#infobar   { width: 730px; height: 25px; float: left; padding-top: 10px; padding-left: 10px;text-align: left; font-family: sans-serif; }
 .infohead  { width: 140px; height: 25px; margin: 0px 2px; float: left; }
-.infobox   { width: 70px; height: 30px; margin: 0px 2px; float: left; }
+.infobox   { width: 80px; height: 30px; margin: 0px 2px; float: left; }
 
 #volchart .volbar .volfill { fill: crimson; } 
 #volchart .sigbar .sigfill { fill: crimson; } 

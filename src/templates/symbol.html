@@ -59,6 +59,12 @@
             </a>
           </li>
           <li class="nav-item ">
+            <a class="nav-link" href="/gather-stock-data?ticker=AMZN">
+              <i class="material-icons"><img class="material-icons" rel="icon" type="image/png" src="../static/img/candle.png" width="30px" height="30px"></img></i>
+              <p>Key Company Data</p>
+            </a>
+          </li>
+          <li class="nav-item ">
             <a class="nav-link" href="profile">
               <i class="material-icons">person</i>
               <p>Profiling Report</p>
@@ -76,12 +82,6 @@
               <p>Typography</p>
             </a>
           </li> -->
-          <li class="nav-item active ">
-            <a class="nav-link" href="/gather-stock-data">
-              <i class="material-icons"><img class="material-icons" rel="icon" type="image/png" src="../static/img/candle.png" width="30px" height="30px"></img></i>
-              <p>Key Company Data</p>
-            </a>
-          </li>
           <li class="nav-item ">
             <a class="nav-link" href="Searched_Stock">
               <i class="material-icons">location_ons</i>
@@ -187,6 +187,7 @@
                         <input id="oneY" name="1Y" type="button" value="1Y" />
                         <input id="twoY" name="2Y" type="button" value="2Y" />
                         <input id="fourY" name="4Y" type="button" value="4Y" />
+                        <input id="maxY" name="MAX" type="button" value="MAX" />
                     </div>
                     <div id="infobar">
                         <div id="infodate" class="infohead"></div>
@@ -194,6 +195,8 @@
                         <div id="infohigh" class="infobox"></div>
                         <div id="infolow" class="infobox"></div>
                         <div id="infoclose" class="infobox"></div>
+                        <div id="infoturnover" class="infobox"></div>
+                        <div id="infovola" class="infobox"></div>
                     </div>
                     <!-- <iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "chart1" ></iframe> -->
 
@@ -208,10 +211,11 @@
 
         <!-- <div class="ct-chart" id="websiteViewsChart"></div> -->
       <div class="card-body">
-        <h4 class="card-title">Stats</h4>
+        <h2 class="card-title" align="center">Financials</h4>
         <!-- iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
                <div class="ct-chart" id="dailySalesChart"></div> -->
-        <div  id="Selectedstock" ></div> <!-- style="width:400px;height:400px;" -->
+        <div  id="Selectedstock">
+        </div> <!-- style="width:400px;height:400px;" -->
       </div>
 
 

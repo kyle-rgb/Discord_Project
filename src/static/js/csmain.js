@@ -50,8 +50,8 @@
 var parseDate    = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
 var TPeriod      = "3M";
-var TDays        = {"1M":21, "3M":63, "6M":126, "1Y":252, "2Y":504, "4Y":1008 };
-var TIntervals   = {"1M":"day", "3M":"day", "6M":"day", "1Y":"week", "2Y":"week", "4Y":"month" };
+var TDays        = {"1M":21, "3M":63, "6M":126, "1Y":252, "2Y":504, "4Y":1008, "MAX": 0};
+var TIntervals   = {"1M":"day", "3M":"day", "6M":"day", "1Y":"week", "2Y":"week", "4Y":"month", "MAX": "month"};
 var TFormat      = {"day":"%d %b '%y", "week":"%d %b '%y", "month":"%b '%y" };
 var genRaw, genData;
     
@@ -60,8 +60,9 @@ var genRaw, genData;
     
     
     daily_data.forEach((d) => genType(d))
+    TDays.MAX = daily_data.length
     genRaw = daily_data
-    console.log(genRaw)
+    console.log(TDays)
     // genType()
     // genRaw = data;
     mainjs();; 
@@ -77,6 +78,7 @@ function mainjs() {
   d3.select("#oneY").on("click",   function(){ TPeriod  = "1Y"; toPress(); displayAll(); });
   d3.select("#twoY").on("click",   function(){ TPeriod  = "2Y"; toPress(); displayAll(); });
   d3.select("#fourY").on("click",  function(){ TPeriod  = "4Y"; toPress(); displayAll(); });
+  d3.select("#maxY").on("click",  function(){ TPeriod  = "MAX"; toPress(); displayAll(); });
 }
 
 function displayAll() {
@@ -93,6 +95,7 @@ function changeClass() {
         d3.select("#oneY").classed("active", false);
         d3.select("#twoY").classed("active", false);
         d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", false);
     } else if (TPeriod =="6M") {
         d3.select("#oneM").classed("active", false);
         d3.select("#threeM").classed("active", false);
@@ -100,6 +103,7 @@ function changeClass() {
         d3.select("#oneY").classed("active", false);
         d3.select("#twoY").classed("active", false);
         d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", false);
     } else if (TPeriod =="1Y") {
         d3.select("#oneM").classed("active", false);
         d3.select("#threeM").classed("active", false);
@@ -107,6 +111,7 @@ function changeClass() {
         d3.select("#oneY").classed("active", true);
         d3.select("#twoY").classed("active", false);
         d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", false);
     } else if (TPeriod =="2Y") {
         d3.select("#oneM").classed("active", false);
         d3.select("#threeM").classed("active", false);
@@ -114,6 +119,7 @@ function changeClass() {
         d3.select("#oneY").classed("active", false);
         d3.select("#twoY").classed("active", true);
         d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", false);
     } else if (TPeriod =="4Y") {
         d3.select("#oneM").classed("active", false);
         d3.select("#threeM").classed("active", false);
@@ -121,22 +127,33 @@ function changeClass() {
         d3.select("#oneY").classed("active", false);
         d3.select("#twoY").classed("active", false);
         d3.select("#fourY").classed("active", true);
-    } else {
+        d3.select("#maxY").classed("active", false);
+    } else if (TPeriod == "MAX"){
+        d3.select("#oneM").classed("active", false);
+        d3.select("#threeM").classed("active", false);
+        d3.select("#sixM").classed("active", false);
+        d3.select("#oneY").classed("active", false);
+        d3.select("#twoY").classed("active", false);
+        d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", true);
+    } 
+    else { // "3M" default
         d3.select("#oneM").classed("active", false);
         d3.select("#threeM").classed("active", true);
         d3.select("#sixM").classed("active", false);
         d3.select("#oneY").classed("active", false);
         d3.select("#twoY").classed("active", false);
         d3.select("#fourY").classed("active", false);
+        d3.select("#maxY").classed("active", false);
     }
 }
 
 function displayCS() {
-    var chart       = cschart().Bheight(460);
+    var chart       = cschart().Bheight(920);
     d3.select("#chart1").call(chart);
-    var chart       = barchart().mname("volume").margin(320).MValue("Turnover");
+    var chart       = barchart().mname("volume").margin(800).MValue("Turnover");
     d3.select("#chart1").datum(genData).call(chart);
-    var chart       = barchart().mname("sigma").margin(400).MValue("Volatility");
+    var chart       = barchart().mname("sigma").margin(890).MValue("Volatility");
     d3.select("#chart1").datum(genData).call(chart);
     hoverAll();
 }

@@ -1,7 +1,7 @@
 function barchart() {
 
-  var margin = {top: 300, right: 30, bottom: 10, left: 5 },
-      width = 620, height = 60, mname = "mbar1";
+  var margin = {top: 1250, right: 30, bottom: 10, left: 5 },
+      width = 1000, height = 60, mname = "mbar1";
   
   var MValue = "Turnover";
   
@@ -25,6 +25,14 @@ function barchart() {
       var svg = d3.select(this).select("svg")
          .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      svg.append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "start")
+      .attr("x", (width/2))
+      .attr("y", height + 15)
+      .style("fill", "white")
+      .text(`${MValue}`);
       
       x.domain(data.map(function(d) { return d.Date; }));
       y.domain([0, d3.max(data, function(d) { return d[MValue]; })]).nice();

@@ -11,6 +11,8 @@ function cshrender(selection) {
     d3.select("#infohigh").text("H " + data.High);
     d3.select("#infolow").text("L " + data.Low);
     d3.select("#infoclose").text("C " + data.Close);
+    d3.select("#infoturnover").text("TO " + (data.Turnover * 100).toFixed(2) + "%");
+    d3.select("#infovola").text("VOLA " + (data.Volatility * 100).toFixed(2) + "%");
 
   });
 } // cshrender
