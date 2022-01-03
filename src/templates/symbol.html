@@ -32,6 +32,11 @@
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="../static/demo/demo.css" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/cschart.css">
+  <script>
+    {% for k, v in obj_dict.items() %}
+      var {{k}} = {{v|safe}};
+    {% endfor %}
+  </script>
 </head>
 
 <body class="dark-edition">
@@ -74,7 +79,7 @@
           <li class="nav-item active ">
             <a class="nav-link" href="/gather-stock-data">
               <i class="material-icons"><img class="material-icons" rel="icon" type="image/png" src="../static/img/candle.png" width="30px" height="30px"></img></i>
-              <p>Candle Stick Visual</p>
+              <p>Key Company Data</p>
             </a>
           </li>
           <li class="nav-item ">
@@ -109,7 +114,7 @@
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top " id="navigation-example">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            <a class="navbar-brand" href="javascript:void(0)">Dashboard</a>
+            <a class="navbar-brand" href="../">Dashboard</a>
           </div>
           <button class="navbar-toggler" type="button" data-toggle="collapse" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation" data-target="#navigation-example">
             <span class="sr-only">Toggle navigation</span>
@@ -203,9 +208,9 @@
 
         <!-- <div class="ct-chart" id="websiteViewsChart"></div> -->
       <div class="card-body">
-        <h4 class="card-title">Intraday</h4>
-        <iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
-              <!-- <div class="ct-chart" id="dailySalesChart"></div> -->
+        <h4 class="card-title">Stats</h4>
+        <!-- iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
+               <div class="ct-chart" id="dailySalesChart"></div> -->
         <div  id="Selectedstock" ></div> <!-- style="width:400px;height:400px;" -->
       </div>
 

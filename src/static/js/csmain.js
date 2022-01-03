@@ -47,9 +47,8 @@
 // console.log(`Postgres table ${tableName} exported to CSV file successfully.`);
 // })}
 // var timeDate = d3.timeFormat("%Y-%m-%d")
-var parseDate    = d3.time.format("%Y-%m-%d").parse;
-// var parseDate    = d3.timeParse(timeDate)
-console.log(parseDate)
+var parseDate    = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+
 var TPeriod      = "3M";
 var TDays        = {"1M":21, "3M":63, "6M":126, "1Y":252, "2Y":504, "4Y":1008 };
 var TIntervals   = {"1M":"day", "3M":"day", "6M":"day", "1Y":"week", "2Y":"week", "4Y":"month" };
@@ -58,13 +57,14 @@ var genRaw, genData;
     
 
 (function() {
-    d3.csv("https://raw.githubusercontent.com/dgustave/Project2-Challenge/main/data/processed/TSLA.csv", genType, function(data) {
-      genRaw         = data;
-    //   console.log(data)
-      console.log(data.slice((-TDays[TPeriod])))
-
-      mainjs();
-    }); 
+    
+    
+    daily_data.forEach((d) => genType(d))
+    genRaw = daily_data
+    console.log(genRaw)
+    // genType()
+    // genRaw = data;
+    mainjs();; 
 }());
 
 function toSlice(data) { return data.slice(-TDays[TPeriod]); }
@@ -134,9 +134,9 @@ function changeClass() {
 function displayCS() {
     var chart       = cschart().Bheight(460);
     d3.select("#chart1").call(chart);
-    var chart       = barchart().mname("volume").margin(320).MValue("TURNOVER");
+    var chart       = barchart().mname("volume").margin(320).MValue("Turnover");
     d3.select("#chart1").datum(genData).call(chart);
-    var chart       = barchart().mname("sigma").margin(400).MValue("VOLATILITY");
+    var chart       = barchart().mname("sigma").margin(400).MValue("Volatility");
     d3.select("#chart1").datum(genData).call(chart);
     hoverAll();
 }

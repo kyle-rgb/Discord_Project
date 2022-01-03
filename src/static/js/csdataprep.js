@@ -1,11 +1,17 @@
+
+
 function genType(d) {
-  d.TIMESTAMP  = parseDate(d.TIMESTAMP);
-  d.LOW        = +d.LOW;
-  d.HIGH       = +d.HIGH; 
-  d.OPEN       = +d.OPEN;
-  d.CLOSE      = +d.CLOSE;
-  d.TURNOVER   = +d.TURNOVER;
-  d.VOLATILITY = +d.VOLATILITY;
+  d.Date  = parseDate(d.Date);
+  d.Low        = +(d.Low.toFixed(2));
+  d.High       = +(d.High.toFixed(2));; 
+  d.Open       = +(d.Open.toFixed(2));;
+  d.Close      = +(d.Close.toFixed(2));;
+  d.Turnover   = +d.Turnover;
+  d.Volatility = +d.Volatility;
+  d.Volume = +d.Volume;
+  d.Stock_Splits = +d.Stock_Splits;
+  d.Volume = +d.Volume;
+  d.Dividends = +d.Dividends;
   return d;
 }
 
@@ -18,17 +24,16 @@ function timeCompare(date, interval) {
 
 function dataCompress(data, interval) {
   var compressedData  = d3.nest()
-                 .key(function(d) { return timeCompare(d.TIMESTAMP, interval); })
+                 .key(function(d) { return timeCompare(d.Date, interval); })
                  .rollup(function(v) { return {
-                         TIMESTAMP:   timeCompare(d3.values(v).pop().TIMESTAMP, interval),
-                         OPEN:        d3.values(v).shift().OPEN,
-                         LOW:         d3.min(v, function(d) { return d.LOW;  }),
-                         HIGH:        d3.max(v, function(d) { return d.HIGH; }),
-                         CLOSE:       d3.values(v).pop().CLOSE,
-                         TURNOVER:    d3.mean(v, function(d) { return d.TURNOVER; }),
-                         VOLATILITY:  d3.mean(v, function(d) { return d.VOLATILITY; })
+                         Date:   timeCompare(d3.values(v).pop().Date, interval),
+                         Open:        d3.values(v).shift().Open,
+                         Low:         d3.min(v, function(d) { return d.Low;  }),
+                         High:        d3.max(v, function(d) { return d.High; }),
+                         Close:       d3.values(v).pop().Close,
+                         Turnover:    d3.mean(v, function(d) { return d.Turnover; }),
+                         Volatility:  d3.mean(v, function(d) { return d.Volatility; })
                         }; })
-                 .entries(data).map(function(d) { return d.values; });
-
+                 .entries(data).map(function(d) { console.log(d);return d.values; });
   return compressedData;
 }

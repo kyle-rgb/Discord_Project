@@ -8,8 +8,8 @@ function cschart() {
      
         var interval = TIntervals[TPeriod];
 
-        var minimal  = d3.min(genData, function(d) { return d.LOW; });
-        var maximal  = d3.max(genData, function(d) { return d.HIGH; });
+        var minimal  = d3.min(genData, function(d) { return d.Low; });
+        var maximal  = d3.max(genData, function(d) { return d.High; });
 
         var extRight = width + margin.right
         var x = d3.scale.ordinal()
@@ -26,7 +26,7 @@ function cschart() {
             .scale(y)
             .ticks(Math.floor(height/50));
 
-        x.domain(genData.map(function(d) { return d.TIMESTAMP; }));
+        x.domain(genData.map(function(d) { return d.Date; }));
         y.domain([minimal, maximal]).nice();
     
         var xtickdelta   = Math.ceil(60/(width/genData.length))
@@ -66,7 +66,7 @@ function cschart() {
         bands.selectAll("rect")
             .data(function(d) { return d; })
           .enter().append("rect")
-            .attr("x", function(d) { return x(d.TIMESTAMP) + Math.floor(barwidth/2); })
+            .attr("x", function(d) { return x(d.Date) + Math.floor(barwidth/2); })
             .attr("y", 0)
             .attr("height", Bheight)
             .attr("width", 1)
@@ -81,13 +81,13 @@ function cschart() {
         stick.selectAll("rect")
             .data(function(d) { return d; })
           .enter().append("rect")
-            .attr("x", function(d) { return x(d.TIMESTAMP) + Math.floor(barwidth/2); })
-            .attr("y", function(d) { return y(d.HIGH); })
+            .attr("x", function(d) { return x(d.Date) + Math.floor(barwidth/2); })
+            .attr("y", function(d) { return y(d.High); })
             .attr("class", function(d, i) { return "stick"+i; })
-            .attr("height", function(d) { return y(d.LOW) - y(d.HIGH); })
+            .attr("height", function(d) { return y(d.Low) - y(d.High); })
             .attr("width", 1)
-            .classed("rise", function(d) { return (d.CLOSE>d.OPEN); })
-            .classed("fall", function(d) { return (d.OPEN>d.CLOSE); });
+            .classed("rise", function(d) { return (d.Close>d.Open); })
+            .classed("fall", function(d) { return (d.Open>d.Close); });
     
         var candle = svg.selectAll(".candles")
             .data([genData])
@@ -97,13 +97,13 @@ function cschart() {
         candle.selectAll("rect")
             .data(function(d) { return d; })
           .enter().append("rect")
-            .attr("x", function(d) { return x(d.TIMESTAMP) + delta; })
-            .attr("y", function(d) { return y(d3.max([d.OPEN, d.CLOSE])); })
+            .attr("x", function(d) { return x(d.Date) + delta; })
+            .attr("y", function(d) { return y(d3.max([d.Open, d.Close])); })
             .attr("class", function(d, i) { return "candle"+i; })
-            .attr("height", function(d) { return y(d3.min([d.OPEN, d.CLOSE])) - y(d3.max([d.OPEN, d.CLOSE])); })
+            .attr("height", function(d) { return y(d3.min([d.Open, d.Close])) - y(d3.max([d.Open, d.Close])); })
             .attr("width", candlewidth)
-            .classed("rise", function(d) { return (d.CLOSE>d.OPEN); })
-            .classed("fall", function(d) { return (d.OPEN>d.CLOSE); });
+            .classed("rise", function(d) { return (d.Close>d.Open); })
+            .classed("fall", function(d) { return (d.Open>d.Close); });
 
       });
     } // csrender

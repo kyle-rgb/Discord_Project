@@ -13,6 +13,7 @@ import sys
 import numpy as np
 import os
 import csv
+import sqlite3 as sql, pandas as pd
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -59,8 +60,11 @@ def user():
 
 @app.route('/gather-stock-data') 
 def candle():
-        return render_template("symbol.html")
-
+        wanted_stock = request.args.get("ticker")     
+        with sql.connect("../data/interim/stocks.db") as con:
+            daily_data = pd.read_sql(f"SELECT * FROM daily WHERE company = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
+        obj_dict = {"daily_data": daily_data}
+        return render_template("symbol.html", obj_dict=obj_dict)
 
 
 if __name__ == "__main__":

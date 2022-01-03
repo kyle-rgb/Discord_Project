@@ -3,7 +3,7 @@ function barchart() {
   var margin = {top: 300, right: 30, bottom: 10, left: 5 },
       width = 620, height = 60, mname = "mbar1";
   
-  var MValue = "TURNOVER";
+  var MValue = "Turnover";
   
   function barrender(selection) {
     selection.each(function(data) {
@@ -26,7 +26,7 @@ function barchart() {
          .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
       
-      x.domain(data.map(function(d) { return d.TIMESTAMP; }));
+      x.domain(data.map(function(d) { return d.Date; }));
       y.domain([0, d3.max(data, function(d) { return d[MValue]; })]).nice();
   
       var xtickdelta   = Math.ceil(60/(width/data.length))
@@ -55,7 +55,7 @@ function barchart() {
           .data(function(d) { return d; })
         .enter().append("rect")
           .attr("class", mname+"fill")
-          .attr("x", function(d) { return x(d.TIMESTAMP) + bardelta; })
+          .attr("x", function(d) { return x(d.Date) + bardelta; })
           .attr("y", function(d) { return y(d[MValue]); })
           .attr("class", function(d, i) { return mname+i; })
           .attr("height", function(d) { return y(0) - y(d[MValue]); })
