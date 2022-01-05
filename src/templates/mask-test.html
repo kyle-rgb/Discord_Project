@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style rel="stylesheet">
+    #bear {
+            width : 937px;
+            height : 555px;
+            background: yellow linear-gradient(yellow, red);
+            -webkit-mask-image: url(../static/img/tbear.svg);
+            mask-image: url(../static/img/tbear.svg);
+            mask-mode: alpha;
+
+        }
+    #bull {
+            width : 937px;
+            height : 400px;
+            background: linear-gradient(rgb(208, 255, 0), green);
+            -webkit-mask-image: url(../static/img/bull.svg);
+            mask-image: url(../static/img/bull.svg);
+            mask-mode: alpha;
+
+        }
+    </style>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vuewordcloud"></script>
+</head>
+<body>
+    <div class="masked" id="bear"> </div>
+    <div class="masked" id="bull"> </div> 
+</body>
+
+</html>

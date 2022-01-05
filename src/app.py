@@ -58,6 +58,10 @@ def hword():
 def user():
     return render_template('user.html')
 
+@app.route('/mask/')
+def mask():
+    return render_template('mask-test.html')
+
 @app.route('/gather-stock-data') 
 def candle():
         wanted_stock = request.args.get("ticker")     
