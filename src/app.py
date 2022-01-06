@@ -1,5 +1,5 @@
 # Import Dependencies 
-from flask import Flask, request, render_template, redirect, jsonify, url_for 
+from flask import Flask, request, render_template, redirect, jsonify, url_for
 from flask_pymongo import PyMongo
 import psycopg2
 import sys
@@ -61,6 +61,10 @@ def user():
 @app.route('/mask/')
 def mask():
     return render_template('mask-test.html')
+
+@app.route('/wordcloud/')
+def cloud():
+    return render_template('wordcloud.html')
 
 @app.route('/gather-stock-data') 
 def candle():
