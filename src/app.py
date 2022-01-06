@@ -13,7 +13,7 @@ import sys
 import numpy as np
 import os
 import csv
-import sqlite3 as sql, pandas as pd
+import sqlite3 as sql, pandas as pd, time
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -26,6 +26,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    
     return render_template('index.html')
 
 @app.route('/', methods=['POST']) 
@@ -73,6 +74,16 @@ def candle():
             daily_data = pd.read_sql(f"SELECT * FROM daily WHERE company = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
         obj_dict = {"daily_data": daily_data}
         return render_template("symbol.html", obj_dict=obj_dict)
+
+
+@app.route('/emote/')
+def emote():
+    agg_dict = {}
+    with sql.connect('data/discord.db') as con:
+        pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
+        pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x))))
+    obj_dict = {"emoji_data": pop_emote.to_json(orient="records")}
+    return render_template('emote.html', obj_dict=obj_dict)
 
 
 if __name__ == "__main__":
