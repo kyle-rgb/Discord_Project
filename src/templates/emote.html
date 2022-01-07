@@ -44,13 +44,14 @@
 </head>
 
 <body class="dark-edition">
-  <div class="wrapper ">
-    <div class="sidebar" data-color="purple" data-background-color="black" data-image="../static/img/sidebar-2.jpg">
+    <canvas id="myChart" width="150" height="75" style="background-color: black"></canvas>
+</body>
+    
       <!--
         Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
 
         Tip 2: you can also add an image using data-image tag
-    -->
+
       <div class="logo"><a href="http://www.creative-tim.com" class="simple-text logo-normal">
         Novice Brokers
         </a></div>
@@ -106,9 +107,10 @@
             </li>
         </ul>
       </div>
-    </div>
-    <div class="main-panel">
-      <!-- Navbar -->
+    </div>-->
+    <!-- <div class="main-panel">
+
+      <!-- Navbar 
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top " id="navigation-example">
         <div class="container-fluid">
           <div class="navbar-wrapper">
@@ -130,7 +132,7 @@
                   <label for="end">End Date</label><br>
                   <input type="date" name="end">
                     <input class="btn btn-default" type="Submit" value="Submit">
-                  <div class="ripple-container"></div> -->
+                  <div class="ripple-container"></div> 
                 </form>
               </div>
             </form>
@@ -150,14 +152,14 @@
                   <p class="d-lg-none d-md-block">
                     Some Actions
                   </p>
-                </a> -->
+                </a> 
                 <!-- <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
                   <a class="dropdown-item" href="javascript:void(0)">Mike John responded to your email</a>
                   <a class="dropdown-item" href="javascript:void(0)">You have 5 new tasks</a>
                   <a class="dropdown-item" href="javascript:void(0)">You're now friend with Andrew</a>
                   <a class="dropdown-item" href="javascript:void(0)">Another Notification</a>
                   <a class="dropdown-item" href="javascript:void(0)">Another One</a>
-                </div> -->
+                </div> 
               </li>
               <!-- <li class="nav-item">
                 <a class="nav-link" href="javascript:void(0)">
@@ -166,37 +168,23 @@
                     Account
                   </p>
                 </a>
-              </li> -->
+              </li> 
             </ul>
           </div>
-        </div>
-      </nav>
+        </nav>
+    </div> -->
+      
       <!-- End Navbar -->
-      <div class="content">
-        <div class="container-fluid">
-          <div class="container-fluid">
-            <div class="card card-plain">
-              <div id="demobox">
-                <div id="csbox">
-                    <!-- <iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "chart1" ></iframe> -->
-                    
-                    <canvas id="myChart" width="800" height="800" style="background-color: black"></canvas>
-                     
-                </div> <!-- csbox -->
-            </div> 
-        </div>   
-        </div>     
-    </div>
-  </div>
+      
 
         <!-- <div class="ct-chart" id="websiteViewsChart"></div> -->
-      <div class="card-body">
+      <!-- <div class="card-body">
         <h2 class="card-title" align="center">Financials</h4>
-        <!-- iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
+         iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
                <div class="ct-chart" id="dailySalesChart"></div> -->
-        <div  id="Selectedstock">
-        </div> <!-- style="width:400px;height:400px;" -->
-      </div>
+        <!--<div  id="Selectedstock">
+        </div> 
+      </div> -->
 
 
   
