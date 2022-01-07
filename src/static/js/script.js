@@ -300,8 +300,9 @@
 			generateWordsText: function() {
 				words_array = new Array();
 				var str = new String();
-				c_data = c_data.slice(0, 75);
-				c_data.map((d) => {words_array.push([d.company, +d.counts])})
+				
+				c_data = c_data.slice(0, 100);
+				c_data.map((d) => {if (cos.includes(d.company)) {words_array.push([d.company, +d.counts])}})
 				this.wordsText = words_array//.join('\n').replace(',', " ");
 				return words_array;
 

@@ -35,7 +35,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   <script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
   
-  <script>
+    <script>
         {% for k, v in obj_dict.items() %}
             var {{k}} = {{v|safe}};
         {% endfor %}

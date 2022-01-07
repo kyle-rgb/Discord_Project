@@ -37,6 +37,14 @@
 		<script src="https://unpkg.com/@seregpie/vuesvg@19.0.0"></script>
 		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
 		<script src="https://unpkg.com/fontfaceobserver@2.1.0/fontfaceobserver.standalone.js"></script>
+		  
+		<script>
+			{% for k, v in obj_dict.items() %}
+				var {{k}} = {{v|safe}};
+				console.log({{k}})
+			{% endfor %}
+		</script>
+		
 	</head>
 	<body>
 		<v-app
@@ -274,7 +282,6 @@
 				clipped-left
 				dark
 			>
-				<v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
 				<v-toolbar-title>Discord Project</v-toolbar-title>
 				<v-spacer></v-spacer>
 				<v-btn

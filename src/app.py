@@ -65,7 +65,13 @@ def mask():
 
 @app.route('/wordcloud/')
 def cloud():
-    return render_template('wordcloud.html')
+
+    with sql.connect("../data/interim/stocks.db") as con:
+            available_companies = pd.read_sql("SELECT DISTINCT company from daily WHERE company NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).company.values
+    
+    obj_dict = {"cos": list(available_companies)}
+    
+    return render_template('wordcloud.html', obj_dict=obj_dict)
 
 @app.route('/gather-stock-data') 
 def candle():
