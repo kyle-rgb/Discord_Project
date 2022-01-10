@@ -210,12 +210,14 @@
   </div>
 
         <!-- <div class="ct-chart" id="websiteViewsChart"></div> -->
-      <div class="card-body">
-        <h2 class="card-title" align="center">Financials</h4>
+      <div class="card-body" id="Selectedstock">
+        <h2 class="card-title" align="center">Sector Sentiments</h4>
         <!-- iframe width = "1000" height = "1200" frameborder = "0" scrolling = "yes" src = "StockETL" ></iframe> 
                <div class="ct-chart" id="dailySalesChart"></div> -->
-        <div  id="Selectedstock">
-        </div> <!-- style="width:400px;height:400px;" -->
+          <div id="newsDiv"></div>
+          <div id="analystDiv"></div>
+          <div id="chatDiv"></div>
+       <!-- style="width:400px;height:400px;" -->
       </div>
 
 
@@ -224,6 +226,7 @@
   <!--   Core JS Files   -->
   <script src="../static/js/core/jquery.min.js"></script>
   <script src="../static/js/core/popper.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.8.3.min.js"></script>
   <script src="../static/js/core/bootstrap-material-design.min.js"></script>
   <script src="https://unpkg.com/default-passive-events"></script>
   <script src="../static/js/plugins/perfect-scrollbar.jquery.min.js"></script>
@@ -249,6 +252,7 @@
   <script src="../static/js/csheader.js"></script>
   <script src="../static/js/csdataprep.js"></script>
   <script src="../static/js/csmain.js"></script>
+  <script src="../static/js/analytics.js"></script>
   <script>
     $(document).ready(function() {
       $().ready(function() {
