@@ -16,10 +16,10 @@
 			href="https://fonts.googleapis.com/css?family=Abril+Fatface|Annie+Use+Your+Telescope|Anton|Bahiana|Baloo+Bhaijaan|Barrio|Finger+Paint|Fredericka+the+Great|Gloria+Hallelujah|Indie+Flower|Life+Savers|Londrina+Sketch|Love+Ya+Like+A+Sister|Merienda|Nothing+You+Could+Do|Pacifico|Quicksand|Righteous|Roboto:100,300,400,500,700,900|Sacramento|Shadows+Into+Light"
 			rel="stylesheet"
 		/>
-		<link
+		<!-- <link
 			href="https://unpkg.com/@mdi/font@5.3.45/css/materialdesignicons.min.css"
 			rel="stylesheet"
-		/>
+		/> -->
 		<link
 			href="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.css"
 			rel="stylesheet"
@@ -43,6 +43,7 @@
 				var {{k}} = {{v|safe}};
 				console.log({{k}})
 			{% endfor %}
+			
 		</script>
 		
 	</head>
@@ -364,7 +365,7 @@
 								v-if="progressVisible && progress"
 								:rotate="-90"
 								:size="200"
-								:value="(progress.completedWords / progress.totalWords) * 100"
+								:value="(progress.completedWords / progress.totalWords) * 200"
 								:width="20"
 								class="v-no-animation"
 								color="primary"
