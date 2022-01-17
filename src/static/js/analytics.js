@@ -73,3 +73,56 @@ var data_1 = [
 
   
 Plotly.newPlot('analystDiv', data_1, layout_1);
+
+
+let firms = [];
+let grades = {};
+let starting_analysts = {};
+
+rec.forEach((r) => {
+  r.Date = new Date(r.Date)
+  // Firm, Action, Date, new_grade, prev_grade
+  if((firms.filter((d) => {return d.firm == r.Firm})).length == 0){
+    firms.push({firm: r.Firm, entries: [{
+      action: r.Action,
+      date: r.Date,
+      new_grade: r.new_grade,
+      prev_grade: r.prev_grade,
+    }]
+  })
+  } else {
+      firms.filter((d) => {return d.firm == r.Firm})[0].entries.push({
+        action: r.Action,
+        date: r.Date,
+        new_grade: r.new_grade,
+        prev_grade: r.prev_grade,
+      })
+    }
+  if (r.Action == 'up' | r.Action == 'down'){
+    if (Object.keys(grades).includes(r.Action)){
+      grades[r.Action]++
+    } else{
+      grades[r.Action] = 1
+    }
+  }
+
+  }
+
+)
+
+firms = firms.filter((d) => {return  d.entries = d.entries.slice(-1)})
+firms.forEach((f) => {
+  if (Object.keys(starting_analysts).includes(f.entries[0].new_grade)){
+    starting_analysts[f.entries[0].new_grade]++
+  } else{
+    starting_analysts[f.entries[0].new_grade] = 1
+  }
+})
+
+// count of unique analysts
+// firms.length
+// grades at the end of 2019
+
+// grades at the end of 2020
+
+// # of downgrades and upgrades

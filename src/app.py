@@ -64,7 +64,10 @@ def mask():
     with sql.connect("../data/interim/stocks.db") as con:
             available_companies = pd.read_sql("SELECT DISTINCT company from daily WHERE company NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).company.values
     
-    obj_dict = {"cos": list(available_companies)}
+    with sql.connect("../data/interim/companies.db") as con:
+        recomends = pd.read_sql("SELECT DISTINCT symbol from recommendations WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).symbol.values
+
+    obj_dict = {"cos": list(available_companies), "rec": list(recomends)}
 
     return render_template('mask-test.html', obj_dict=obj_dict)
 
@@ -73,7 +76,7 @@ def cloud():
 
     with sql.connect("../data/interim/stocks.db") as con:
             available_companies = pd.read_sql("SELECT DISTINCT company from daily WHERE company NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).company.values
-    
+            
     obj_dict = {"cos": list(available_companies)}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
@@ -81,9 +84,12 @@ def cloud():
 @app.route('/gather-stock-data') 
 def candle():
         wanted_stock = request.args.get("ticker")     
-        with sql.connect("../data/interim/stocks.db") as con:
-            daily_data = pd.read_sql(f"SELECT * FROM daily WHERE company = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
-        obj_dict = {"daily_data": daily_data}
+        with sql.connect("../data/interim/companies.db") as con:
+            daily_data = pd.read_sql(f"SELECT * FROM daily WHERE symbol = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
+            recomends = pd.read_sql(f"SELECT * from recommendations WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
+            recomends = recomends[lambda x: (x.Date < datetime(2021, 1, 1)) & (x.Date >= datetime(2020, 1, 1))].assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
+
+        obj_dict = {"daily_data": daily_data, 'rec': recomends}
         return render_template("symbol.html", obj_dict=obj_dict)
 
 

@@ -32,6 +32,7 @@
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="../static/demo/demo.css" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/cschart.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   <script>
     {% for k, v in obj_dict.items() %}
       var {{k}} = {{v|safe}};
@@ -226,6 +227,7 @@
   <!--   Core JS Files   -->
   <script src="../static/js/core/jquery.min.js"></script>
   <script src="../static/js/core/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-time-format@4"></script>
   <script src="https://cdn.plot.ly/plotly-2.8.3.min.js"></script>
   <script src="../static/js/core/bootstrap-material-design.min.js"></script>
   <script src="https://unpkg.com/default-passive-events"></script>
