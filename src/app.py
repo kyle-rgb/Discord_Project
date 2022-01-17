@@ -87,7 +87,7 @@ def candle():
         with sql.connect("../data/interim/companies.db") as con:
             daily_data = pd.read_sql(f"SELECT * FROM daily WHERE symbol = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
             recomends = pd.read_sql(f"SELECT * from recommendations WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
-            recomends = recomends[lambda x: (x.Date < datetime(2021, 1, 1)) & (x.Date >= datetime(2020, 1, 1))].assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
+            recomends = recomends.assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
 
         obj_dict = {"daily_data": daily_data, 'rec': recomends}
         return render_template("symbol.html", obj_dict=obj_dict)
