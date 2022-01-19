@@ -87,6 +87,8 @@ def cloud():
 def candle():
         wanted_stock = request.args.get("ticker")     
         with sql.connect("../data/interim/companies.db") as con:
+            info = pd.read_sql(f"SELECT * FROM info JOIN (SELECT shortName compName, sector, symbol compSymbol FROM info WHERE compName LIKE '%Vanguard%' OR '%SPDR%') USING (sector) WHERE symbol='{wanted_stock}'", con=con, index_col='pk')
+            daily_comps = pd.read_sql(f"SELECT * FROM daily WHERE symbol IN ('{info.compSymbol.values[0]}', 'SPY')", con=con).drop_duplicates(subset=['symbol', 'Date']).to_json(orient="records", double_precision=6)
             daily_data = pd.read_sql(f"SELECT * FROM daily WHERE symbol = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
             recomends = pd.read_sql(f"SELECT * from recommendations WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
             recomends = recomends.assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
@@ -103,9 +105,12 @@ def candle():
                     second_arts.loc[:, col] = second_arts.loc[:, col].apply(str.split, sep=" ").apply(lambda x: x[0]).apply(pd.to_datetime)
 
         
-        arts = pd.concat([arts, second_arts], axis=0, ignore_index=True).sort_values('date').reset_index(drop=True).assign(date = lambda x: x.date.apply(datetime.strftime, format='%Y-%m-%d'))
+        arts = pd.concat([arts, second_arts], axis=0, ignore_index=True).sort_values('date').reset_index(drop=True).assign(date = lambda x: x.date.apply(datetime.strftime, format='%Y-%m-%d'))\
+            .to_json(orient='records', double_precision=4)
+        info = info.to_json(orient="records")
         comments=comments[lambda x: x.symbols.str.contains(wanted_stock)].loc[:, ['id', 'timestamp', 'symbols', 'pos_sent', 'neg_sent', 'neu_sent', 'comp_sent']].to_json(orient='records', double_precision=4)
-        obj_dict = {"daily_data": daily_data, 'rec': recomends, 'articles': arts.to_json(orient='records', double_precision=4), "comp_sent_avg": comp_sentiment, "comments": comments}
+        obj_dict = {"daily_data": daily_data, 'rec': recomends, 'articles': arts, "comp_sent_avg": comp_sentiment, "comments": comments,
+        "daily_comps": daily_comps, 'info': info}
         
         return render_template("symbol.html", obj_dict=obj_dict)
 

@@ -112,6 +112,68 @@ let month_coms = comments.filter((d) => {
 
 })
 
+var clear_button = d3.select('.btn').text('Show Performance')
+clear_button.on('click', (e)=>{
+  d3.select('#demobox')._groups[0].innerHTML = ''
+  
+  // d3.select('#demobox')._groups[0].innerHTML = chart
+  var graphic_box = d3.select('#csbox')
+  var index_data = (daily_data.map((d)=> {return [new Date(d.Date), d.Close, d.symbol]})).concat(daily_comps.map((d)=> {return [new Date(d.Date), d.Close, d.symbol]}))
+  console.log(index_data)
+  graphic_box.append(() => {
+    return IndexChart(index_data, {
+      x: d=> d[0],
+      y: d=> d[1],
+      z: d=> d[2], 
+      yLabel: '↑ Change in price (%)',
+      height: 800,
+      width: 1000
+    })
+  })
+  //graphic_box.append(() => {
+  //   return ChangeLineChart(daily_comps.filter((d)=> {return d.symbol=='VOX'}), {
+  //     x: d=> new Date(d.Date),
+  //     y: d=> d.Close,
+  //     basis: daily_data.map((d)=> {return d.Close})[0],
+  //     yLabel: '↑ Change in price (%)',
+  //     yDomain: YDomain,
+  //     height: 800,
+  //     width: 1000,
+  //     color: 'red'
+  //   })
+  // })
+  // graphic_box.append(() => {
+  //   return ChangeLineChart(daily_comps.filter((d)=> {return d.symbol=='SPY'}), {
+  //     x: d=> new Date(d.Date),
+  //     y: d=> d.Close,
+  //     basis: undefined,
+  //     yLabel: '↑ Change in price (%)',
+  //     basis: daily_data.map((d)=> {return d.Close})[0],
+  //     yDomain: YDomain,
+  //     height: 800,
+  //     width: 1000,
+  //     color: 'green'
+  //   })
+  // })
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+})
 
 
 
