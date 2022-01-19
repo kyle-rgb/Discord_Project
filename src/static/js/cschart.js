@@ -12,19 +12,20 @@ function cschart() {
         var maximal  = d3.max(genData, function(d) { return d.High; });
 
         var extRight = width + margin.right
-        var x = d3.scale.ordinal()
-            .rangeBands([0, width]);
+        var x = d3.scaleBand()
+          .range([0, width]);
         
-        var y = d3.scale.linear()
+        var y = d3.scaleLinear()
             .rangeRound([height, 0]);
         
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .tickFormat(d3.time.format(TFormat[interval]));
-        
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .ticks(Math.floor(height/50));
+        // var xAxis = d3.svg.axis() d3.axisBottom(xScale).ticks(width / 80, (d3.time.format(TFormat[interval])).tickSizeOuter(0);
+        //     .scale(x)
+        //     .tickFormat);
+        var xAxis = d3.axisBottom(x).ticks(width / 80).tickFormat(d3.timeFormat(TFormat[interval]));//;
+
+        var yAxis = d3.axisRight(y).ticks(Math.floor(height/50))
+            // .scale(y)
+            // .ticks(Math.floor(height/50));
 
         x.domain(genData.map(function(d) { return d.Date; }));
         y.domain([minimal, maximal]).nice();
@@ -32,7 +33,7 @@ function cschart() {
         var xtickdelta   = Math.ceil(60/(width/genData.length))
         xAxis.tickValues(x.domain().filter(function(d, i) { return !((i+Math.floor(xtickdelta/2)) % xtickdelta); }));
     
-        var barwidth    = x.rangeBand();
+        var barwidth    = x.bandwidth();
         var candlewidth = Math.floor(d3.min([barwidth*0.8, 13])/2)*2+1;
         var delta       = Math.round((barwidth-candlewidth)/2);
     
@@ -46,17 +47,17 @@ function cschart() {
         svg.append("g")
             .attr("class", "axis xaxis")
             .attr("transform", "translate(0," + height + ")")
-            .call(xAxis.orient("bottom").outerTickSize(0));
+            .call(xAxis);
     
         svg.append("g")
             .attr("class", "axis yaxis")
             .attr("transform", "translate(" + width + ",0)")
-            .call(yAxis.orient("right").tickSize(0));
+            .call(yAxis);
     
         svg.append("g")
             .attr("class", "axis grid")
             .attr("transform", "translate(" + width + ",0)")
-            .call(yAxis.orient("left").tickFormat("").tickSize(width).outerTickSize(0));
+            .call(yAxis);
     
         var bands = svg.selectAll(".bands")
             .data([genData])

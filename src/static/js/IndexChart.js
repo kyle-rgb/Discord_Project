@@ -1,4 +1,3 @@
-
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
 // https://observablehq.com/@d3/index-chart
@@ -8,7 +7,7 @@ function IndexChart(data, {
     z = () => 1, // given d in data, returns the (categorical) z-value for series
     defined, // for gaps in data
     curve = d3.curveLinear, // how to interpolate between points
-    marginTop = 20, // top margin, in pixels
+    marginTop = 100, // top margin, in pixels
     marginRight = 40, // right margin, in pixels
     marginBottom = 30, // bottom margin, in pixels
     marginLeft = 40, // left margin, in pixels
@@ -17,7 +16,7 @@ function IndexChart(data, {
     xType = d3.scaleUtc, // the x-scale type
     xDomain, // [xmin, xmax]
     xRange = [marginLeft, width - marginRight], // [left, right]
-    xFormat, // a format specifier string for the x-axis
+    xFormat = "%b\n%Y", // a format specifier string for the x-axis
     yType = d3.scaleLog, // the y-scale type
     yDomain, // [ymin, ymax]
     yRange = [height - marginBottom, marginTop], // [bottom, top]
@@ -30,6 +29,7 @@ function IndexChart(data, {
     // Compute values.
     const X = d3.map(data, x);
     const Y = d3.map(data, y);
+    const YP = d3.map(data, y);
     const Z = d3.map(data, z);
     if (defined === undefined) defined = (d, i) => !isNaN(X[i]) && !isNaN(Y[i]);
     const D = d3.map(data, defined);
@@ -60,7 +60,7 @@ function IndexChart(data, {
     // Construct formats.
     formatDate = xScale.tickFormat(null, formatDate);
   
-    // Construct a line generator.
+    // Construct a line generator. var xAxis = d3.axisBottom(x).ticks(width / 80, (d3.time.format(TFormat[interval]))).tickSizeOuter(0);
     const line = d3.line()
         .defined(i => D[i])
         .curve(curve)
@@ -150,6 +150,7 @@ function IndexChart(data, {
   
     function pointermoved(event) {
       update(xScale.invert(d3.pointer(event)[0]));
+      console.log(yScale.invert(d3.pointer(event)[0]))
     }
   
     update(xDomain[0]);

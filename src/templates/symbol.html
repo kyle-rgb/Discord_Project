@@ -33,6 +33,12 @@
   <link href="../static/demo/demo.css" rel="stylesheet" />
   <link rel="stylesheet" href="../static/css/cschart.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+  <script src="https://d3js.org/d3.v6.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+  <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-shape@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-axis@3"></script>
+  <script src="//d3js.org/topojson.v1.min.js"></script>
   <script>
     {% for k, v in obj_dict.items() %}
       var {{k}} = {{v|safe}};
@@ -260,7 +266,6 @@
   <!-- Place this tag in your head or just before your close body tag. -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <!--  Google Maps Plugin    -->
-  <!-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script> -->
   <!-- Chartist JS -->
   <script src="../static/js/plugins/chartist.min.js"></script>
   <!--  Notifications Plugin    -->
@@ -269,18 +274,12 @@
   <script src="../static/js/material-dashboard.js?v=2.1.0"></script>
   <!-- <script src="../static/demo/demo.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/json2csv"></script> -->
-  <script src="https://d3js.org/d3.v6.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-  <!-- <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script> -->
-  <script src="https://d3js.org/d3-queue.v3.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-shape@3"></script>
-  <script src="https://cdn.jsdelivr.net/npm/d3-axis@3"></script>
-  <script src="//d3js.org/topojson.v1.min.js"></script>
-  <!-- <script src="../static/js/cschart.js"></script>
+
+  <script src="../static/js/cschart.js"></script>
   <script src="../static/js/csbars.js"></script>
   <script src="../static/js/csheader.js"></script>
   <script src="../static/js/csdataprep.js"></script>
-  <script src="../static/js/csmain.js"></script> -->
+  <script src="../static/js/csmain.js"></script>
   <script src="https://d3js.org/d3-selection.v3.min.js"></script>
   <script src="../static/js/analytics.js"></script>
   

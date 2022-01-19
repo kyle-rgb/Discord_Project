@@ -1,7 +1,7 @@
 
 
 function genType(d) {
-  d.Date  = parseDate(d.Date);
+  d.Date  = new Date(d.Date);
   d.Low        = +(d.Low.toFixed(2));
   d.High       = +(d.High.toFixed(2));; 
   d.Open       = +(d.Open.toFixed(2));;
@@ -16,24 +16,32 @@ function genType(d) {
 }
 
 function timeCompare(date, interval) {
-  if (interval == "week")       { var durfn = d3.time.monday(date); }
-  else if (interval == "month") { var durfn = d3.time.month(date); }
-  else { var durfn = d3.time.day(date); } 
+  if (interval == "week")       { var durfn = d3.timeMonday(date); }
+  else if (interval == "month") { var durfn = d3.timeMonth(date); }
+  else { var durfn = d3.timeDay(date); } 
   return durfn;
 }
 
 function dataCompress(data, interval) {
-  var compressedData  = d3.nest()
-                 .key(function(d) { return timeCompare(d.Date, interval); })
-                 .rollup(function(v) { return {
-                         Date:   timeCompare(d3.values(v).pop().Date, interval),
-                         Open:        d3.values(v).shift().Open,
-                         Low:         d3.min(v, function(d) { return d.Low;  }),
-                         High:        d3.max(v, function(d) { return d.High; }),
-                         Close:       d3.values(v).pop().Close,
-                         Turnover:    d3.mean(v, function(d) { return d.Turnover; }),
-                         Volatility:  d3.mean(v, function(d) { return d.Volatility; })
-                        }; })
-                 .entries(data).map(function(d) { return d.values; });
-  return compressedData;
+  
+  var gen = [];
+  data.map((d) => {d.group = timeCompare(d.Date, interval)})
+  var grouped = d3.groups(data, d => d.group)
+  
+  var compressedData  = d3.rollup(grouped, v=>{return {
+          
+             Date:   v[0][1].map((t) => timeCompare(t.Date, interval)).pop(),
+             Open:        v[0][1].map((t) => t.Open).shift(),
+             Low:         d3.min(v[0][1].map((t) => t.Low)),
+             High:        d3.min(v[0][1].map((t) => t.High)),
+             Close:       (v[0][1].map((t) => t.Close)).pop(),
+             Turnover:    d3.mean((v[0][1].map((t) => t.Turnover))), 
+             Volatility:  d3.mean((v[0][1].map((t) => t.Volatility)))
+            };
+  }, d=> d[0])
+  for (g of compressedData.entries()){
+    gen.push(g)
+  }
+  gen = gen.map((g)=> g[1])
+  return gen;
 }

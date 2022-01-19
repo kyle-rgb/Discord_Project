@@ -8,19 +8,23 @@ function barchart() {
   function barrender(selection) {
     selection.each(function(data) {
   
-      var x = d3.scale.ordinal()
-          .rangeBands([0, width]);
-      
-      var y = d3.scale.linear()
+      var x = d3.scaleBand()
+          .range([0, width]);
+
+      var y = d3.scaleLinear()
           .rangeRound([height, 0]);
       
-      var xAxis = d3.svg.axis()
-          .scale(x)
-          .tickFormat(d3.time.format(TFormat[TIntervals[TPeriod]]));
+      // var xAxis = d3.svg.axis()
+      //     .scale(x)
+      //     .tickFormat(d3.time.format(TFormat[TIntervals[TPeriod]]));
       
-      var yAxis = d3.svg.axis()
-          .scale(y)
-          .ticks(Math.floor(height/50));
+      // var yAxis = d3.svg.axis()
+      //     .scale(y)
+      //     .ticks(Math.floor(height/50));
+      var xAxis = d3.axisBottom(x).ticks(width / 80, (d3.timeFormat(TFormat[TIntervals[TPeriod]])));//;
+
+      var yAxis = d3.axisRight(y).ticks(Math.floor(height/50))
+      
       
       var svg = d3.select(this).select("svg")
          .append("g")
@@ -38,19 +42,19 @@ function barchart() {
       y.domain([0, d3.max(data, function(d) { return d[MValue]; })]).nice();
   
       var xtickdelta   = Math.ceil(60/(width/data.length))
-      xAxis.tickValues(x.domain().filter(function(d, i) { return !((i+Math.floor(xtickdelta/2)) % xtickdelta); }));
+      //xAxis.tickValues(x.domain().filter(function(d, i) { return !((i+Math.floor(xtickdelta/2)) % xtickdelta); }));
   
       svg.append("g")
           .attr("class", "axis yaxis")
           .attr("transform", "translate(" + width + ",0)")
-          .call(yAxis.orient("right").tickFormat("").tickSize(0));
+          .call(yAxis);
   
 //      svg.append("g")
 //          .attr("class", "axis yaxis")
 //          .attr("transform", "translate(0,0)")
 //          .call(yAxis.orient("left"));
   
-      var barwidth    = x.rangeBand();
+      var barwidth    = x.bandwidth();
       var fillwidth   = (Math.floor(barwidth*0.9)/2)*2+1;
       var bardelta    = Math.round((barwidth-fillwidth)/2);
   

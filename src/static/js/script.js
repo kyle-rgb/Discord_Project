@@ -264,7 +264,7 @@
 				return this.spacingValues[this.spacingValueIndex];
 			},
 			words: function() {
-				console.log(this.wordsText)
+				
 				this.wordsTextStr = this.wordsText.join('\n').replace(/,/g, " ");
 				return this.wordsText
 					// .split(/[\r\n]+/)

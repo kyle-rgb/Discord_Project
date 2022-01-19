@@ -1,53 +1,5 @@
-// const Pool = require("pg").Pool;
-// const fastcsv = require("fast-csv");
-
-// // create a write stream
-// const fs = require("fs");
-// const ws = fs.createWriteStream("sample_table.csv");
-
-// // declare a new client instance from Pool()
-// const client = new Pool({
-// host: "localhost",
-// user: "postgres",
-// database: "stock_db",
-// password: "posgres",
-// port: 5432
-// });
-
-// // declare constant for the table name
-// const tableName = "stock_data"
-
-// // attempt to connect using the Pool
-// client.connect((err, client, done) => {
-
-// // error handling for the client instance connection
-// if (err) throw err;
-
-// // SQL string that selects all records from a table
-// const sqlQuery = `SELECT * FROM ${tableName}`
-
-// // pass SQL string and table name to query()
-// client.query(sqlQuery, (err, res) => {
-
-// if (err) {
-// console.log("client.query()", err.stack)
-// }
-
-// if (res) {
-
-// const jsonData = JSON.parse(JSON.stringify(res.rows));
-// console.log("\njsonData:", jsonData)
-
-// fastcsv
-// // write the JSON data as a CSV file
-// .write(jsonData, { headers: true })
-
-// // log message when finished
-// .on("finish", function() {
-// console.log(`Postgres table ${tableName} exported to CSV file successfully.`);
-// })}
-// var timeDate = d3.timeFormat("%Y-%m-%d")
-var parseDate    = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
+// var timeDate = d3.timeFormat("%Y-%m-%d %H:%M:%S")
+// var parseDate    = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
 var TPeriod      = "1Y";
 var TDays        = {"1M":21, "3M":63, "6M":126, "1Y":252, "2Y":504, "4Y":1008, "MAX": 0};
@@ -62,9 +14,7 @@ var genRaw, genData;
     daily_data.forEach((d) => genType(d))
     TDays.MAX = daily_data.length
     genRaw = daily_data
-    console.log(TDays)
-    // genType()
-    // genRaw = data;
+    
     mainjs();; 
 }());
 
@@ -161,6 +111,8 @@ function displayCS() {
 function hoverAll() {
     d3.select("#chart1").select(".bands").selectAll("rect")
           .on("mouseover", function(d, i) {
+              i = genData.indexOf(i)
+
               d3.select(this).classed("hoved", true);
               d3.select(".stick"+i).classed("hoved", true);
               d3.select(".candle"+i).classed("hoved", true);
@@ -169,6 +121,7 @@ function hoverAll() {
               displayGen(i);
           })                  
           .on("mouseout", function(d, i) {
+              i = genData.indexOf(i)
               d3.select(this).classed("hoved", false);
               d3.select(".stick"+i).classed("hoved", false);
               d3.select(".candle"+i).classed("hoved", false);
