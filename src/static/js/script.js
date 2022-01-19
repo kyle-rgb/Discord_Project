@@ -302,7 +302,7 @@
 				var str = new String();
 				
 				c_data = c_data.slice(0, 100);
-				c_data.map((d) => {if (cos.includes(d.company)) {words_array.push([d.company, +d.counts])}})
+				c_data.map((d) => {if (cos.includes(d.symbol)) {words_array.push([d.symbol, +d.counts])}})
 				this.wordsText = words_array//.join('\n').replace(',', " ");
 				return words_array;
 

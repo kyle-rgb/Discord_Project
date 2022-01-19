@@ -49,7 +49,7 @@
 // var timeDate = d3.timeFormat("%Y-%m-%d")
 var parseDate    = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
-var TPeriod      = "3M";
+var TPeriod      = "1Y";
 var TDays        = {"1M":21, "3M":63, "6M":126, "1Y":252, "2Y":504, "4Y":1008, "MAX": 0};
 var TIntervals   = {"1M":"day", "3M":"day", "6M":"day", "1Y":"week", "2Y":"week", "4Y":"month", "MAX": "month"};
 var TFormat      = {"day":"%d %b '%y", "week":"%d %b '%y", "month":"%b '%y" };

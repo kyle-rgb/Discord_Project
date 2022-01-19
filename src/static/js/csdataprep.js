@@ -34,6 +34,6 @@ function dataCompress(data, interval) {
                          Turnover:    d3.mean(v, function(d) { return d.Turnover; }),
                          Volatility:  d3.mean(v, function(d) { return d.Volatility; })
                         }; })
-                 .entries(data).map(function(d) { console.log(d);return d.values; });
+                 .entries(data).map(function(d) { return d.values; });
   return compressedData;
 }

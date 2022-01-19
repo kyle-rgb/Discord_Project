@@ -14,6 +14,7 @@ import numpy as np
 import os
 import csv
 import sqlite3 as sql, pandas as pd, time
+from api_key import cryptor
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -74,10 +75,11 @@ def mask():
 @app.route('/wordcloud/')
 def cloud():
 
-    with sql.connect("../data/interim/stocks.db") as con:
-            available_companies = pd.read_sql("SELECT DISTINCT company from daily WHERE company NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).company.values
-            
-    obj_dict = {"cos": list(available_companies)}
+    with sql.connect("../data/interim/companies.db") as con:
+        available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con).symbol.values
+        c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
+
+    obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records')}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 
@@ -88,8 +90,23 @@ def candle():
             daily_data = pd.read_sql(f"SELECT * FROM daily WHERE symbol = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
             recomends = pd.read_sql(f"SELECT * from recommendations WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
             recomends = recomends.assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
+            comments = pd.read_sql(f"SELECT * from symbol_comments", con=con)
+            comp_sentiment = comments.comp_sent.mean()
+            arts = pd.read_sql(f"SELECT pk, date, symbol, pos_sent, neg_sent, neu_sent, comp_sent from articles WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
 
-        obj_dict = {"daily_data": daily_data, 'rec': recomends}
+        with sql.connect("../data/raw/crypt.db") as con:
+            second_arts = pd.read_sql(f"SELECT pk, date, symbol, pos_sent, neg_sent, neu_sent, comp_sent FROM crypt_articles WHERE symbol = '{wanted_stock}';", con=con)#.applymap(cryptor.decrypt)
+            decrypt_cols = [x for x in second_arts.columns if x not in ['pk', 'pos_sent', "neu_sent", "neg_sent", "comp_sent"]]
+            for col in decrypt_cols:
+                second_arts.loc[:, col] = second_arts.loc[:, col].apply(bytes).apply(cryptor.decrypt).apply(str, encoding='utf-8')
+                if col == 'date':
+                    second_arts.loc[:, col] = second_arts.loc[:, col].apply(str.split, sep=" ").apply(lambda x: x[0]).apply(pd.to_datetime)
+
+        
+        arts = pd.concat([arts, second_arts], axis=0, ignore_index=True).sort_values('date').reset_index(drop=True).assign(date = lambda x: x.date.apply(datetime.strftime, format='%Y-%m-%d'))
+        comments=comments[lambda x: x.symbols.str.contains(wanted_stock)].loc[:, ['id', 'timestamp', 'symbols', 'pos_sent', 'neg_sent', 'neu_sent', 'comp_sent']].to_json(orient='records', double_precision=4)
+        obj_dict = {"daily_data": daily_data, 'rec': recomends, 'articles': arts.to_json(orient='records', double_precision=4), "comp_sent_avg": comp_sentiment, "comments": comments}
+        
         return render_template("symbol.html", obj_dict=obj_dict)
 
 
