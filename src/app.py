@@ -117,12 +117,30 @@ def candle():
 
 @app.route('/emote/')
 def emote():
-    agg_dict = {}
     with sql.connect('data/discord.db') as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
         pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x))))
     obj_dict = {"emoji_data": pop_emote.to_json(orient="records")}
     return render_template('emote.html', obj_dict=obj_dict)
+
+
+@app.route('/portfolio/')
+def portfolio():
+    with sql.connect('../data/interim/companies.db') as con:
+        port = pd.read_sql(f"SELECT * FROM daily", con=con)
+    obj_dict = {"port": port.to_json(orient="records", double_precision=2)}
+    print(sys.getsizeof(obj_dict))
+    return render_template('template.html', obj_dict=obj_dict)
+
+@app.route('/templateVue/')
+def tempateVue():
+    with sql.connect('../data/interim/companies.db') as con:
+        port = pd.read_sql(f"SELECT * FROM daily", con=con)
+    obj_dict = {"port": port.to_json(orient="records", double_precision=2)}
+    
+    return render_template('templateVUE.html', obj_dict=obj_dict)
+
+
 
 
 if __name__ == "__main__":

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta
+			content="width=device-width,initial-scale=1"
+			name="viewport"
+		/>
+		<title>VueWordCloud</title>
+		<style>
+			[v-cloak] {
+				display: none;
+			}
+		</style>
+		<link
+			href="https://fonts.googleapis.com/css?family=Abril+Fatface|Annie+Use+Your+Telescope|Anton|Bahiana|Baloo+Bhaijaan|Barrio|Finger+Paint|Fredericka+the+Great|Gloria+Hallelujah|Indie+Flower|Life+Savers|Londrina+Sketch|Love+Ya+Like+A+Sister|Merienda|Nothing+You+Could+Do|Pacifico|Quicksand|Righteous|Roboto:100,300,400,500,700,900|Sacramento|Shadows+Into+Light"
+			rel="stylesheet"
+		/>
+		<!-- <link
+			href="https://unpkg.com/@mdi/font@5.3.45/css/materialdesignicons.min.css"
+			rel="stylesheet"
+		/> -->
+		<link
+			href="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.css"
+			rel="stylesheet"
+		/>
+		<link
+			href="https://unpkg.com/animate.css@4.1.0/animate.min.css"
+			rel="stylesheet"
+		/>
+		<script>
+			{% for k, v in obj_dict.items() %}
+				var {{k}} = {{v|safe}};
+				console.log({{k}})
+			{% endfor %}
+			
+		</script>
+		<script src="https://unpkg.com/core-js-bundle@3.6.5/minified.js"></script>
+		<script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
+		<script src="https://d3js.org/d3.v6.min.js"></script>
+		<script src="../static/js/index.js"></script>
+        <script src="../static/js/core/vue-apexcharts.js"></script>
+		<script src="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.js"></script>
+		<script src="https://unpkg.com/@seregpie/vuesvg@19.0.0"></script>
+		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
+		<script src="https://unpkg.com/fontfaceobserver@2.1.0/fontfaceobserver.standalone.js"></script>
+		  
+		
+		
+	</head>
+	<body>
+		<v-app
+			id="app"
+			v-cloak
+		>
+			<v-app-bar
+				app
+				clipped-left
+				dark
+			>
+				<v-toolbar-title>Discord Project</v-toolbar-title>
+				<v-spacer></v-spacer>
+				<v-btn
+					href="https://github.com/kyle-rgb/Discord_Project"
+					icon
+					target="_blank"
+				>
+					<v-icon>mdi-github</v-icon>
+				</v-btn>
+			</v-app-bar>
+			<v-content
+			style="
+					background-color: black;
+				"	
+			>
+				<v-container
+					fill-height
+					overflow-hidden
+					
+				>
+					<div
+						style="
+							height: 100%;
+							position: relative;
+							width: 100%;
+						"
+					>
+                     <h1
+                        
+                        :style="
+                            color
+                        "
+                        align="center"
+                        
+                     >Template Vue</h1>
+                        <template
+                            >
+                                <div
+                                >
+                                    <apexchart
+                                        width="500" type="bar" :options="options" :series="series"
+                                        >
+                                    </apexchart>
+                                </div>
+                        </template>
+						<!-- <div
+							:style="(progressVisible && progress)
+								? {
+									filter: 'blur(8px)',
+									opacity: 0.3,
+									pointerEvents: 'none',
+									transform: 'scale(0.7,0.7)',
+								}
+								: {}
+							"
+							style="
+								bottom: 0;
+								left: 0;
+								position: absolute;
+								right: 0;
+								top: 0;
+								transition-duration: 1s;
+							"
+						> -->
+							<!-- <vue-word-cloud
+								:animation-duration="animationDuration"
+								:animation-easing="animationEasing"
+								:animation-overlap="animationOverlap"
+								:color="color"
+								:enter-animation="enterAnimation"
+								:font-family="fontFamily"
+								:font-size-ratio="fontSizeRatio"
+								:leave-animation="leaveAnimation"
+								:load-font="loadFont"
+								:progress.sync="progress"
+								:rotation="rotation"
+								:spacing="spacing"
+								:words="words"
+							>
+								<template v-slot="props">
+									<v-tooltip top>
+										<template v-slot:activator="{on}">
+											<div
+												style="cursor: pointer;"
+												v-on="on"
+												@click="onWordClick(props.word)"
+											>[[ props.text ]]</div>
+										</template>
+										<div
+											style="text-align: center;"
+										>[[ props.text ]]<br/>([[ props.weight ]])</div>
+									</v-tooltip>
+								</template>
+							</vue-word-cloud> -->
+						
+					</div>
+				</v-container>
+			</v-content>
+			
+		</v-app>
+		<script src="../static/js/portfolio.js"></script>
+	</body>
+</html>
