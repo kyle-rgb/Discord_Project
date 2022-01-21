@@ -40,6 +40,7 @@
 		<script src="https://d3js.org/d3.v6.min.js"></script>
 		<script src="../static/js/index.js"></script>
         <script src="../static/js/core/vue-apexcharts.js"></script>
+        <script src="../static/js/apexdataprep.js"></script>
 		<script src="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.js"></script>
 		<script src="https://unpkg.com/@seregpie/vuesvg@19.0.0"></script>
 		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
@@ -96,10 +97,12 @@
                         <template
                             >
                                 <div
+                                    style='width: 80%; height: 25%; position: relative;' 
                                 >
                                     <apexchart
-                                        width="500" type="bar" :options="options" :series="series"
-                                        >
+                                        :type="type" :options="options" :series="options.series"
+                                        
+                                    >
                                     </apexchart>
                                 </div>
                         </template>
