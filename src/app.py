@@ -136,11 +136,12 @@ def portfolio():
 def tempateVue():
     with sql.connect('../data/interim/companies.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con)
+        recomends = pd.read_sql(f"SELECT * from recommendations ORDER BY Date", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
         companies = tuple(port.symbol.unique())
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
 
         
-    obj_dict = {"port": port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2)}
+    obj_dict = {"port": port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2), "recomends": recomends.to_json(orient='records')}
     return render_template('templateVUE.html', obj_dict=obj_dict)
 
 
