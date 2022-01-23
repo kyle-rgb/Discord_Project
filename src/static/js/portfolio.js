@@ -22,19 +22,23 @@
                         name: "Mention Frequency Portfolio Returns"
                     },
                     {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='QQQ')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2021-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='QQQ')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
                         name: 'Invesco QQQ Returns'
                     },
                     {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='SPY')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2021-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='SPY')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
                         name: 'S&P 500 Index Returns'
                     },
                     {
                         data: norm(createAnalystPortfolio(recomends)),
                         name: 'Analyst Buy Index Returns'
                     },
+                    {
+                        data: executeBuy(recomends),
+                        name: 'Analyst Upgrade Returns'
+                    },
                     ],
-                    colors: ['purple', 'orange', 'green', 'red'], 
+                    colors: ['purple', 'orange', 'green', 'red', 'blue'], 
                     dataLabels: {
                         enabled: false
                       },
