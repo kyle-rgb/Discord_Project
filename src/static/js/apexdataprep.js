@@ -103,7 +103,7 @@ function executeBuy(data, window_start=new Date('2017-01-01 00:00:00'), security
         inital_rating = new_rating
     }
     
-    results = tradeMaker(trades, 'AAPL').flat()
+    results = tradeMaker(trades, 'NIO').flat()
 
     return results
 
