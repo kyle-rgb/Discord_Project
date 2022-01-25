@@ -15,6 +15,8 @@
                     fontFamily: 'Baloo Bhaijaan',
                     fontSize: '100px'
                 },
+                min: 0,
+                max: 100,
                 type: 'area',
                 drawer: true,
                 options: {
@@ -74,7 +76,7 @@
                 indexItems: [
                     {sector: 'Consumer Discretionary', symbol: 'VCR', graph: {
                         data: norm(port.filter(function (m) {return ((m.symbol =='VCR')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
-                        name: 'S&P 500 Index Returns',
+                        name: 'Consumer Discretionary Returns',
                     }},
                     {sector: 'Technology', symbol:'VGT', graph: {
                         data: norm(port.filter(function (m) {return ((m.symbol =='VGT')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
@@ -130,13 +132,22 @@
                     }}
                 ],
                 analystRatings: [
-                    'Very Bullish',
-                    'Bullish',
-                    'Neutral',
+                    'Very Bearish',
                     'Bearish',
-                    'Very Bearish'
+                    'Neutral',
+                    'Bullish',
+                    'Very Bullish',
                 ],
                 analystFilter: undefined,
+                analystSentRange: undefined,
+                analystArray: ['Morgan Stanley', 'Credit Suisse', 'Citigroup', 'Barclays', 'Jefferies', 'UBS', 'Deutsche Bank'],
+                analystSelection: undefined,
+                chatSentRange: undefined,
+                chatArray: ['ideas', 'options', 'stocks', 'day trading', 'sentiment', 'profits'],
+                chatSelection: undefined,
+                publisherSentRange: undefined,
+                publisherArray: ['Reuters', 'Investing.com', 'Bloomberg', 'StockNews', 'Seeking Alpha', 'CryptoSites'],
+                publisherSelection: undefined,
             }
 		},
         use: converter,
@@ -145,6 +156,15 @@
         },
         created: function() {
             this.comparisonIndex = this.indexItems[11];
+            this.analystSelection = this.analystArray;
+            this.publisherSelection = this.publisherArray;
+            this.chatSelection = this.chatArray;
+            this.chatSentRange = [0, 100]
+            this.publisherSentRange = [0, 100]
+            this.analystSentRange = [0, 100]
+            this.analystFilter = "Neutral"
+
+
         },
         computed: {
             newSector: function(){
@@ -152,8 +172,12 @@
                 this.options.series.push(this.comparisonIndex.graph)
                 return this.comparisonIndex.sector;
             },
-
         },
+        methods: {
+            onResetClick: function() {
+                this.options.series = this.options.series.slice(0, 1)
+            }
+        }
 	});
     
 })();

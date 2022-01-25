@@ -16,10 +16,10 @@
 			href="https://fonts.googleapis.com/css?family=Abril+Fatface|Annie+Use+Your+Telescope|Anton|Bahiana|Baloo+Bhaijaan|Barrio|Finger+Paint|Fredericka+the+Great|Gloria+Hallelujah|Indie+Flower|Life+Savers|Londrina+Sketch|Love+Ya+Like+A+Sister|Merienda|Nothing+You+Could+Do|Pacifico|Quicksand|Righteous|Roboto:100,300,400,500,700,900|Sacramento|Shadows+Into+Light"
 			rel="stylesheet"
 		/>
-		<!-- <link
+		<link
 			href="https://unpkg.com/@mdi/font@5.3.45/css/materialdesignicons.min.css"
 			rel="stylesheet"
-		/> -->
+		/>
 		<link
 			href="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.css"
 			rel="stylesheet"
@@ -69,105 +69,229 @@
 					<v-icon>mdi-github</v-icon>
 				</v-btn>
 			</v-app-bar>
-			<v-navigation-drawer
-				app
-				clipped
-				v-model="drawer"
-				style="
-					background-color: rgb(255, 255, 255);	
-				"
-			>
-			<v-btn
-				block
-				color="primary"
-				>Reset</v-btn>
-			<v-divider></v-divider>
-			<br>
-			<h5
-				align='center'
-				>Asset Comparisons</h5>
-				<v-select
-					:items="indexItems"
-					item-text="sector"
-					filled
-					label="Comparison Index"
-					v-model="comparisonIndex"
-					return-object
-				>
-				</v-select>
-			<v-divider></v-divider>
-			<h5
-				align='center'
-				>Chat Sentiment</h5>
-			<br>
-			<v-slider
-				:max="100"
-				:min="0"
-				:color="red"
-				hide-details
-				:thumb-size="24"
-          		thumb-label="always"
-				ticks
-			></v-slider>
-			<v-divider></v-divider>
-			<br>
-			<h5
-				align='center'
-				>Articles Sentiment</h5>
-			<br>
-			<v-slider
-				:max="100"
-				:min="0"
-				:track-color="red"
-				hide-details
-				:thumb-size="24"
-          		thumb-label="always"
-				ticks
-			></v-slider>
-			<v-divider></v-divider>
-			<br>
-			<h5
-				align='center'
-				>Analyst Sentiment</h5>
-			<v-slider
-				v-model='analystFilter'
-				:tick-labels="analystRatings"
-				hide-details
-				ticks
-				:max="4"
-				step="1"
-        		ticks="always"
-        		tick-size="4"
-				vertical
-			></v-slider>
-			<br>
-			<v-divider></v-divider>
-			<h5
-				align='center'
-				>Portfolio Allocation</h5>
-			<v-divider></v-divider>
-			<h5
-				align='center'
-				>Trading Strategy</h5>
-			<v-divider></v-divider>
 
-
-			</v-navigation-drawer>
 			<v-content
 				style="
 						background-color: black;
-					"	
+					"
+				fluid	
 			>
 				<v-container
 					fill-height
-					overflow-hidden
 					
 				>
+				<div
+					style="
+						height: 100%;
+						position: relative;
+						width: 20%;
+						background-color: whitesmoke;
+						padding: 10px;
+						"
+				>
+					<template>
+						<v-tabs
+							background-color="deep-purple accent-4"
+							dark
+							show-arrows
+						>
+							<v-tab>Evaluate</v-tab>
+							<v-tab>Allocate</v-tab>
+							<v-tab>Strategize</v-tab>
+						</v-tabs>
+					</template>
+					<br>
+						<v-btn
+							block
+							color="secondary"
+							@click="onResetClick"
+							><v-icon>mdi-refresh</v-icon>Reset</v-btn>
+						<v-divider></v-divider>
+						<br>
+						<h5
+							align='center'
+							>Asset Comparisons</h5>
+							<v-select
+								:items="indexItems"
+								item-text="sector"
+								filled
+								label="Comparison Index"
+								v-model="comparisonIndex"
+								return-object
+							>
+							</v-select>
+						<v-divider></v-divider>
+						<h5
+							align='center'
+							>Chat Sentiment</h5>
+						<br>
+						<v-select
+							v-model="chatSelection"
+							:items="chatArray"
+							chips
+							label="Chatrooms"
+							multiple
+							outlined
+						></v-select>
+						<br>
+						<v-slider
+							:max="max"
+							:min="min"
+							color="red"
+							hide-details
+							:thumb-size="24"
+							thumb-label="always"
+							ticks
+						></v-slider>
+						<v-range-slider
+							v-model="chatSentRange"
+							:max="max"
+							:min="min"
+							hide-details
+							class="align-center"
+						>
+							<template v-slot:prepend>
+							<v-text-field
+								:value="chatSentRange[0]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(chatSentRange, 0, $event)"
+							></v-text-field>
+							</template>
+							<template v-slot:append>
+							<v-text-field
+								:value="chatSentRange[1]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(chatSentRange, 1, $event)"
+							></v-text-field>
+							</template>
+						</v-range-slider>
+						<v-divider></v-divider>
+						<br>
+						<h5
+							align='center'
+							>Articles Sentiment</h5>
+						<br>
+						<v-select
+							v-model="publisherSelection"
+							:items="publisherArray"
+							chips
+							label="News Sources"
+							multiple
+							outlined
+						></v-select>
+						<br>
+						<v-slider
+							:max="100"
+							:min="0"
+							track-color="red"
+							hide-details
+							:thumb-size="24"
+							thumb-label="always"
+							ticks
+						></v-slider>
+						<v-range-slider
+							v-model="publisherSentRange"
+							:max="max"
+							:min="min"
+							hide-details
+							class="align-center"
+						>
+							<template v-slot:prepend>
+							<v-text-field
+								:value="publisherSentRange[0]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(publisherSentRange, 0, $event)"
+							></v-text-field>
+							</template>
+							<template v-slot:append>
+							<v-text-field
+								:value="publisherSentRange[1]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(publisherSentRange, 1, $event)"
+							></v-text-field>
+							</template>
+						</v-range-slider>
+						<v-divider></v-divider>
+						<br>
+						<h5
+							align='center'
+							>Analyst Sentiment</h5>
+						<v-select
+							v-model="analystSelection"
+							:items="analystArray"
+							chips
+							label="Analyst Sources"
+							multiple
+							outlined
+						></v-select>
+						<br>
+						<v-slider
+							v-model='analystFilter'
+							:tick-labels="analystRatings"
+							hide-details
+							ticks
+							:max="4"
+							step="1"
+							ticks="always"
+							tick-size="4"
+							vertical
+						></v-slider>
+						<br>
+						<v-range-slider
+							v-model="analystSentRange"
+							:max="max"
+							:min="min"
+							hide-details
+							class="align-center"
+						>
+							<template v-slot:prepend>
+							<v-text-field
+								:value="analystSentRange[0]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(analystSentRange, 0, $event)"
+							></v-text-field>
+							</template>
+							<template v-slot:append>
+							<v-text-field
+								:value="analystSentRange[1]"
+								class="mt-0 pt-0"
+								hide-details
+								single-line
+								type="number"
+								style="width: 60px"
+								@change="$set(analystSentRange, 1, $event)"
+							></v-text-field>
+							</template>
+						</v-range-slider>
+						<v-divider></v-divider>
+						<br>
+					</div>
 					<div
 						style="
 							height: 100%;
 							position: relative;
-							width: 100%;
+							width: 80%;
+							padding-left: 1%;
 						"
 					>
                      <h1
@@ -182,7 +306,7 @@
                         <template
                             >
                                 <div
-                                    style='width: 80%; height: 25%; position: relative;' 
+                                    style='width: 100%; height: 25%; position: relative;' 
                                 >
                                     <apexchart
                                         :type="type" :options="options" :series="options.series"
@@ -191,57 +315,10 @@
                                     </apexchart>
                                 </div>
                         </template>
-						<!-- <div
-							:style="(progressVisible && progress)
-								? {
-									filter: 'blur(8px)',
-									opacity: 0.3,
-									pointerEvents: 'none',
-									transform: 'scale(0.7,0.7)',
-								}
-								: {}
-							"
-							style="
-								bottom: 0;
-								left: 0;
-								position: absolute;
-								right: 0;
-								top: 0;
-								transition-duration: 1s;
-							"
-						> -->
-							<!-- <vue-word-cloud
-								:animation-duration="animationDuration"
-								:animation-easing="animationEasing"
-								:animation-overlap="animationOverlap"
-								:color="color"
-								:enter-animation="enterAnimation"
-								:font-family="fontFamily"
-								:font-size-ratio="fontSizeRatio"
-								:leave-animation="leaveAnimation"
-								:load-font="loadFont"
-								:progress.sync="progress"
-								:rotation="rotation"
-								:spacing="spacing"
-								:words="words"
-							>
-								<template v-slot="props">
-									<v-tooltip top>
-										<template v-slot:activator="{on}">
-											<div
-												style="cursor: pointer;"
-												v-on="on"
-												@click="onWordClick(props.word)"
-											>[[ props.text ]]</div>
-										</template>
-										<div
-											style="text-align: center;"
-										>[[ props.text ]]<br/>([[ props.weight ]])</div>
-									</v-tooltip>
-								</template>
-							</vue-word-cloud> -->
+						
 						
 					</div>
+					
 				</v-container>
 			</v-content>
 			
