@@ -37,11 +37,13 @@ function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_d
         })
     }).map((z) => {return z.reduce((u, u1) => {return u.concat(u1)})}).reduce((r, r1) => {return r.concat(r1)})
     // rollup
+    
     var rollup = d3.rollup(f, v => d3.sum(v, d => d.asset_price), d=>d.date)
     var ff = [];
     for (e of rollup.entries()){
         ff.push(e)
     }
+    console.log(d3.rollup(f, v => d3.sum(v, d => d.asset_price), d=>d.symbol))
     return ff.map((b) => [b[0].getTime(), +(b[1].toFixed(2))])
 }
 // create portfolio based on Mention Sentiment
@@ -98,12 +100,13 @@ function executeBuy(data, window_start=new Date('2017-01-01 00:00:00'), security
     for (let i=0; i<trading_range; i++){
         starter_date = window_start.getTime() + ((i*refresh_days)*day_delta)
         ender_date =  window_end.getTime()+((i*refresh_days)*day_delta)
-        new_rating = recommendsToRatings(data.filter((r) => {return ((r.symbol=='TSLA') & (r.Date >= starter_date) & (r.Date <= ender_date))}))
+        new_rating = recommendsToRatings(data.filter((r) => {return ((r.symbol==security) & (r.Date >= starter_date) & (r.Date <= ender_date))}))
         new_rating > inital_rating? trades.push({action: 'Buy', rating_change: new_rating - inital_rating, date: ender_date}):  trades.push({action: 'Sell', rating_change: new_rating - inital_rating, date: ender_date})
         inital_rating = new_rating
     }
     
-    results = tradeMaker(trades, 'NIO').flat()
+    console.log(trades)
+    results = tradeMaker(trades, security).flat()
 
     return results
 

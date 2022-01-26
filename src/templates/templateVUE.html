@@ -94,36 +94,57 @@
 							background-color="deep-purple accent-4"
 							dark
 							show-arrows
+							v-model="tabSelection"
 						>
-							<v-tab>Evaluate</v-tab>
-							<v-tab>Allocate</v-tab>
-							<v-tab>Strategize</v-tab>
+						<v-tab
+							v-for="(item, itemIndex) in navTabs"
+							:key="itemIndex"
+						>
+							[[ item ]]
+						</v-tab>
 						</v-tabs>
 					</template>
-					<br>
-						<v-btn
-							block
-							color="secondary"
-							@click="onResetClick"
-							><v-icon>mdi-refresh</v-icon>Reset</v-btn>
-						<v-divider></v-divider>
+					<template
+						v-if="tabSelection === 0"
+					>
+						<br>
+							<v-btn
+								block
+								color="secondary"
+								@click="onResetClick"
+								><v-icon>mdi-refresh</v-icon>Reset</v-btn>
+							<v-divider></v-divider>
+							<br>
+							<h5
+								align='center'
+								>Asset Comparisons</h5>
+								<v-select
+									:items="indexItems"
+									item-text="sector"
+									filled
+									label="Comparison Index"
+									v-model="comparisonIndex"
+									return-object
+								>
+								</v-select>
+							<h5
+								align='center'
+								>Performance</h5>
+							<v-divider></v-divider>
+							<br>
+							<h5
+								align='center'
+								>Allocation</h5>
+							<v-divider></v-divider>
+							<br>
+					</template>
+					<template
+						v-else-if="tabSelection === 1"
+					>
 						<br>
 						<h5
 							align='center'
-							>Asset Comparisons</h5>
-							<v-select
-								:items="indexItems"
-								item-text="sector"
-								filled
-								label="Comparison Index"
-								v-model="comparisonIndex"
-								return-object
-							>
-							</v-select>
-						<v-divider></v-divider>
-						<h5
-							align='center'
-							>Chat Sentiment</h5>
+							>Private Chatrooms</h5>
 						<br>
 						<v-select
 							v-model="chatSelection"
@@ -134,15 +155,7 @@
 							outlined
 						></v-select>
 						<br>
-						<v-slider
-							:max="max"
-							:min="min"
-							color="red"
-							hide-details
-							:thumb-size="24"
-							thumb-label="always"
-							ticks
-						></v-slider>
+						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="chatSentRange"
 							:max="max"
@@ -175,9 +188,10 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
+						<!--articles-->
 						<h5
 							align='center'
-							>Articles Sentiment</h5>
+							>News Outlets</h5>
 						<br>
 						<v-select
 							v-model="publisherSelection"
@@ -188,15 +202,7 @@
 							outlined
 						></v-select>
 						<br>
-						<v-slider
-							:max="100"
-							:min="0"
-							track-color="red"
-							hide-details
-							:thumb-size="24"
-							thumb-label="always"
-							ticks
-						></v-slider>
+						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="publisherSentRange"
 							:max="max"
@@ -229,9 +235,11 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
+						<!--chat-->
 						<h5
 							align='center'
-							>Analyst Sentiment</h5>
+							>Institutional Analysts</h5>
+						<br>
 						<v-select
 							v-model="analystSelection"
 							:items="analystArray"
@@ -253,9 +261,10 @@
 							vertical
 						></v-slider>
 						<br>
+						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="analystSentRange"
-							:max="max"
+							:max="5"
 							:min="min"
 							hide-details
 							class="align-center"
@@ -285,7 +294,18 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
-					</div>
+					</template>
+				<template
+					v-else-if="tabSelection === 2"
+				>
+					<br>
+					<h5>Buying Strategy</h5>
+					<v-divider></v-divider>
+					<br>
+					<h5>Selling Strategy</h5>
+					<v-divider></v-divider>
+				</template>
+				</div>
 					<div
 						style="
 							height: 100%;

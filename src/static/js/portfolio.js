@@ -131,6 +131,12 @@
                         name: 'Invesco QQQ Returns'
                     }}
                 ],
+                tabSelection: undefined,
+                navTabs: [
+                    'Evaluate',
+                    'Allocate',
+                    'Trade'
+                ],
                 analystRatings: [
                     'Very Bearish',
                     'Bearish',
@@ -161,8 +167,9 @@
             this.chatSelection = this.chatArray;
             this.chatSentRange = [0, 100]
             this.publisherSentRange = [0, 100]
-            this.analystSentRange = [0, 100]
-            this.analystFilter = "Neutral"
+            this.analystSentRange = [0, 5]
+            this.analystFilter = 2
+            this.tabSelection = 'Evaluate'
 
 
         },
