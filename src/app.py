@@ -135,7 +135,7 @@ def portfolio():
 @app.route('/templateVue/')
 def tempateVue():
     with sql.connect('../data/interim/companies.db') as con:
-        port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con)
+        port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con).drop_duplicates(subset=['Date', 'symbol'])
         recomends = pd.read_sql(f"SELECT * from recommendations ORDER BY Date", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
         companies = tuple(port.symbol.unique())
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')

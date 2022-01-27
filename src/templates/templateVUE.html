@@ -132,6 +132,14 @@
 								>Performance</h5>
 							<v-divider></v-divider>
 							<br>
+							<v-data-table
+								dense
+								:headers="headers"
+								:items="desserts"
+							>
+								
+							</v-data-table>
+							<br>
 							<h5
 								align='center'
 								>Allocation</h5>
@@ -266,6 +274,7 @@
 							v-model="analystSentRange"
 							:max="5"
 							:min="min"
+							step=".5"
 							hide-details
 							class="align-center"
 						>
@@ -299,7 +308,20 @@
 					v-else-if="tabSelection === 2"
 				>
 					<br>
+					<h5>Trading Window</h5>
+					<v-slider
+							v-model='tradingPick'
+							:tick-labels="tradingWindows"
+							hide-details
+							ticks
+							:max="tradingWindows.length-1"
+							step="1"
+							ticks="always"
+							tick-size="6"
+						></v-slider>
+					<br>
 					<h5>Buying Strategy</h5>
+					<h6>Trading Window : [[tradingWindows.at(tradingPick)]]</h6>
 					<v-divider></v-divider>
 					<br>
 					<h5>Selling Strategy</h5>

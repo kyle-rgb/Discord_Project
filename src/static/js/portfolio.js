@@ -19,6 +19,18 @@
                 max: 100,
                 type: 'area',
                 drawer: true,
+                headers: [
+                    {
+                      text: 'Symbol',
+                      align: 'start',
+                      sortable: true,
+                      value: 'symbol',
+                    },
+                    {text: 'Return', value: 'returns'},
+                    {text: 'Year', value: 'year'},
+                    {text: 'Alpha', value: 'alpha'}
+                  ],
+                desserts: [],
                 options: {
                     series: [{
                         data: d_,
@@ -154,6 +166,8 @@
                 publisherSentRange: undefined,
                 publisherArray: ['Reuters', 'Investing.com', 'Bloomberg', 'StockNews', 'Seeking Alpha', 'CryptoSites'],
                 publisherSelection: undefined,
+                tradingWindows: ['1W', '2W', '1M', '2M', '3M', '6M', '1Y'],
+                tradingPick: undefined,
             }
 		},
         use: converter,
@@ -170,13 +184,13 @@
             this.analystSentRange = [0, 5]
             this.analystFilter = 2
             this.tabSelection = 'Evaluate'
-
-
+            this.tradingPick = 1
         },
         computed: {
             newSector: function(){
                 this.options.series.length > 3 ? this.options.series.pop(): undefined; 
-                this.options.series.push(this.comparisonIndex.graph)
+                this.options.series.push(this.comparisonIndex.graph);
+                this.desserts = this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
                 return this.comparisonIndex.sector;
             },
         },

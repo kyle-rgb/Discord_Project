@@ -1,3 +1,5 @@
+var temp = null;
+
 // function based off of stock mentions 
 function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_date=new Date('2022-01-01 00:00:00')){
     // bring in comment data & aggregate 
@@ -20,30 +22,35 @@ function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_d
         return g[1].map((stock) => {
             var index = 0;
             var total = 0;
+            let i = 0 ;
             return stock.data.map((f) => {
-                _date = new Date (f.Date)
+                _date = new Date (f.Date)  
                 if (_date < new Date(d[index])){
+                    f.i = i
                     f.port_weight = stock.counts / l[index]
                     f.mention_price = f.port_weight * f.Close
-                    return {date: _date,  asset_price: f.mention_price, symbol: f.symbol}
+                    i++
+                    return {date: _date,  asset_price: f.mention_price, symbol: f.symbol, i: f.i, port_weight: f.port_weight}
                 } else {
                     index++
                     index > l.length-1 ? index =l.length-1 : index=index;
+                    f.i = i
                     f.port_weight = (stock.counts / l[index])
                     f.mention_price = f.port_weight * f.Close
-                    return {date: _date,  asset_price: f.mention_price, symbol: f.symbol}
+                    i++
+                    return {date: _date,  asset_price: f.mention_price, symbol: f.symbol, i: f.i, port_weight: f.port_weight}
                 }
             })
         })
     }).map((z) => {return z.reduce((u, u1) => {return u.concat(u1)})}).reduce((r, r1) => {return r.concat(r1)})
     // rollup
-    
+    console.log(d3.rollup(f, v => d3.mean(v, d => d.port_weight*100), d=>d.symbol).entries().toArray().sort((a, b) => b[1] - a[1]).slice(0, 10))
     var rollup = d3.rollup(f, v => d3.sum(v, d => d.asset_price), d=>d.date)
     var ff = [];
     for (e of rollup.entries()){
         ff.push(e)
     }
-    console.log(d3.rollup(f, v => d3.sum(v, d => d.asset_price), d=>d.symbol))
+    temp = f
     return ff.map((b) => [b[0].getTime(), +(b[1].toFixed(2))])
 }
 // create portfolio based on Mention Sentiment
@@ -137,4 +144,35 @@ function tradeMaker(trades, symbol){
 
     return pri.filter((r) => {return r}) 
 }
+
+
+function evalOverTime(data, symbol, by="1Y"){
+    mkt_data = data.filter((z) => {return ((z.symbol === "SPY")&(new Date(z.Date) > new Date("2019-12-31 00:00:00")))})
+    data = data.filter((z) => {return ((z.symbol === symbol)&(new Date(z.Date) > new Date("2019-12-31 00:00:00"))&(new Date(z.Date) < new Date("2022-01-01 00:00:00")))})
+    _areturns  =  d3.rollup(data, v =>{return ((v.slice(-1)[0].Close)-v[0].Close)/v[0].Close}, d=>new Date(d.Date).getFullYear()).entries().toArray()
+    mkt_returns  =  d3.rollup(mkt_data, v =>{return ((v.slice(-1)[0].Close)-v[0].Close)/v[0].Close}, d=>new Date(d.Date).getFullYear()).entries().toArray()
+    _areturns = _areturns.map((b, i) => {return {symbol: symbol, year: b[0], returns: `${(b[1]*100).toFixed(2)}%`, alpha:`${((b[1]-mkt_returns[i][1])*100).toFixed(2)}%`}})
+    return _areturns
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
