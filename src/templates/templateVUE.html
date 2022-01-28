@@ -41,6 +41,7 @@
 		<script src="../static/js/index.js"></script>
         <script src="../static/js/core/vue-apexcharts.js"></script>
         <script src="../static/js/apexdataprep.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 		<script src="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.js"></script>
 		<script src="https://unpkg.com/@seregpie/vuesvg@19.0.0"></script>
 		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
@@ -154,14 +155,30 @@
 							align='center'
 							>Private Chatrooms</h5>
 						<br>
-						<v-select
-							v-model="chatSelection"
-							:items="chatArray"
-							chips
-							label="Chatrooms"
-							multiple
-							outlined
-						></v-select>
+						<template>
+							<v-container fluid>
+							  <v-select
+								v-model="chatSelection"
+								:items="chatArray"
+								label="Channels"
+								outlined
+								multiple
+							  >
+								<template v-slot:selection="{ item, index }">
+								  <v-chip v-if="index === 0">
+									<span>[[ item ]]</span>
+								  </v-chip>
+								  <span
+									v-if="index === 1"
+									class="grey--text text-caption"
+								  >
+									(+[[ chatSelection.length - 1 ]] others)
+								  </span>
+								</template>
+							  </v-select>
+							</v-container>
+						  </template>
+						</v-select>
 						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
@@ -201,14 +218,29 @@
 							align='center'
 							>News Outlets</h5>
 						<br>
-						<v-select
-							v-model="publisherSelection"
-							:items="publisherArray"
-							chips
-							label="News Sources"
-							multiple
-							outlined
-						></v-select>
+						<template>
+							<v-container fluid>
+							  <v-select
+								v-model="publisherSelection"
+								:items="publisherArray"
+								label="Channels"
+								outlined
+								multiple
+							  >
+								<template v-slot:selection="{ item, index }">
+								  <v-chip v-if="index === 0">
+									<span>[[ item ]]</span>
+								  </v-chip>
+								  <span
+									v-if="index === 1"
+									class="grey--text text-caption"
+								  >
+									(+[[ publisherSelection.length - 1 ]] others)
+								  </span>
+								</template>
+							  </v-select>
+							</v-container>
+						  </template>
 						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
@@ -248,14 +280,29 @@
 							align='center'
 							>Institutional Analysts</h5>
 						<br>
-						<v-select
-							v-model="analystSelection"
-							:items="analystArray"
-							chips
-							label="Analyst Sources"
-							multiple
-							outlined
-						></v-select>
+						<template>
+							<v-container fluid>
+							  <v-select
+								v-model="analystSelection"
+								:items="analystArray"
+								label="Channels"
+								outlined
+								multiple
+							  >
+								<template v-slot:selection="{ item, index }">
+								  <v-chip v-if="index === 0">
+									<span>[[ item ]]</span>
+								  </v-chip>
+								  <span
+									v-if="index === 1"
+									class="grey--text text-caption"
+								  >
+									(+[[ analystSelection.length - 1 ]] others)
+								  </span>
+								</template>
+							  </v-select>
+							</v-container>
+						</template>
 						<br>
 						<v-slider
 							v-model='analystFilter'
@@ -273,7 +320,7 @@
 						<v-range-slider
 							v-model="analystSentRange"
 							:max="5"
-							:min="min"
+							:min="1"
 							step=".5"
 							hide-details
 							class="align-center"
@@ -303,6 +350,11 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
+						<v-btn
+							align='center'
+							rounded
+							color="success"
+						>Allocate</v-btn>
 					</template>
 				<template
 					v-else-if="tabSelection === 2"

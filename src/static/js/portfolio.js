@@ -15,7 +15,7 @@
                     fontFamily: 'Baloo Bhaijaan',
                     fontSize: '100px'
                 },
-                min: 0,
+                min: -100,
                 max: 100,
                 type: 'area',
                 drawer: true,
@@ -141,7 +141,11 @@
                     {sector: 'Invesco QQQ', symbol: 'QQQ', graph: {
                         data: norm(port.filter(function (m) {return ((m.symbol =='QQQ')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
                         name: 'Invesco QQQ Returns'
-                    }}
+                    }},
+                    // {sector: 'Analyst Recommendations', symbol: 'ANYL', graph: {
+                    //     data: norm(executeBuy(recomends, window_start=new Date('2017-01-01 00:00:00'),security="AAPL")),
+                    //     name: 'Analyst Buy Returns'
+                    // }},
                 ],
                 tabSelection: undefined,
                 navTabs: [
@@ -158,13 +162,13 @@
                 ],
                 analystFilter: undefined,
                 analystSentRange: undefined,
-                analystArray: ['Morgan Stanley', 'Credit Suisse', 'Citigroup', 'Barclays', 'Jefferies', 'UBS', 'Deutsche Bank'],
+                analystArray: highestValues(recommends, "Firm", 50),
                 analystSelection: undefined,
                 chatSentRange: undefined,
-                chatArray: ['ideas', 'options', 'stocks', 'day trading', 'sentiment', 'profits'],
+                chatArray: highestValues(comments, "channel", 1),
                 chatSelection: undefined,
                 publisherSentRange: undefined,
-                publisherArray: ['Reuters', 'Investing.com', 'Bloomberg', 'StockNews', 'Seeking Alpha', 'CryptoSites'],
+                publisherArray: highestValues(articles, "publisher", 100),
                 publisherSelection: undefined,
                 tradingWindows: ['1W', '2W', '1M', '2M', '3M', '6M', '1Y'],
                 tradingPick: undefined,
@@ -197,6 +201,7 @@
         methods: {
             onResetClick: function() {
                 this.options.series = this.options.series.slice(0, 1)
+                this.desserts = this.desserts.slice(0, 2)
             }
         }
 	});

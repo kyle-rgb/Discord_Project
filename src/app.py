@@ -136,12 +136,17 @@ def portfolio():
 def tempateVue():
     with sql.connect('../data/interim/companies.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con).drop_duplicates(subset=['Date', 'symbol'])
-        recomends = pd.read_sql(f"SELECT * from recommendations ORDER BY Date", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
+        recommends = pd.read_sql(f"SELECT Date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con)
+        arts =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM articles ORDER BY date", con=con)
+        crypt_arts = pd.read_sql("SELECT date, symbol, publisher,pos_sent, neu_sent, neg_sent, comp_sent  FROM news_sentiment ORDER BY date", con=con)
+        articles = pd.concat([arts, crypt_arts], axis=0, ignore_index=True).to_json(orient="records", double_precision=4)
+        comments = pd.read_sql(f"SELECT timestamp, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY timestamp", con=con)
         companies = tuple(port.symbol.unique())
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
 
         
-    obj_dict = {"port": port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2), "recomends": recomends.to_json(orient='records')}
+    obj_dict = {"port": port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2),
+    "recommends": recommends.to_json(orient='records'), "articles": articles, "comments": comments.to_json(orient="records", double_precision=4)}
     return render_template('templateVUE.html', obj_dict=obj_dict)
 
 

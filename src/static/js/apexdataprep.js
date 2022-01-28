@@ -1,6 +1,7 @@
 var temp = null;
 
-// function based off of stock mentions 
+// function based off of stock mentions Returns: [utc.Timestamp, close of an Allocated Portfolio]
+// handling allocation and aggregation based off the allocation (based on count)
 function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_date=new Date('2022-01-01 00:00:00')){
     // bring in comment data & aggregate 
     var mentions_total = c_data.map((c) => {return c.counts}).reduce((m, n) => {return m+=n})
@@ -56,6 +57,7 @@ function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_d
 // create portfolio based on Mention Sentiment
 
 // create portfolio based on Industry Analyst Recommendations
+// returns [utc, close] based off of recommendations above thresh (> 4) and recommenders > 10
 function createAnalystPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_date=new Date('2022-01-01 00:00:00')){
     data = data.map((d) => {d.Date = new Date(d.Date); return d}).filter((d) => {return ((d.Date <= new Date('2020-01-01 00:00:00')) & (d.Date >= new Date('2017-01-01 00:00:00')) ? d : undefined)})
     var rollup = d3.rollup(data, v => v.map((d) => [d.prev_grade, d.new_grade, d.Action, d.symbol]), d=>d.symbol)
@@ -65,7 +67,10 @@ function createAnalystPortfolio(data, start_date=new Date('2020-01-01 00:00:00')
     }
     
     fa = ff.map((f) => {return f[1].map((v) => {return v[1]})})
+    console.log(fa)
     fa = parseRatings(fa.map((v) => {let u ={}; return v.map((a) => {a in u ? u[a]++: u[a]=1; return u})[0]}))
+    
+
     ff.map((ar, i) => {ar.push(fa[i]); ar.push(ar[1].length)})
     // intialize a buy on jan 2 i 2020 if recomendation average >= 4
     to_buy = ff.filter((f) => {return f[2] > 4.0000 & f[3]  > 10})
@@ -82,19 +87,21 @@ function createAnalystPortfolio(data, start_date=new Date('2020-01-01 00:00:00')
 
 // create a portfolio based on all these factors that maximizes returns compared to the market
 
-
+// returns [utc, pct] based off of first asset price
 function norm(chart_data){
     start = chart_data[0][1]
     return (chart_data.map((r) => {return [r[0], r[1] / start]}))
 }
 
+
+// Generate Average for Security: [] 1-5
 function parseRatings(rating_object_array){
     parser = {'Bullish': 4, 'Very Bullish': 5, 'Neutral': 3, 'Bearish': 2, 'Very Bearish': 1};
     return rating_object_array.map((a) => {let h = Object.entries(a); return d3.sum(h.map((k) => (parser[k[0]]*k[1]))) / d3.sum(h.map((k) => (k[1])))})
 }
 
 function executeBuy(data, window_start=new Date('2017-01-01 00:00:00'), security='TSLA',window_end=new Date('2020-01-01 00:00:00'), end_date=new Date('2022-01-01 00:00:00'),refresh_days=30){
-    
+
     let day_delta = 86_400_000;
     let trades = [];
     // aggregate average initial sentiment based on window
@@ -112,7 +119,6 @@ function executeBuy(data, window_start=new Date('2017-01-01 00:00:00'), security
         inital_rating = new_rating
     }
     
-    console.log(trades)
     results = tradeMaker(trades, security).flat()
 
     return results
@@ -155,9 +161,60 @@ function evalOverTime(data, symbol, by="1Y"){
     return _areturns
 }
 
+function highestValues(data, group,n){
+    groupings = d3.groups(data, e=>e[group]).filter((x) => x[1].length >= n).map((x) => {return x[0]})
+    data.map((d) => {groupings.includes(d[group])? d["cat_group"] = d[group] : d["cat_group"] = "other"})
+    groupings.push("other")
+    return groupings
+}
 
 
 
+
+
+
+class EAT {
+    // port: Daily OHLC Data for Mentioned Companies and Comparison Indices
+    // recommends: Analyst Recommendations
+    // c_data: Chat Data on Count Frequency and Symbol
+    constructor(type){
+        this.type = type // four types available will be recommendations, articles, chat and mix; Find best balance of these comments.
+        this.daydelta = 86_400_000;
+        this.timeperiods = { 
+            "1W": 7,
+            "2W": 14,
+            "1M": 30,
+            "2M": 60,
+            "3M": 90,
+            "6M": 180,
+            "1Y": 365, 
+        }
+        this.positions = {};
+        this.tradeRange = trade_range;
+        this.evalRange = eval_range;
+    }
+
+    // evaluate: returns performance based on allocation and trades
+    evaluate(){
+        return this.type + this.type
+    }
+
+    // allocate: Returns Symbol and Portfolio % 
+    allocate(min_samples){
+        return null;
+    }
+
+    // trade: returns => Trade Decisionse Based Off of a Time Period and a Senitment number
+    trade(data, min_samples, days, sent_min, sent_max){
+
+        return null; // return shares, symbol, date
+    }
+
+    aggregate(data, min_samples, days){
+        return null
+    }
+
+}
 
 
 
