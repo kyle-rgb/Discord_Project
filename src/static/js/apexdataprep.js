@@ -45,7 +45,7 @@ function createPortfolio(data, start_date=new Date('2020-01-01 00:00:00'), end_d
         })
     }).map((z) => {return z.reduce((u, u1) => {return u.concat(u1)})}).reduce((r, r1) => {return r.concat(r1)})
     // rollup
-    console.log(d3.rollup(f, v => d3.mean(v, d => d.port_weight*100), d=>d.symbol).entries().toArray().sort((a, b) => b[1] - a[1]).slice(0, 10))
+    // console.log(d3.rollup(f, v => d3.mean(v, d => d.port_weight*100), d=>d.symbol).entries().toArray().sort((a, b) => b[1] - a[1]).slice(0, 10))
     var rollup = d3.rollup(f, v => d3.sum(v, d => d.asset_price), d=>d.date)
     var ff = [];
     for (e of rollup.entries()){
@@ -67,7 +67,7 @@ function createAnalystPortfolio(data, start_date=new Date('2020-01-01 00:00:00')
     }
     
     fa = ff.map((f) => {return f[1].map((v) => {return v[1]})})
-    console.log(fa)
+
     fa = parseRatings(fa.map((v) => {let u ={}; return v.map((a) => {a in u ? u[a]++: u[a]=1; return u})[0]}))
     
 
@@ -125,9 +125,9 @@ function executeBuy(data, window_start=new Date('2017-01-01 00:00:00'), security
 
 }
 
-function recommendsToRatings(recommendations){
+function recommendsToRatings(recommendation){
     parser = {'Bullish': 4, 'Very Bullish': 5, 'Neutral': 3, 'Bearish': 2, 'Very Bearish': 1};
-    return d3.mean(recommendations.map((r) => parser[r.new_grade]))
+    return parser[recommendation]
 }
 
 function tradeMaker(trades, symbol){
@@ -169,8 +169,15 @@ function highestValues(data, group,n){
 }
 
 
-
-
+function reducer (data){
+    let symbols = c_data.map((p) => {return p.symbol})
+    let r = data.map((d) => {
+        objs = d.symbols.map((s) => {if (symbols.includes(s)) {return {source: d.cat_group,symbol: s, comp_sent: d.comp_sent, pos_sent: d.pos_sent, neg_sent: d.neg_sent, neu_sent: d.neu_sent, grouping: d.grouping}}})
+        objs = objs.flat()
+        return objs.filter((t) => {return t})
+    });
+    return r.flat()
+}
 
 
 class EAT {
@@ -190,8 +197,9 @@ class EAT {
             "1Y": 365, 
         }
         this.positions = {};
-        this.tradeRange = trade_range;
-        this.evalRange = eval_range;
+        this.agg = "";
+        // this.tradeRange = trade_range;
+        // this.evalRange = eval_range;
     }
 
     // evaluate: returns performance based on allocation and trades
@@ -205,15 +213,111 @@ class EAT {
     }
 
     // trade: returns => Trade Decisionse Based Off of a Time Period and a Senitment number
-    trade(data, min_samples, days, sent_min, sent_max){
+    trade(data, min_samples, sent_min, sent_max){
 
         return null; // return shares, symbol, date
     }
 
-    aggregate(data, min_samples, days){
-        return null
+    // it is sorted by date already, the earliest date the inital date
+    aggregate(data, min_samples, time_period_array){
+        let eval_date;
+        data.map((d) => {d.moment = moment(d.Date); d.Date = new Date(d.Date)})
+        eval_date = (data[0].moment.add(time_period_array[0], time_period_array[1])).toDate();
+        data.map((d) => {d.Date < eval_date  ? d.grouping = eval_date : eval_date = d.moment.add(time_period_array[0], time_period_array[1]).toDate(); d.grouping = eval_date;})
+        this.agg = d3.groups(data, d=>d.grouping)
+        return this.agg
+    };
+
+    tradeSent(sentiment_data, min_samples, cutoff){
+        let string_re = /\[|\]|\'|\'/g
+        let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
+        let first_date = new Date(sentiment_data[0].timestamp) 
+        let e_index = d3.min(current_groupings.map((a, i) => {let y; a-first_date > 0 ? y= i: y= null; return y}))
+        let eval_date = current_groupings[e_index];
+        sentiment_data.map((s) => {
+            s.symbols = s.symbols.replace(string_re, "").split(',').map((l) => l.trim());
+            s.timestamp = new Date(s.timestamp);
+            s.timestamp < eval_date ? s.grouping = eval_date : eval_date = current_groupings[e_index++]; s.grouping = eval_date;
+            s.cat_group = s.channel 
+        })
+        // next step is to rollup the data: mean sentiments, first / last comments, when the comments were shared and which channels shared them
+        var preroll = reducer(sentiment_data)
+        var groups = _.groupBy(preroll, d=>d.grouping)
+        for (let g of Object.entries(groups)){
+            groups[g[0]] = _.mapValues(_.groupBy(g[1], d=> d.symbol), (v)=> {return {
+                comp_sent: d3.mean(v.map((a) => a.comp_sent)),
+                pos_sent: d3.mean(v.map((a) => a.pos_sent)),
+                neg_sent: d3.mean(v.map((a) => a.neg_sent)),
+                neu_sent: d3.mean(v.map((a) => a.neu_sent)),
+                mentions: d3.count(v.map((a) => a.comp_sent)),
+                sources: v.map((eq) => eq.source),
+            }})
+        }
+        // first day will set whether to buy  and next aggregation will determin buy/hold/sell 
+        // values of groups will be tickers and aggregate information
+
+        return groups;
     }
 
+    tradeSentArt(sentiment_data, min_samples, cutoff){
+        let string_re = /\[|\]|\'|\'/g
+        let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
+        let first_date = new Date(sentiment_data[0].date) 
+        let e_index = d3.min(current_groupings.map((a, i) => {let y; a-first_date > 0 ? y= i: y= null; return y}))
+        let eval_date = current_groupings[e_index];
+        sentiment_data.map((s) => {
+            s.symbols = [s.symbol]
+            s.date = new Date(s.date);
+            s.date < eval_date ? s.grouping = eval_date : eval_date = current_groupings[e_index++]; s.grouping = eval_date;
+            s.cat_group = s.publisher
+        })
+        highestValues(articles, "publisher", 800)
+        var preroll = reducer(sentiment_data)
+        var groups = _.groupBy(preroll, d=>d.grouping)
+        for (let g of Object.entries(groups)){
+            groups[g[0]] = _.mapValues(_.groupBy(g[1], d=> d.symbol), (v)=> {return {
+                comp_sent: d3.mean(v.map((a) => a.comp_sent)),
+                pos_sent: d3.mean(v.map((a) => a.pos_sent)),
+                neg_sent: d3.mean(v.map((a) => a.neg_sent)),
+                neu_sent: d3.mean(v.map((a) => a.neu_sent)),
+                mentions: d3.count(v.map((a) => a.comp_sent)),
+                sources: v.map((eq) => eq.source),
+            }})
+        }
+
+        return groups;
+    }
+
+    tradeSentRecs(sentiment_data, min_samples, cutoff){
+        let string_re = /\[|\]|\'|\'/g
+        let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
+        let first_date = new Date(sentiment_data[0].Date) 
+        let e_index = d3.min(current_groupings.map((a, i) => {let y; a-first_date > 0 ? y= i: y= null; return y}))
+        let eval_date = current_groupings[e_index];
+        sentiment_data.map((s) => {
+            s.symbols = [s.symbol]
+            s.Date = new Date(s.Date);
+            s.Date < eval_date ? s.grouping = eval_date : eval_date = current_groupings[e_index++]; s.grouping = eval_date; 
+            s.comp_sent = recommendsToRatings(s.new_grade);
+            s.comp_sent > 3 ? s.pos_sent = 1 : s.pos_sent = 0; 
+            s.comp_sent === 3 ? s.neu_sent = 1 : s.neu_sent = 0;
+            s.comp_sent < 3 ? s.neg_sent = 1 : s.neg_sent = 0;
+            s.cat_group = s.Firm;
+        })
+        console.log(sentiment_data)
+        var preroll = reducer(sentiment_data)
+        console.log(preroll)
+        var groups = _.groupBy(preroll, d=>d.grouping)
+        for (let g of Object.entries(groups)){
+            groups[g[0]] = _.mapValues(_.groupBy(g[1], d=> d.symbol), (v)=> {return {
+                comp_sent: d3.mean(v.map((a) => a.comp_sent)),
+                mentions: d3.count(v.map((a) => a.comp_sent)),
+                sources: v.map((eq) => eq.source),
+            }})
+        }
+
+        return groups;
+    }
 }
 
 
@@ -221,15 +325,9 @@ class EAT {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
+var eat = new EAT('analyst');
+let v = eat.aggregate(port, 1, [1, "year"])
+let ss = eat.tradeSent(comments, 1, .35)
+let as = eat.tradeSentArt(articles, 1, .1)
+let rs = eat.tradeSentRecs(recommends, 1, 4.0)
 
