@@ -31,9 +31,8 @@
 		<script>
 			{% for k, v in obj_dict.items() %}
 				var {{k}} = {{v|safe}};
-				console.log({{k}})
 			{% endfor %}
-			
+		
 		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 		<script src="https://unpkg.com/core-js-bundle@3.6.5/minified.js"></script>

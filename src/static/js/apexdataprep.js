@@ -170,7 +170,7 @@ function highestValues(data, group,n){
 
 
 function reducer (data){
-    let symbols = c_data.map((p) => {return p.symbol})
+    let symbols = port.map((p) => {return p.symbol})
     let r = data.map((d) => {
         objs = d.symbols.map((s) => {if (symbols.includes(s)) {return {source: d.cat_group,symbol: s, comp_sent: d.comp_sent, pos_sent: d.pos_sent, neg_sent: d.neg_sent, neu_sent: d.neu_sent, grouping: d.grouping}}})
         objs = objs.flat()
@@ -179,12 +179,11 @@ function reducer (data){
     return r.flat()
 }
 
-
 class EAT {
     // port: Daily OHLC Data for Mentioned Companies and Comparison Indices
     // recommends: Analyst Recommendations
     // c_data: Chat Data on Count Frequency and Symbol
-    constructor(type){
+    constructor(type, start_date){
         this.type = type // four types available will be recommendations, articles, chat and mix; Find best balance of these comments.
         this.daydelta = 86_400_000;
         this.timeperiods = { 
@@ -196,10 +195,11 @@ class EAT {
             "6M": 180,
             "1Y": 365, 
         }
-        this.positions = {};
+        this.positions = [];
         this.agg = "";
-        // this.tradeRange = trade_range;
-        // this.evalRange = eval_range;
+        this.start_date = new Date(start_date);
+        this.end_date = new Date("2021-12-31 11:59:59")
+        
     }
 
     // evaluate: returns performance based on allocation and trades
@@ -211,24 +211,54 @@ class EAT {
     allocate(min_samples){
         return null;
     }
-
     // trade: returns => Trade Decisionse Based Off of a Time Period and a Senitment number
-    trade(data, min_samples, sent_min, sent_max){
-
-        return null; // return shares, symbol, date
+    trade(data, starting_sent, sent_delta){
+        // use given rule to (based on sentiment and min_samples to create trades; store this info in class to calc differences between securities) filter
+        let date_keys = Object.keys(data)        
+        let company_keys = Object.entries(data).map((aa) => {return Object.entries(aa[1])})
+        company_keys.map((d, i) => {return {date: date_keys[i], symbol: d[0][0][0], comp_sent: d[1].comp_sent, mentions: d[1].mentions, }})
+        // find closest day in port for symbol
+        let trades = company_keys.map((d, i) => {return d.map((a) => {return {date: new Date(date_keys[i]),symbol: a[0], comp_sent: a[1].comp_sent, mentions: a[1].mentions,
+            graph: port.filter((p) => {return (p.symbol===a[0]) & (p.Date >= new Date(date_keys[i]))}),
+        }
+        })}); 
+        
+        trades = trades.flat().filter((t) => t.date <= this.end_date)
+        let current_holdings = [];
+        let port_size = 0; 
+        let trader = trades.map((q) => {
+            if ((q.comp_sent > starting_sent) & ~(current_holdings.includes(q.symbol))){
+                current_holdings.push(q.symbol);
+                return {action: 'Buy' , shares:10 , cost: q.graph[0].Close, symbol: q.graph[0].symbol, date: q.graph[0].Date, data:q.graph.filter((qq) => {return qq.Date <= moment(q.graph[0].Date).add(1, "year")})}
+            } else if ((q.comp_sent < starting_sent) & (current_holdings.includes(q.symbol))){
+                return {action: 'Sold' , shares:0 , cost: q.graph[0].Close, symbol: q.graph[0].symbol, date: q.graph[0].Date, data:q.graph.filter((qq) => {return qq.Date <= moment(q.graph[0].Date).add(1, "year")})};
+            } else if ((q.comp_sent > starting_sent) & (current_holdings.includes(q.symbol))){
+                return {action: 'Buy' , shares:10 , cost: q.graph[0].Close, symbol: q.graph[0].symbol, date: q.graph[0].Date, data:q.graph.filter((qq) => {return qq.Date <= moment(q.graph[0].Date).add(1, "year")})}
+            }
+        })
+        
+        this.positions = trader.filter((t) => t).map((p) => {
+            p.data.map((pp) => {pp.port = pp.Close*p.shares});
+            return p
+        })
+        
+        let new_pos = this.positions.map((pos) => {return pos.data.map((pd) => {return {date: pd.Date, value: pd.port}})}).flat()
+        let my_graph = Object.entries(_.groupBy(new_pos, y=> y.date)).map((m) => {let k = m[0]; return [(new Date(k)).getTime(), d3.sum(m[1].map((v) => v.value))]})
+        return my_graph// return shares, symbol, date
     }
 
     // it is sorted by date already, the earliest date the inital date
     aggregate(data, min_samples, time_period_array){
         let eval_date;
-        data.map((d) => {d.moment = moment(d.Date); d.Date = new Date(d.Date)})
+        data = data.map((d) => {d.Date = new Date(d.Date); return d}).filter((f) => {return f.Date >= this.start_date})
+        data.map((d) => {d.moment = moment(d.Date);})
         eval_date = (data[0].moment.add(time_period_array[0], time_period_array[1])).toDate();
         data.map((d) => {d.Date < eval_date  ? d.grouping = eval_date : eval_date = d.moment.add(time_period_array[0], time_period_array[1]).toDate(); d.grouping = eval_date;})
         this.agg = d3.groups(data, d=>d.grouping)
         return this.agg
     };
 
-    tradeSent(sentiment_data, min_samples, cutoff){
+    tradeSent(sentiment_data){
         let string_re = /\[|\]|\'|\'/g
         let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
         let first_date = new Date(sentiment_data[0].timestamp) 
@@ -255,11 +285,11 @@ class EAT {
         }
         // first day will set whether to buy  and next aggregation will determin buy/hold/sell 
         // values of groups will be tickers and aggregate information
-
-        return groups;
+        this.chats = groups;
+        return this.chats;
     }
 
-    tradeSentArt(sentiment_data, min_samples, cutoff){
+    tradeSentArt(sentiment_data){
         let string_re = /\[|\]|\'|\'/g
         let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
         let first_date = new Date(sentiment_data[0].date) 
@@ -284,11 +314,11 @@ class EAT {
                 sources: v.map((eq) => eq.source),
             }})
         }
-
-        return groups;
+        this.articles = groups;
+        return this.articles;
     }
 
-    tradeSentRecs(sentiment_data, min_samples, cutoff){
+    tradeSentRecs(sentiment_data){
         let string_re = /\[|\]|\'|\'/g
         let current_groupings = this.agg.map((arr) => {return arr[0]}) // gives us all the windows available 
         let first_date = new Date(sentiment_data[0].Date) 
@@ -304,19 +334,22 @@ class EAT {
             s.comp_sent < 3 ? s.neg_sent = 1 : s.neg_sent = 0;
             s.cat_group = s.Firm;
         })
-        console.log(sentiment_data)
         var preroll = reducer(sentiment_data)
         console.log(preroll)
         var groups = _.groupBy(preroll, d=>d.grouping)
+        console.log(groups)
         for (let g of Object.entries(groups)){
-            groups[g[0]] = _.mapValues(_.groupBy(g[1], d=> d.symbol), (v)=> {return {
+            groups[g[0]] = _.mapValues(_.groupBy(g[1], d=> d.symbol), (v)=> {
+            
+            return {
                 comp_sent: d3.mean(v.map((a) => a.comp_sent)),
                 mentions: d3.count(v.map((a) => a.comp_sent)),
                 sources: v.map((eq) => eq.source),
-            }})
+                }
+        })
         }
-
-        return groups;
+        this.recs = groups;
+        return this.recs;
     }
 }
 
@@ -325,9 +358,16 @@ class EAT {
 
 
 
-var eat = new EAT('analyst');
+var eat = new EAT('analyst', "2019-01-01 00:00:00"); // should be one period before start
 let v = eat.aggregate(port, 1, [1, "year"])
-let ss = eat.tradeSent(comments, 1, .35)
-let as = eat.tradeSentArt(articles, 1, .1)
-let rs = eat.tradeSentRecs(recommends, 1, 4.0)
+let ss = eat.tradeSent(comments)
+let as = eat.tradeSentArt(articles)
+let rs = eat.tradeSentRecs(recommends)
+console.log('DONE')
+let yy = eat.trade(rs, 4)
+
+
+// for each object that is produced gives a backlog of information based on the various data sources.
+// What the aggregation window determines (n) and the information about the data sources is aggragate from (n-1).
+// so the date keys of the object are the trade dates. => which give the tickers for those companies meeting the criteria and the aggregate sentiments and counts of the companies from n-1 to n.
 
