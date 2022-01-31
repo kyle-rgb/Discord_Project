@@ -90,10 +90,6 @@
                         data: norm(port.filter(function (m) {return ((m.symbol =='VCR')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
                         name: 'Consumer Discretionary Returns',
                     }},
-                    {sector: 'Analysts Recomendations', symbol: 'RECS', graph: {
-                        data: norm(yy),
-                        name: 'Recommendations Returns',
-                    }},
                     {sector: 'Technology', symbol:'VGT', graph: {
                         data: norm(port.filter(function (m) {return ((m.symbol =='VGT')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
                         name: 'Technology Sector Returns',
@@ -183,7 +179,7 @@
             'apexchart': converter
         },
         created: function() {
-            this.comparisonIndex = this.indexItems[12];
+            this.comparisonIndex = this.indexItems[11];
             this.analystSelection = this.analystArray;
             this.publisherSelection = this.publisherArray;
             this.chatSelection = this.chatArray;

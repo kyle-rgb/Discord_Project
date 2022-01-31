@@ -88,9 +88,9 @@ function createAnalystPortfolio(data, start_date=new Date('2020-01-01 00:00:00')
 // create a portfolio based on all these factors that maximizes returns compared to the market
 
 // returns [utc, pct] based off of first asset price
-function norm(chart_data){
+function norm(chart_data, basis=undefined){
     start = chart_data[0][1]
-    return (chart_data.map((r) => {return [r[0], r[1] / start]}))
+    return (chart_data.map((r) => {return [r[0], r[1] / start]}))   
 }
 
 
@@ -241,6 +241,7 @@ class EAT {
             p.data.map((pp) => {pp.port = pp.Close*p.shares});
             return p
         })
+        console.log(this.positions)
         
         let new_pos = this.positions.map((pos) => {return pos.data.map((pd) => {return {date: pd.Date, value: pd.port}})}).flat()
         let my_graph = Object.entries(_.groupBy(new_pos, y=> y.date)).map((m) => {let k = m[0]; return [(new Date(k)).getTime(), d3.sum(m[1].map((v) => v.value))]})
@@ -364,7 +365,9 @@ let ss = eat.tradeSent(comments)
 let as = eat.tradeSentArt(articles)
 let rs = eat.tradeSentRecs(recommends)
 console.log('DONE')
-let yy = eat.trade(rs, 4)
+// let yy = eat.trade(rs, 4)
+// let ay = eat.trade(as, .5)
+// let sy = eat.trade(ss, .15)
 
 
 // for each object that is produced gives a backlog of information based on the various data sources.
