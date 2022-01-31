@@ -1,6 +1,6 @@
 (function() {
     // computed: object of run functions / watch: progress f(x) / created: set atrributes and run functions on app creation (use this) / methods to run. @click
-    var d_ = norm(createPortfolio(port))//  
+    var d_ = normAgain(createPyPortfolio(port))//  
     
 	var svgNS = 'http://www.w3.org/2000/svg';
 	var app = new Vue({
@@ -87,59 +87,59 @@
                 comparisonIndex: undefined,
                 indexItems: [
                     {sector: 'Consumer Discretionary', symbol: 'VCR', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VCR')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VCR')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Consumer Discretionary Returns',
                     }},
                     {sector: 'Technology', symbol:'VGT', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VGT')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VGT')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Technology Sector Returns',
                     }},
                     {sector: 'Financials', symbol: 'VFH', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VFH')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VFH')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: `Financial Sector Returns`,
                     }},
                     {sector: 'Healthcare', symbol: 'VHT', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VHT')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VHT')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: `Health Care Sector Returns`,
                     }},
                     {sector: 'Communication Services', symbol: "VOX", graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VOX')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VOX')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: `Communication Services Sector Returns`,
                     }},
                     {sector: 'Industrials', symbol: 'VIS', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VIS')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VIS')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Industrial Sector Returns',
                     }},
                     {sector: 'Consumer Staples', symbol: 'VDC', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VDC')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VDC')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Consumer Staples Sector Returns',
                     }},
                     {sector: 'Materials', symbol: 'VAW', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VAW')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VAW')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Materials Sector Returns',
                     }},
                     {sector: 'Utilities', symbol: 'VPU', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VPU')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VPU')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Utilities Sector Returns',
                     }},
                     {sector: 'Energy', symbol:'VDE', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VDE')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VDE')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Energy Sector Returns',
                     }},
                     {sector: 'Real Estate', symbol:'VNQ', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='VNQ')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='VNQ')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Real Estate Sector Returns',
                     }},
                     {sector: 'S&P 500', symbol: 'SPY', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='SPY')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='SPY')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'S&P 500 Index Returns',
                     }},
                     {sector: 'Bitcoin', symbol: 'BTC-USD', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='BTC-USD')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='BTC-USD')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Bitcoin Returns'
                     } },
                     {sector: 'Invesco QQQ', symbol: 'QQQ', graph: {
-                        data: norm(port.filter(function (m) {return ((m.symbol =='QQQ')&(new Date(m.Date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.Date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.Date).getTime(), f.Close]})),
+                        data: norm(port.filter(function (m) {return ((m.symbol =='QQQ')&(new Date(m.date) >= new Date('2020-01-01 00:00:00'))&(new Date(m.date) < new Date('2022-01-01 00:00:00')))}).map((f) => {return [new Date(f.date).getTime(), f.Close]})),
                         name: 'Invesco QQQ Returns'
                     }},
                     // {sector: 'Analyst Recommendations', symbol: 'ANYL', graph: {

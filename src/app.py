@@ -15,6 +15,7 @@ import os
 import csv, json
 import sqlite3 as sql, pandas as pd, time
 from api_key import cryptor
+from trader import new_port
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -146,7 +147,7 @@ def tempateVue():
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
 
         
-    obj_dict = {"port": port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2),
+    obj_dict = {"port": new_port.to_json(orient="records", double_precision=2), "c_data": c_data.to_json(orient="records", double_precision=2),
     "recommends": recommends.to_json(orient='records'), "articles": articles, "comments": comments.to_json(orient="records", double_precision=4)}
 
     return render_template('templateVUE.html', obj_dict=obj_dict)
