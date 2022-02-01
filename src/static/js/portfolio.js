@@ -1,6 +1,6 @@
 (function() {
     // computed: object of run functions / watch: progress f(x) / created: set atrributes and run functions on app creation (use this) / methods to run. @click
-    var d_ = normAgain(createPyPortfolio(port))//  
+    var d_ = norm(createPyPortfolio(port))//  
     
 	var svgNS = 'http://www.w3.org/2000/svg';
 	var app = new Vue({
@@ -15,6 +15,7 @@
                     fontFamily: 'Baloo Bhaijaan',
                     fontSize: '100px'
                 },
+                chartDate: undefined,
                 min: -100,
                 max: 100,
                 type: 'area',
@@ -202,6 +203,7 @@
             onResetClick: function() {
                 this.options.series = this.options.series.slice(0, 1)
                 this.desserts = this.desserts.slice(0, 2)
+                console.log(this.options.tooltip.x)
             }
         }
 	});

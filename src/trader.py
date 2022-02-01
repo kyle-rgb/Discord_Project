@@ -40,7 +40,7 @@ print(time.perf_counter())
 # take aggregations over wanted frequency; make buy decisions based off of the frequency of data points and sentiments
 # return port with new information: shares and cost * shares
 class EAT():
-    def __init__(self, portfolio, articles, comments, recs, start, end):
+    def __init__(self, portfolio, articles, comments, recs, start, end, start_amount):
         self.portfolio = portfolio.copy(deep=True)
         self.postions = []
         self.start = start
@@ -49,6 +49,9 @@ class EAT():
         self.comments =  comments[lambda x: (x.date >= start) & (x.date <= end)]
         self.recs = recs[lambda x: (x.date >= start) & (x.date <= end)]
         self.aggs = {}
+        self.trading_days = set(self.portfolio[lambda x: x.symbol == "DIS"].date.values)
+        self.starting_amt = start_amount
+        self.dates = []
 
     def aggregate(self):
         articles_agg = self.articles.groupby([pd.Grouper(key="date", freq="1Y"), 'symbol'])\
@@ -77,42 +80,45 @@ class EAT():
 
 
     def tradeSents(self, agg, label, min_samples, min_comp_sent, shares):
-        starting_amount = 0
         # add action, shares, cost
-        returns = self.aggs[agg][lambda x: (x.date >= self.start) & (x[label] >= min_comp_sent) & (x.counts >= min_samples)]
+        returns = self.aggs[agg][lambda x: ((x.date >= self.start) & (x[label] >= min_comp_sent) & (x.counts >= min_samples))]
         # query portfolio for first cost add columns
         indexes = pd.Int64Index([])
+        wanted_assets = returns.groupby('date').count().reset_index()
+        self.dates = list(wanted_assets.date.values)
+        port_amt = self.starting_amt
         for date, sym in returns.loc[:, ['date', 'symbol']].values:
-            ns = returns[lambda x: x.date == date].shape[0]
+            if ~(wanted_assets.loc[wanted_assets.date==date, :].index==0)[0]:
+                port_amt = returns.groupby('date').sum().returns[self.dates.index(date)-1]
+    
+            available_funds = port_amt / wanted_assets.loc[wanted_assets.date==date, 'symbol'].values[0]
+
             if sym not in self.postions:
                 self.postions.append(sym)
                 f1_date = (date + relativedelta(years=1)).to_pydatetime()
-                indexes = self.portfolio[lambda x: ((x.date > date) & (x.symbol == sym) & (x.date <= f1_date))].index
-                self.portfolio.loc[indexes, "shares"] = shares
+                indexes = self.portfolio[lambda x: ((x.date > date) & (x.symbol == sym) & (x.date <= f1_date) & (x.date.isin(self.trading_days)))].index
+                
             else:
                 self.postions.append(sym)
                 f1_date = (date + relativedelta(years=1)).to_pydatetime()
-                indexes = self.portfolio[lambda x: ((x.date > date) & (x.symbol == sym) & (x.date <= f1_date))].index
-                self.portfolio.loc[indexes, "shares"] = shares * self.postions.count(sym)
+                indexes = self.portfolio[lambda x: ((x.date > date) & (x.symbol == sym) & (x.date <= f1_date)  & (x.date.isin(self.trading_days)))].index
             
             i = returns[lambda x: (x.date == date) & (x.symbol == sym)].index
             if not indexes.empty:
-                returns.loc[i, 'cost'] = shares * self.portfolio.loc[indexes[0], "Close"]
-                returns.loc[i, 'returns'] = shares * self.portfolio.loc[indexes[-1], "Close"]
+                shares_ = available_funds  / self.portfolio.loc[indexes[0], "Close"]
+                returns.loc[i, 'cost'] = shares_ * self.portfolio.loc[indexes[0], "Close"]
+                returns.loc[i, 'returns'] = shares_ * self.portfolio.loc[indexes[-1], "Close"]
+                self.portfolio.loc[indexes, "shares"] = shares_
 
-            else:
-                indexes = self.portfolio[lambda x: (x.symbol == sym)].index
-                returns.loc[i, 'cost'] = shares * self.portfolio.loc[indexes[-1], "Open"]
-                returns.loc[i, 'returns'] = shares * self.portfolio.loc[indexes[-1], "Close"]
-
-
+        print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
+        print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
         return self.portfolio.fillna(value=0)
 
 print(time.perf_counter())
-eat = EAT(port, articles, comments, recommends, dt.datetime(2018, 1, 1), dt.datetime(2022, 1, 30))
+eat = EAT(port, articles, comments, recommends, dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1), 10_000)
 eat.aggregate()
 eat.tradeSents("comments", "comp_sent", min_samples=1, min_comp_sent=0.15, shares=10)
-# eat.tradeSents("articles", "comp_sent", 100, 0.5, 10)
-# eat.tradeSents("recommendations", "new_sent", 25, 4, 10)
+# eat.tradeSents("articles", "comp_sent", 20, 0.5, 10)
+# eat.tradeSents("recommendations", "new_sent", 10, 3.5, 10)
 
 new_port = eat.portfolio
