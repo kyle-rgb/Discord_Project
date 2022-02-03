@@ -32,6 +32,15 @@
                     {text: 'Alpha', value: 'alpha'}
                   ],
                 desserts: [],
+                headersAlloc: [
+                    {
+                        text: 'Security', align: 'start', sortable:true, value: 'symbol'
+                    },
+                    {text: 'Bought @', value: 'start_value'},
+                    {text: 'Sell @', value: 'end_value'},
+                    {text: 'Returns', value: 'returns'},
+                ],
+                desserts2: [],
                 options: {
                     series: [{
                         data: d_,
@@ -189,7 +198,8 @@
             this.analystSentRange = [0, 5]
             this.analystFilter = 2
             this.tabSelection = 'Evaluate'
-            this.tradingPick = 1
+            this.tradingPick = 1;
+            this.desserts2 = temp;
         },
         computed: {
             newSector: function(){

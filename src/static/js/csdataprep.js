@@ -33,7 +33,7 @@ function dataCompress(data, interval) {
              Date:   v[0][1].map((t) => timeCompare(t.Date, interval)).pop(),
              Open:        v[0][1].map((t) => t.Open).shift(),
              Low:         d3.min(v[0][1].map((t) => t.Low)),
-             High:        d3.min(v[0][1].map((t) => t.High)),
+             High:        d3.max(v[0][1].map((t) => t.High)),
              Close:       (v[0][1].map((t) => t.Close)).pop(),
              Turnover:    d3.mean((v[0][1].map((t) => t.Turnover))), 
              Volatility:  d3.mean((v[0][1].map((t) => t.Volatility)))

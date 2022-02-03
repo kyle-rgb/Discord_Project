@@ -110,8 +110,8 @@ class EAT():
                 returns.loc[i, 'returns'] = shares_ * self.portfolio.loc[indexes[-1], "Close"]
                 self.portfolio.loc[indexes, "shares"] = shares_
 
-        print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
-        print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
+        #print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
+        print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 
 print(time.perf_counter())
@@ -119,6 +119,6 @@ eat = EAT(port, articles, comments, recommends, dt.datetime(2019, 1, 1), dt.date
 eat.aggregate()
 eat.tradeSents("comments", "comp_sent", min_samples=1, min_comp_sent=0.15, shares=10)
 # eat.tradeSents("articles", "comp_sent", 20, 0.5, 10)
-# eat.tradeSents("recommendations", "new_sent", 10, 3.5, 10)
+eat.tradeSents("recommendations", "new_sent", 10, 4.1, 10)
 
 new_port = eat.portfolio

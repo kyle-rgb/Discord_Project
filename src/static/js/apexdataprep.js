@@ -1,4 +1,4 @@
-var temp = null;
+var temp = [];
 
 function createPyPortfolio(data){
     let new_data = data.map((d) => { d.port_value = d.Close * d.shares;return d; }).filter((d) => {return d.port_value})
@@ -6,6 +6,44 @@ function createPyPortfolio(data){
             date: Number(i),
             port_value: _.sumBy(d, 'port_value')
         })).value()
+    
+    let share_groups = _.groupBy(data.filter((d) => {return d.shares}), d=>d.symbol)
+    let share_set = new Set(Object.keys(share_groups));
+    let sh_data = (data.filter((d) => {return share_set.has(d.symbol)}))
+    let selectedCompanies = _.groupBy(sh_data, (item) => {
+        return item.symbol
+    })
+    _.forEach(selectedCompanies, (v, k) => {
+        selectedCompanies[k] = _.groupBy(selectedCompanies[k], (item) => {
+            return item.shares
+        })
+    })
+    _.forEach(selectedCompanies, (v, k) => {
+        _.forEach(selectedCompanies[k], (v1, k1) => {
+            selectedCompanies[k][k1] = {first: _.minBy(selectedCompanies[k][k1], 'date'), last:_.maxBy(selectedCompanies[k][k1], 'date')}  ,
+            selectedCompanies[k][k1].last.shares === null ? temp : temp.push({
+                start_date: (selectedCompanies[k][k1].first.date),
+                end_date:selectedCompanies[k][k1].last.date,
+                symbol:selectedCompanies[k][k1].last.symbol,
+                shares:selectedCompanies[k][k1].last.shares,
+                start_value: +selectedCompanies[k][k1].first.port_value.toFixed(2),
+                end_value: +selectedCompanies[k][k1].last.port_value.toFixed(2),
+                returns: +(((selectedCompanies[k][k1].last.port_value -selectedCompanies[k][k1].first.port_value ) / selectedCompanies[k][k1].first.port_value)).toFixed(4)
+    
+            });
+        })
+    })
+    
+    let a_key = _(temp).groupBy('start_date').map((d, i) => ({
+        date: Number(i),
+        port_value: _.sumBy(d, 'start_value')
+    })).value()
+    
+    temp.map((t) => {let alloc = a_key.filter((f) => {return f.date == t.start_date}); t.start_alloc = +((t.start_value / alloc[0].port_value).toFixed(2)); t.end_alloc = +(( t.end_value / alloc[0].port_value).toFixed(2));
+    t.start_date = (new Date(t.start_date)).toLocaleDateString(); t.end_date = (new Date(t.end_date)).toLocaleDateString();
+    })
+    temp.sort((a, b) => a.start_date - b.start_date)
+    console.log(temp)
     return Object.values(ans).map((a) => {return [a.date, a.port_value]})
     
 }
