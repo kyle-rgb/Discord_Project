@@ -233,6 +233,112 @@
                     fontFamily: 'Share Tech Mono',
                     fontSize: '45px',
                 },
+				seriesHeat: [
+					{
+					  name: "Aug 2020",
+					  data: [{
+						x: 'Hotest News Company',
+						y: 5
+					  }, {
+						x: 'Most Engaged Articles News',
+						y:12
+					  }, {
+						x: 'Best News Sentiment Ratio',
+						y: 35
+					  }, {
+						x: 'Worst News Sentiment Ratio',
+						y: 50
+					  }]
+					},
+					{
+					  name: "September 2020",
+					  data: [{
+						x: 'W1',
+						y: 43
+					  }, {
+						x: 'W2',
+						y: 43
+					  }, {
+						x: 'W3',
+						y: 43
+					  }, {
+						x: 'W4',
+						y: 43
+					  }]
+					}
+				  ],
+				chartOptionsHeat: {
+						chart: {
+							height: 350,
+							type: 'heatmap',
+						},
+						plotOptions: {
+							heatmap: {
+							shadeIntensity: 0.5,
+							radius: 0,
+							useFillColorAsStroke: true,
+							colorScale: {
+								ranges: [{
+									from: -30,
+									to: 5,
+									name: 'low',
+									color: '#00A100'
+								},
+								{
+									from: 6,
+									to: 20,
+									name: 'medium',
+									color: '#128FD9'
+								},
+								{
+									from: 21,
+									to: 45,
+									name: 'high',
+									color: '#FFB200'
+								},
+								{
+									from: 46,
+									to: 55,
+									name: 'extreme',
+									color: '#FF0000'
+								}
+								]
+							}
+							}
+						},
+						dataLabels: {
+							enabled: true
+						},
+						stroke: {
+							width: 1
+						},
+						dataLabels: {
+						style: {
+									colors: ['white']
+								}
+						},
+						yaxis: {
+							labels: {
+								style: {
+									colors: ['white']
+								}
+							}
+						},
+						xaxis: {
+							labels: {
+								style: {
+									colors: 'white'
+								},
+							}
+						},
+						title: {
+							text: 'HeatMap of News Media',
+							style: {
+								color: 'white'
+							}
+						},
+						legend: {labels: {colors: 'white'}},
+					},
 			};
 		},
 		computed: {
@@ -303,6 +409,10 @@
 				}
 			},
 		},
+        use: converter,
+        components:{
+            'apexchart': converter
+        },
 		created: function() {
 			this.generateWordsText();
 			this.animation = this.animationItems[5].value;

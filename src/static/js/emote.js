@@ -5,7 +5,7 @@ colors = []
 borders = []
 codes = []
 
-emoji_data.forEach(e => {
+pop_emote.forEach(e => {
     names.push(e.unicode_name.replace(/:/g, "").replace(/_/g, " "))
     counts.push(+e.count)
     pics.push(e.emote)

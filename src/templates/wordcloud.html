@@ -39,10 +39,14 @@
 		<script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
 		<script src="https://d3js.org/d3.v6.min.js"></script>
 		<script src="../static/js/index.js"></script>
+		<script src="../static/js/core/vue-apexcharts.js"></script>
 		<script src="https://unpkg.com/vuetify@2.2.30/dist/vuetify.min.js"></script>
 		<script src="https://unpkg.com/@seregpie/vuesvg@19.0.0"></script>
 		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
 		<script src="https://unpkg.com/fontfaceobserver@2.1.0/fontfaceobserver.standalone.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+  		<script src="../static/js/plugins/chartist.min.js"></script>
+  		
 		  
 		
 		
@@ -323,27 +327,40 @@
 				  align="center"
 				  justify="center"
 			  >
+				<v-col
+					class="text-center"
+					cols="3"
+				>
+						<img src="https://img.icons8.com/external-kiranshastry-gradient-kiranshastry/100/000000/external-conversation-communication-kiranshastry-gradient-kiranshastry-2.png"/>
+						<h3 class="text-h5" :style="hcolor2">The People</h3>
+						<h5 class="subheading">
+							Analyzing 30,000+ Private Chat Comments From Discord Across Multiple Different Servers to Develop a Trading and Allocation Strategy Based on the Active, Engaged Retail Trader. 
+						</h5>
+		  		</v-col>
 				  <v-col
 					  class="text-center"
 					  cols="3"
 				  >
-					  <h3 class="text-h5" :style="hcolor2">The Media</h3>
+				  		<img src="https://img.icons8.com/external-kiranshastry-gradient-kiranshastry/100/000000/external-journalism-news-kiranshastry-gradient-kiranshastry.png"/>
+						<h3 class="text-h5" :style="hcolor2">The Media</h3>
+						<h5 class="subheading">
+							Analyzing 25,000+ Financial News Articles From Seeking Alpha, Reuters and Investing.com to Gauge the Fourth Estate's Coverage of the Private Chat's Most Talked About Public Companies
+						</h5>
 				  </v-col>
 				  <v-col
 					  class="text-center"
 					  cols="3"
 				  >
+				  	  <img src="https://img.icons8.com/external-photo3ideastudio-gradient-photo3ideastudio/100/000000/external-bank-building-photo3ideastudio-gradient-photo3ideastudio.png"/>
 					  <h3 class="text-h5" :style="hcolor2">The Analysts</h3>
+					  <h5 class="subheading">
+						Analyzing 9,000+ Institutional Analysts Recommendations via the Yahoo Finance API to Compare Institutional Sentiment
+					</h5>
 				  </v-col>
-				  <v-col
-					  class="text-center"
-					  cols="3"
-				  >
-					  <h3 class="text-h5" :style="hcolor2">The People</h3>
-				  </v-col>
+		
 			  </v-row>
 		  
-			  <v-row
+			  	<v-row
 					align="center"
 					justify="center"
 					style="
@@ -351,6 +368,9 @@
 						position: relative;
 						width: 100%;
 						"
+					>
+					<v-col
+			  			cols="12"
 					>
 						<div
 							:style="(progressVisible && progress)
@@ -421,8 +441,28 @@
 								"
 							>[[ progress.completedWords ]] of [[ progress.totalWords ]]</v-progress-circular>
 						</v-scale-transition>
-					</v-row>
-					
+					</v-col>
+				</v-row>
+				<v-row
+				  align="center"
+				  justify="center"
+			  	>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  <canvas id="myChart" height="40%" width="80%" style="background-color: transparent;"></canvas>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  
+						<div id="chart">
+							<apexchart type="heatmap" height="350" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
+						</div>
+				  </v-col>
+				</v-row>
 				</v-container>
 			</v-parallax>
 			</v-content>
@@ -434,5 +474,6 @@
 			>[[ snackbarText ]] <a @click="onLinkClick"> go to page</a></v-snackbar>
 		</v-app>
 		<script src="../static/js/script.js"></script>
+		<script src="../static/js/emote.js"></script>
 	</body>
 </html>
