@@ -4,7 +4,7 @@ let postfirms =[];
 let pregrades = {};
 let postgrades = {};
 let starting_date = new Date('2020-01-01');
-let prestart_date = new Date('2019-01-01');
+let prestart_date = new Date('2017-01-01');
 let stop_date = new Date('2021-01-01')
 let sentiment_colors = {
   "Bullish": '#3D9970',
@@ -73,8 +73,8 @@ rec.forEach((r) => {
 
 )
 
-let art_start_date = new Date("2020-05-01")
-let art_last_date = new Date("2021-05-01")
+let art_start_date = new Date("2017-01-01")
+let art_last_date = new Date("2021-12-31")
 let trailing_3m = new Date("2021-02-01")
 let comment_quarter_date = new Date("2020-08-01")
 let trailing_3mC = new Date("2020-12-10")
@@ -83,14 +83,14 @@ let usersSetMo = new Set();
 
 let year_arts = articles.filter((d) => {
   d.date = new Date(d.date)
-  if ((d.date <= art_last_date)&(d.date >= art_start_date)){
+  if ((d.date <= art_last_date)){
     return d
   }
 })
 
 let month_arts = articles.filter((d) => {
   d.date = new Date(d.date)
-  if ((d.date <= art_last_date)&(d.date >= trailing_3m)){
+  if (d.date <= art_last_date){
     return d
   }
 })
@@ -104,7 +104,7 @@ let year_coms = comments.filter((d) => {
 
 let month_coms = comments.filter((d) => {
   d.timestamp = new Date(d.timestamp);
-  if ((d.timestamp <= trailing_3mC)&(d.timestamp >= comment_quarter_date)){
+  if ((d.timestamp <= trailing_3mC)){
     usersSetMo.add(d.id)
     return d
   }
@@ -157,7 +157,7 @@ var data = [
   
 var layout = {
     paper_bgcolor: "transparent",
-    title: "Yearly News Totals",
+    title: "Financial News Sentiment",
     margin: { t: 50, b: 75, l: 25, r: 50 },
     font: {color: "#FFFFFF"},
     grid: { rows: 1, columns: 2, pattern: "independent" },
@@ -173,47 +173,9 @@ var layout = {
     }
   };
 
-  var data_artMo = [
-    {
-        type: "indicator",
-        mode: "number+delta",
-        value: month_arts.length,
-        domain: { row: 0, column: 0},
-        title: {text: "Articles Written"},
-      },
-    {
-      type: "indicator",
-      value: (average(month_arts.map((a) =>a.comp_sent))*100).toFixed(2),
-      delta: { reference: 50.25 },
-      gauge: { axis: { visible: true, range: [0, 100] } },
-      domain: { row: 0, column: 1 },
-      title: {text: "Avg. Story Sentiment"}
-    },
-  ];
-  
-var layout_artMo = {
-    paper_bgcolor: "transparent",
-    title: "Last 3 Months News Totals",
-    margin: { t: 50, b: 25, l: 25, r: 50 },
-    font: {color: "#FFFFFF"},
-    grid: { rows: 1, columns: 2, pattern: "independent" },
-    template: {
-      data: {
-        indicator: [
-          {
-            mode: "number+delta+gauge",
-            delta: { reference: 30 }
-          }
-        ]
-      }
-    }
-  };
-
-
-
 
 Plotly.newPlot('newsDiv', data, layout);
-Plotly.newPlot('newsDiv2', data_artMo, layout_artMo);
+
 
 // Plotly Comment Indicators
 var dataChat = [
@@ -261,55 +223,7 @@ var layoutChat = {
   }
 };
 
-var dataChatQ = [
-  {
-      type: "indicator",
-      mode: "number+delta",
-      value: usersSetMo.size,
-      domain: { row: 0, column: 0},
-      delta: {reference: usersSetY.size},
-      title: {text: "Unique Users"},
-    },
-    {
-      type: "indicator",
-      mode: "number+delta",
-      value: month_coms.length,
-      domain: { row: 0, column:1},
-      delta: {reference: year_coms.length},
-      title: {text: "Unique Mentions"},
-    },
-  {
-    type: "indicator",
-    value: (average(month_coms.map((a) =>a.comp_sent))*100).toFixed(2),
-    delta: { reference: (average(year_coms.map((a) =>a.comp_sent))*100) },
-    gauge: { axis: { visible: true, range: [0, 100] } },
-    domain: { row: 0, column: 2 },
-    title: {text: "Avg. Mention Sentiment"}
-  },
-
-
-];
-
-var layoutChatQ = {
-  paper_bgcolor: "transparent",
-  title: "Trailing 3 Months",
-  margin: { t: 50, b: 75, l: 25, r: 50 },
-  font: {color: "#FFFFFF"},
-  grid: { rows: 1, columns: 3, pattern: "independent" },
-  template: {
-    data: {
-      indicator: [
-        {
-          mode: "number+delta+gauge",
-          delta: { reference: (average(year_coms.map((a) =>a.comp_sent))*100) }
-        }
-      ]
-    }
-  }
-};
-
 Plotly.newPlot('chatDiv', dataChat, layoutChat);
-Plotly.newPlot('chatDiv2', dataChatQ, layoutChatQ);
 
 
 // Plotly Analyst Sentiment
@@ -353,7 +267,7 @@ var data_1 = [
     
   ];
   
-  var layout_1 = { width: 600, height: 800, title: {text: "2019 Instituitonal Analysts"}, paper_bgcolor: "transparent", font: {color: "#FFFFFF"}, showlegend: false};
+  var layout_1 = { width: 600, height: 800, title: {text: "Previous Analysts Ratings"}, paper_bgcolor: "transparent", font: {color: "#FFFFFF"}, showlegend: false};
 
   var data_2 = [
     {
@@ -395,7 +309,7 @@ var data_1 = [
     
   ];
   
-  var layout_2 = { width: 600, height: 800, title: {text: "2020 Instituitonal Analysts"}, paper_bgcolor: "transparent", font: {color: "#FFFFFF"}, showlegend: false};
+  var layout_2 = { width: 600, height: 800, title: {text: "Current Analysts Ratings"}, paper_bgcolor: "transparent", font: {color: "#FFFFFF"}, showlegend: false};
   
 
   

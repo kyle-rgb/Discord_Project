@@ -218,6 +218,21 @@
 				spacingValues: [0, 1/4, 1/2, 1, 2],
 				wordsText: undefined,
 				wordsTextStr: undefined,
+				hcolor: {
+                    color: 'cyan',
+                    fontFamily: 'Baloo Bhaijaan',
+                    fontSize: '100px',
+                },
+                hcolor2: {
+                    color: 'red',
+                    fontFamily: 'Baloo Bhaijaan',
+                    fontSize: '55px',
+                },
+                hcolor3: {
+                    color: 'Green',
+                    fontFamily: 'Share Tech Mono',
+                    fontSize: '45px',
+                },
 			};
 		},
 		computed: {
@@ -291,10 +306,10 @@
 		created: function() {
 			this.generateWordsText();
 			this.animation = this.animationItems[5].value;
-			this.animationEasing = "linear"//chance.pickone(this.animationEasingValues);
-			this.colorItemIndex = 3//chance.integer({min: 0, max: this.colorItems.length - 1});
-			this.fontFamily = "Baloo Bhaijaan"//chance.pickone(this.fontFamilyValues);
-			this.rotationItemIndex = 1//chance.integer({min: 0, max: this.rotationItems.length - 1});
+			this.animationEasing = "linear"
+			this.colorItemIndex = 3
+			this.fontFamily = "Baloo Bhaijaan"
+			this.rotationItemIndex = 1
 		},
 		methods: {
 			generateWordsText: function() {
@@ -305,25 +320,6 @@
 				c_data.map((d) => {if (cos.includes(d.symbol)) {words_array.push([d.symbol, +d.counts])}})
 				this.wordsText = words_array//.join('\n').replace(',', " ");
 				return words_array;
-
-				// this.wordsText = [
-				// 	[9, 1, 3],
-				// 	[4, 5, 15],
-				// 	[2, 5, 15],
-				// 	[1, 25, 150],
-				// ]
-				// 	.reduce(function(returns, item) {
-				// 		var weight = item[0];
-				// 		var minCount = item[1];
-				// 		var maxCount = item[2];
-				// 		var count = chance.integer({min: minCount, max: maxCount});
-				// 		chance.n(function() {
-				// 			var word = chance.word();
-				// 			returns.push(word+' '+weight);
-				// 		}, count);
-				// 		return returns;
-				// 	}, [])
-				// 	.join('\n');
 			},
 			loadFont: function(fontFamily, fontStyle, fontWeight, text) {
 				return (new FontFaceObserver(fontFamily, {style: fontStyle, weight: fontWeight})).load(text);

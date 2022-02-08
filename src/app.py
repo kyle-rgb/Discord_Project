@@ -130,7 +130,6 @@ def portfolio():
     with sql.connect('../data/interim/companies.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily", con=con)
     obj_dict = {"port": port.to_json(orient="records", double_precision=2)}
-    print(sys.getsizeof(obj_dict))
     return render_template('template.html', obj_dict=obj_dict)
 
 @app.route('/templateVue/')

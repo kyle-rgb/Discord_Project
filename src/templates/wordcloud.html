@@ -295,19 +295,61 @@
 			</v-app-bar>
 			<v-content
 			style="
-					background-color: black;
+					background-color: rgba(1, 1, 1, 0);
 				"	
 			>
-				<v-container
-					fill-height
-					overflow-hidden
-					
-				>
-					<div
-						style="
-							height: 100%;
-							position: relative;
-							width: 100%;
+			<v-parallax
+				dark
+				src="../static/img/rm251-mind-14-g.jpg"
+				height="2000"
+		  	>
+			  <v-row
+			  align="center"
+			  justify="center"
+			>
+				  <v-col
+					class="text-center"
+					cols="12"
+				  >
+				  <h1 class="text-h4" :style="hcolor">
+					  Retail Investor Trading
+				  </h1>
+				  <h4 class="subheading">
+					  Using Retail Traders to Beat the Market
+				  </h4>
+				  </v-col>
+			  </v-row>
+			  <v-row
+				  align="center"
+				  justify="center"
+			  >
+				  <v-col
+					  class="text-center"
+					  cols="3"
+				  >
+					  <h3 class="text-h5" :style="hcolor2">The Media</h3>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="3"
+				  >
+					  <h3 class="text-h5" :style="hcolor2">The Analysts</h3>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="3"
+				  >
+					  <h3 class="text-h5" :style="hcolor2">The People</h3>
+				  </v-col>
+			  </v-row>
+		  
+			  <v-row
+					align="center"
+					justify="center"
+					style="
+						height: 10%;
+						position: relative;
+						width: 100%;
 						"
 					>
 						<div
@@ -379,8 +421,10 @@
 								"
 							>[[ progress.completedWords ]] of [[ progress.totalWords ]]</v-progress-circular>
 						</v-scale-transition>
-					</div>
+					</v-row>
+					
 				</v-container>
+			</v-parallax>
 			</v-content>
 			<v-snackbar
 				:timeout="15000"
