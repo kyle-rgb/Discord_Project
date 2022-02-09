@@ -12,7 +12,7 @@ from dateutil.parser import parse
 import sys
 import numpy as np
 import os
-import csv, json
+import csv, json, zipfile
 import sqlite3 as sql, pandas as pd, time
 from api_key import cryptor
 from trader import new_port
