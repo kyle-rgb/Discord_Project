@@ -12,17 +12,17 @@ def next_business_day(date):
 
 
 print(time.perf_counter())
-with sql.connect('../data/interim/companies.db') as con:
-        port = pd.read_sql(f"SELECT Date date, Open, High, Low, Close, Volume, Volatility, Turnover, symbol FROM daily ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})\
-                .drop_duplicates(subset=['date', 'symbol'])
-        recommends = pd.read_sql(f"SELECT Date date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
-        arts =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM articles ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
-        crypt_arts = pd.read_sql("SELECT date, symbol, publisher,pos_sent, neu_sent, neg_sent, comp_sent  FROM news_sentiment ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
-        articles = pd.concat([arts, crypt_arts], axis=0, ignore_index=True)
-        comments = pd.read_sql(f"SELECT DATE(timestamp) date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY timestamp", parse_dates={'date': '%Y-%m-%d'}, con=con)
-        comments.loc[:, "symbols"] = comments.symbols.apply(lambda x: x.replace('BTC', 'BTC-USD'))
-        companies = tuple(port.symbol.unique())
-        c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
+con = sql.connect('../data/processed/temp_c.db', timeout=5000)
+port = pd.read_sql(f"SELECT Date date, Open, High, Low, Close, Volume, Volatility, Turnover, symbol FROM daily ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})\
+        .drop_duplicates(subset=['date', 'symbol'])
+articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
+recommends = pd.read_sql(f"SELECT Date date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
+
+comments = pd.read_sql(f"SELECT date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY date", parse_dates={'date': '%Y-%m-%d'}, con=con)
+comments.loc[:, "symbols"] = comments.symbols.apply(lambda x: x.replace('BTC', 'BTC-USD'))
+companies = tuple(port.symbol.unique())
+c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
+con.close()
 
 symbols_re = re.compile(r"\[|\]|\'|\'")
 last_index = comments.index.max()
@@ -118,7 +118,8 @@ print(time.perf_counter())
 eat = EAT(port, articles, comments, recommends, dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1), 10_000)
 eat.aggregate()
 eat.tradeSents("comments", "comp_sent", min_samples=1, min_comp_sent=0.15, shares=10)
-# eat.tradeSents("articles", "comp_sent", 20, 0.5, 10)
-eat.tradeSents("recommendations", "new_sent", 10, 4.1, 10)
+eat.tradeSents("articles", "comp_sent", 10, 0.52, 10)
+#eat.tradeSents("recommendations", "new_sent", 10, 4.0, 10)
 
 new_port = eat.portfolio
+

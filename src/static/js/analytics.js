@@ -179,18 +179,11 @@ Plotly.newPlot('newsDiv', data, layout);
 
 // Plotly Comment Indicators
 var dataChat = [
-  {
-      type: "indicator",
-      mode: "number+delta",
-      value: usersSetY.size,
-      domain: { row: 0, column: 0},
-      title: {text: "Unique Users"},
-    },
     {
       type: "indicator",
       mode: "number+delta",
       value: year_coms.length,
-      domain: { row: 0, column:1},
+      domain: { row: 0, column:0},
       title: {text: "Unique Mentions"},
     },
   {
@@ -198,7 +191,7 @@ var dataChat = [
     value: (average(year_coms.map((a) =>a.comp_sent))*100).toFixed(2),
     delta: { reference: comp_sent_avg * 100 },
     gauge: { axis: { visible: true, range: [0, 100] } },
-    domain: { row: 0, column: 2 },
+    domain: { row: 0, column: 1 },
     title: {text: "Avg. Mention Sentiment"}
   },
 
@@ -210,7 +203,7 @@ var layoutChat = {
   title: "Private Chat Sentiment",
   margin: { t: 50, b: 75, l: 25, r: 50 },
   font: {color: "#FFFFFF"},
-  grid: { rows: 1, columns: 3, pattern: "independent" },
+  grid: { rows: 1, columns: 2, pattern: "independent" },
   template: {
     data: {
       indicator: [
