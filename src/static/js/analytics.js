@@ -190,7 +190,7 @@ var dataChat = [
     type: "indicator",
     value: (average(year_coms.map((a) =>a.comp_sent))*100).toFixed(2),
     delta: { reference: comp_sent_avg * 100 },
-    gauge: { axis: { visible: true, range: [0, 100] } },
+    gauge: { axis: { visible: true, range: [-100, 100] } },
     domain: { row: 0, column: 1 },
     title: {text: "Avg. Mention Sentiment"}
   },

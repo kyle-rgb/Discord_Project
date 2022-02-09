@@ -118,8 +118,8 @@ print(time.perf_counter())
 eat = EAT(port, articles, comments, recommends, dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1), 10_000)
 eat.aggregate()
 eat.tradeSents("comments", "comp_sent", min_samples=1, min_comp_sent=0.15, shares=10)
-eat.tradeSents("articles", "comp_sent", 10, 0.52, 10)
-#eat.tradeSents("recommendations", "new_sent", 10, 4.0, 10)
+eat.tradeSents("articles", "comp_sent", 20, 0.5, 10)
+eat.tradeSents("recommendations", "new_sent", 10, 4.0, 10)
 
 new_port = eat.portfolio
 

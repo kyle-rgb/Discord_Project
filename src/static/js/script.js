@@ -236,35 +236,69 @@
 				seriesHeat: [
 					{
 					  name: "Aug 2020",
-					  data: [{
-						x: 'Hotest News Company',
+					  data: [
+					  	{
+						x: 'MAX AVG SENTIMENT',
 						y: 5
-					  }, {
-						x: 'Most Engaged Articles News',
+						},
+					  	{
+						x: 'MIN AVG SENTIMENT',
 						y:12
-					  }, {
-						x: 'Best News Sentiment Ratio',
+					  	},
+						{
+						x: 'MAX POS SENTIMENT',
 						y: 35
-					  }, {
-						x: 'Worst News Sentiment Ratio',
+					  	},
+						{
+						x: 'MIN NEG SENTIMENT',
 						y: 50
-					  }]
+					  	},
+						{
+							x: 'HIGHEST ENGAGED COMPANY',
+							y: 35
+						},
+						{
+							x: 'Best Performer',
+							y: 50
+						},
+						{
+							x: 'Worst Performer',
+							y: 50
+						},	
+					]
 					},
 					{
-					  name: "September 2020",
-					  data: [{
-						x: 'W1',
-						y: 43
-					  }, {
-						x: 'W2',
-						y: 43
-					  }, {
-						x: 'W3',
-						y: 43
-					  }, {
-						x: 'W4',
-						y: 43
-					  }]
+					  name: "Sept 2020",
+					  data: [
+						{
+					  x: 'MAX AVG SENTIMENT',
+					  y: 5
+					  },
+						{
+					  x: 'MIN AVG SENTIMENT',
+					  y:12
+						},
+					  {
+					  x: 'MAX POS SENTIMENT',
+					  y: 35
+						},
+					  {
+					  x: 'MIN NEG SENTIMENT',
+					  y: 50
+						},
+					  {
+						  x: 'HIGHEST ENGAGED COMPANY',
+						  y: 35
+					  },
+					  {
+						  x: 'Best Performer',
+						  y: 50
+					  },
+					  {
+						  x: 'Worst Performer',
+						  y: 50
+					  },	
+				  ]
 					}
 				  ],
 				chartOptionsHeat: {

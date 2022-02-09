@@ -36,8 +36,8 @@
                     {
                         text: 'Security', align: 'start', sortable:true, value: 'symbol'
                     },
-                    {text: 'Bought @', value: 'start_value'},
-                    {text: 'Sell @', value: 'end_value'},
+                    {text: 'Buy @', value: 'start_value'},
+                    {text: 'Sold @', value: 'end_value'},
                     {text: 'Returns', value: 'returns'},
                 ],
                 desserts2: [],
@@ -61,7 +61,7 @@
                       },
                     yaxis: {
                         tickAmount: 5,
-                        labels: {style: {colors: 'white'}, formatter: (val) => { return val.toFixed(4) } }
+                        labels: {style: {colors: 'white'}, formatter: (val) => { return (val*100).toFixed(2) + "%"} }
                       },
                     tooltip: {
                         x: {
