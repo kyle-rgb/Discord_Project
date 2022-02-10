@@ -1,7 +1,6 @@
 (function() {
     // computed: object of run functions / watch: progress f(x) / created: set atrributes and run functions on app creation (use this) / methods to run. @click
     var d_ = norm(createPyPortfolio(port))//  
-    
 	var svgNS = 'http://www.w3.org/2000/svg';
 	var app = new Vue({
 		el: '#app',
@@ -15,6 +14,12 @@
                     fontFamily: 'Baloo Bhaijaan',
                     fontSize: '100px'
                 },
+                limits: 2,
+                valid: false,
+                limitRules: [
+                    v => !!v || 'A Limit is Required',
+                    v => typeof(Math.floor(v)) == 'number' || 'Must Enter a Whole Number'
+                ],
                 chartDate: undefined,
                 min: -100,
                 max: 100,
@@ -27,7 +32,7 @@
                       sortable: true,
                       value: 'symbol',
                     },
-                    {text: 'Return', value: 'returns'},
+                    {text: '% Returns', value: 'returns'},
                     {text: 'Year', value: 'year'},
                     {text: 'Alpha', value: 'alpha'}
                   ],
@@ -36,15 +41,14 @@
                     {
                         text: 'Security', align: 'start', sortable:true, value: 'symbol'
                     },
-                    {text: 'Buy @', value: 'start_value'},
-                    {text: 'Sold @', value: 'end_value'},
-                    {text: 'Returns', value: 'returns'},
+                    {text: '% Returns', value: 'returns'},
+                    {text: 'Stategy', value: 'strategy'},
                 ],
                 desserts2: [],
                 options: {
                     series: [{
                         data: d_,
-                        name: "Mention Frequency Portfolio Returns"
+                        name: "Retail Investor Trading Strategy"
                     },
                     ],
                     colors: ['purple', 'green', 'orange', 'red', 'blue'], 
@@ -182,6 +186,7 @@
                 publisherSelection: undefined,
                 tradingWindows: ['1W', '2W', '1M', '2M', '3M', '6M', '1Y'],
                 tradingPick: undefined,
+                nd: undefined,
             }
 		},
         use: converter,
@@ -189,23 +194,28 @@
             'apexchart': converter
         },
         created: function() {
+            
             this.comparisonIndex = this.indexItems[11];
             this.analystSelection = this.analystArray;
             this.publisherSelection = this.publisherArray;
             this.chatSelection = this.chatArray;
-            this.chatSentRange = [0, 100]
-            this.publisherSentRange = [0, 100]
-            this.analystSentRange = [0, 5]
-            this.analystFilter = 2
-            this.tabSelection = 'Evaluate'
+            this.chatSentRange = [0, 100];
+            this.publisherSentRange = [0, 100];
+            this.analystSentRange = [0, 5];
+            this.analystFilter = 2;
+            this.tabSelection = 'Evaluate';
             this.tradingPick = 1;
             this.desserts2 = temp;
+            console.log('DES2')
+            console.log(this.desserts2)
+            
         },
         computed: {
             newSector: function(){
                 this.options.series.length > 3 ? this.options.series.pop(): undefined; 
-                this.options.series.push(this.comparisonIndex.graph);
-                this.desserts = this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
+                this.options.series.includes(this.comparisonIndex.graph) ? undefined : this.options.series.push(this.comparisonIndex.graph);
+                this.desserts = this.desserts.map((m) => m.symbol).includes(this.comparisonIndex.symbol) ? this.desserts: this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
+    
                 return this.comparisonIndex.sector;
             },
         },
@@ -213,10 +223,22 @@
             onResetClick: function() {
                 this.options.series = this.options.series.slice(0, 1)
                 this.desserts = this.desserts.slice(0, 2)
-                console.log(this.options.tooltip.x)
+            },
+            onRetrieveData: function() {
+                var r;
+                console.log(`chatSentRange=${this.chatSentRange}`)
+                console.log(`publisherSentRange=${this.publisherSentRange}`)
+                console.log(`analystSentRange=${this.analystSentRange}`)
+                console.log(`analystLimits=${this.limits}`)
+                var n = (Number(this.limits)).toFixed(0);
+                axios.get('http://127.0.0.1:5000/AppAPI?method=analysts,comments'  )
+                .then(res => {
+                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Analysts')), name: 'Analyst Trading Strategy'})
+                    r = res.data
+                })
+                return r
             }
         }
 	});
     
 })();
-

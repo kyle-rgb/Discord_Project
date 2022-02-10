@@ -34,6 +34,7 @@
 			{% endfor %}
 		
 		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js'></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 		<script src="https://unpkg.com/core-js-bundle@3.6.5/minified.js"></script>
 		<script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
@@ -45,6 +46,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 		<script src="https://unpkg.com/chance@1.1.6/dist/chance.min.js"></script>
 		<script src="https://unpkg.com/fontfaceobserver@2.1.0/fontfaceobserver.standalone.js"></script>
+
 		  
 		
 		
@@ -246,6 +248,24 @@
 							</v-container>
 						  </template>
 						<br>
+						<v-row>
+							<v-col
+								class="text-center"
+								cols="6"
+							  >
+							  <v-form
+								  v-model="valid"
+							  >
+								<v-text-field
+									v-model="limits"
+									label="Minimum Articles"
+									:rules="limitRules"
+									required
+								></v-text-field>
+								</v-form>
+							</v-col>
+						</v-row>
+						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="publisherSentRange"
@@ -279,7 +299,7 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
-						<!--chat-->
+						<!--analysts-->
 						<h5
 							align='center'
 							>Institutional Analysts</h5>
@@ -354,10 +374,33 @@
 						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
+						<template>
+							
+							<v-row>
+								<v-col
+									class="text-center"
+									cols="6"
+				  				>
+								  <v-form
+								  	v-model="valid"
+								  >
+									<v-text-field
+										v-model="limits"
+										label="Minimum Analysts"
+										:rules="limitRules"
+										required
+									></v-text-field>
+									</v-form>
+								</v-col>
+							</v-row>
+							
+						</template>
+						<br>
 						<v-btn
 							align='center'
 							rounded
 							color="success"
+							@click="onRetrieveData"
 						>Allocate</v-btn>
 					</template>
 				<template
@@ -406,8 +449,9 @@
                                 <div
                                     style='width: 100%; height: 25%; position: relative;' 
                                 >
-                                    <apexchart
+                                    <apexchart 
                                         :type="type" :options="options" :series="options.series"
+										id="appChart"
                                         
                                     >
                                     </apexchart>

@@ -1,7 +1,7 @@
 var temp = [];
-
-function createPyPortfolio(data){
+function createPyPortfolio(data, strat="Comments"){
     let new_data = data.map((d) => { d.port_value = d.Close * d.shares;return d; }).filter((d) => {return d.port_value})
+    console.log(data)
     let ans = _(new_data).groupBy('date').map((d, i) => ({
             date: Number(i),
             port_value: _.sumBy(d, 'port_value')
@@ -28,17 +28,17 @@ function createPyPortfolio(data){
                 shares:selectedCompanies[k][k1].last.shares,
                 start_value: +selectedCompanies[k][k1].first.port_value.toFixed(2),
                 end_value: +selectedCompanies[k][k1].last.port_value.toFixed(2),
-                returns: +(((selectedCompanies[k][k1].last.port_value -selectedCompanies[k][k1].first.port_value ) / selectedCompanies[k][k1].first.port_value)).toFixed(4)
-    
+                returns: +(((selectedCompanies[k][k1].last.port_value -selectedCompanies[k][k1].first.port_value ) / selectedCompanies[k][k1].first.port_value)*100).toPrecision(5),
+                strategy: strat,
             });
         })
     })
-    
+    console.log(selectedCompanies)
     let a_key = _(temp).groupBy('start_date').map((d, i) => ({
-        date: Number(i),
+        date: i,
         port_value: _.sumBy(d, 'start_value')
     })).value()
-    
+    console.log(a_key)
     temp.map((t) => {let alloc = a_key.filter((f) => {return f.date == t.start_date}); t.start_alloc = +((t.start_value / alloc[0].port_value).toFixed(2)); t.end_alloc = +(( t.end_value / alloc[0].port_value).toFixed(2));
     t.start_date = (new Date(t.start_date)).toLocaleDateString(); t.end_date = (new Date(t.end_date)).toLocaleDateString();
     })
@@ -222,7 +222,7 @@ function evalOverTime(data, symbol, by="1Y"){
     data = data.filter((z) => {return ((z.symbol === symbol)&(new Date(z.date) > new Date("2019-12-31 00:00:00"))&(new Date(z.date) < new Date("2022-01-01 00:00:00")))})
     _areturns  =  d3.rollup(data, v =>{return ((v.slice(-1)[0].Close)-v[0].Close)/v[0].Close}, d=>new Date(d.date).getFullYear()).entries().toArray()
     mkt_returns  =  d3.rollup(mkt_data, v =>{return ((v.slice(-1)[0].Close)-v[0].Close)/v[0].Close}, d=>new Date(d.date).getFullYear()).entries().toArray()
-    _areturns = _areturns.map((b, i) => {return {symbol: symbol, year: b[0], returns: `${(b[1]*100).toFixed(2)}%`, alpha:`${((b[1]-mkt_returns[i][1])*100).toFixed(2)}%`}})
+    _areturns = _areturns.map((b, i) => {return {symbol: symbol, year: b[0], returns: +(b[1]*100).toFixed(2), alpha:+((b[1]-mkt_returns[i][1])*100).toFixed(2)}})
     return _areturns
 }
 

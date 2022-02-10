@@ -15,7 +15,7 @@ import os
 import csv, json, zipfile
 import sqlite3 as sql, pandas as pd, time
 from api_key import cryptor
-from trader import new_port
+from trader import new_port, apiHelper
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -40,6 +40,18 @@ def profile():
 @app.route('/StockETL/')
 def StockETL():
     return render_template('charts/StockETL.html') # Candle Stick Figure from ETL.py y-finance's scrape; the placeholder for all candlesticks on prev. dashboard
+
+@app.route('/AppAPI')
+def gather_chart_data():
+    cl_time = time.perf_counter()
+    method = request.args.get("method")     
+    tada = apiHelper(wanted_sentiments=[{'name': 'recommendations', 'sent_name': 'new_sent', 'min_samples': 10, 'min_sent': 4.0}])
+    tada = tada.to_json(orient='records', double_precision=4)
+    print(time.perf_counter()-cl_time)
+    print(method)
+
+
+    return tada
 
 @app.route('/dashboard')
 def dash():
@@ -122,7 +134,7 @@ def emote():
 @app.route('/portfolio/')
 def portfolio():
     with sql.connect('../data/processed/temp_c.db') as con:
-        port = pd.read_sql(f"SELECT * FROM daily", con=con)
+        port = pd.read_sql(f"SELECT * FROM daily", con=con).drop_duplicates(subset=['Date', 'symbol'])
     obj_dict = {"port": port.to_json(orient="records", double_precision=2)}
     return render_template('template.html', obj_dict=obj_dict)
 
@@ -130,6 +142,7 @@ def portfolio():
 def tempateVue():
     with sql.connect('../data/processed/temp_c.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con).drop_duplicates(subset=['Date', 'symbol'])
+        print(port.info())
         recommends = pd.read_sql(f"SELECT Date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con)
         articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
         comments = pd.read_sql(f"SELECT date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY date", con=con)
@@ -138,10 +151,10 @@ def tempateVue():
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
 
     print('DONE')
-    
+    print(new_port.info())
     obj_dict = {"port": new_port.to_json(orient="records", double_precision=6), "c_data": c_data.to_json(orient="records", double_precision=2),
     "recommends": recommends.to_json(orient='records'), "articles": articles.to_json(orient="records", double_precision=4), "comments": comments.to_json(orient="records", double_precision=4)}
-
+    
     return render_template('templateVUE.html', obj_dict=obj_dict)
 
 

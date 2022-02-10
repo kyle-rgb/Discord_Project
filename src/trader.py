@@ -18,6 +18,8 @@ port = pd.read_sql(f"SELECT Date date, Open, High, Low, Close, Volume, Volatilit
 articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
 recommends = pd.read_sql(f"SELECT Date date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
 
+
+
 comments = pd.read_sql(f"SELECT date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY date", parse_dates={'date': '%Y-%m-%d'}, con=con)
 comments.loc[:, "symbols"] = comments.symbols.apply(lambda x: x.replace('BTC', 'BTC-USD'))
 companies = tuple(port.symbol.unique())
@@ -36,7 +38,6 @@ recommendsDict = {"Very Bearish": 1, "Bearish": 2, "Neutral": 3, "Bullish": 4, "
 recommends=recommends.assign(new_sent = lambda x: x.new_grade.apply(lambda g: recommendsDict[g]))\
     .assign(prev_sent = lambda x: x.prev_grade.apply(lambda g: recommendsDict[g]))
 
-print(time.perf_counter())
 # take aggregations over wanted frequency; make buy decisions based off of the frequency of data points and sentiments
 # return port with new information: shares and cost * shares
 class EAT():
@@ -79,9 +80,9 @@ class EAT():
         return None 
 
 
-    def tradeSents(self, agg, label, min_samples, min_comp_sent, shares):
+    def tradeSents(self, agg, label, min_samples, min_sent):
         # add action, shares, cost
-        returns = self.aggs[agg][lambda x: ((x.date >= self.start) & (x[label] >= min_comp_sent) & (x.counts >= min_samples))]
+        returns = self.aggs[agg][lambda x: ((x.date >= self.start) & (x[label] >= min_sent) & (x.counts >= min_samples))]
         # query portfolio for first cost add columns
         indexes = pd.Int64Index([])
         wanted_assets = returns.groupby('date').count().reset_index()
@@ -114,12 +115,21 @@ class EAT():
         print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 
+def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), starting_balance=10_000, wanted_sentiments=[{'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}]):
+    eat = EAT(port, articles, comments, recommends, date_tuple[0], date_tuple[1], starting_balance)
+    eat.aggregate()
+    for obj in wanted_sentiments:
+        eat.tradeSents(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
+        # eat.tradeSents("articles", "comp_sent", 20, 0.5)
+        # eat.tradeSents("recommendations", "new_sent", 10, 4.0)
+    
+    eat.portfolio
+    return eat.portfolio
+
+new_port = apiHelper()
+
+# (wanted_sentiments=[{'name': 'articles', 'sent_name': 'comp_sent', 'min_samples': 20, 'min_sent': .5},\
+    # {'name': 'recommendations', 'sent_name': 'new_sent', 'min_sent': 4.0, 'min_samples': 10},
+    # {'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}])
+
 print(time.perf_counter())
-eat = EAT(port, articles, comments, recommends, dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1), 10_000)
-eat.aggregate()
-eat.tradeSents("comments", "comp_sent", min_samples=1, min_comp_sent=0.15, shares=10)
-eat.tradeSents("articles", "comp_sent", 20, 0.5, 10)
-eat.tradeSents("recommendations", "new_sent", 10, 4.0, 10)
-
-new_port = eat.portfolio
-

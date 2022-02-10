@@ -93,5 +93,5 @@ api_key.py
 notebooks/api_key.py
 notebooks/old_financial/
 worker.*
-
+data/processed
 
