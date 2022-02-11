@@ -199,9 +199,9 @@
             this.analystSelection = this.analystArray;
             this.publisherSelection = this.publisherArray;
             this.chatSelection = this.chatArray;
-            this.chatSentRange = [0, 100];
-            this.publisherSentRange = [0, 100];
-            this.analystSentRange = [1, 4.5];
+            this.chatSentRange = [0, 15];
+            this.publisherSentRange = [0, 50];
+            this.analystSentRange = [1, 4.0];
             this.analystFilter = 2;
             this.tabSelection = 'Evaluate';
             this.tradingPick = 1;
@@ -224,13 +224,15 @@
             },
             onRetrieveData: function() {
                 var r;
-                axios.get(`http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=${this.limits[2]}&threshold=${this.analystSentRange}`  )
+                let ranges = this.chatSentRange.concat(this.analystSentRange).concat(this.publisherSentRange)
+
+                console.log(`http://127.0.0.1:5000/AppAPI?method=recommendations,comments,articles&min_samples=${this.limits}&threshold=${ranges}`)
+                axios.get(`http://127.0.0.1:5000/AppAPI?method=recommendations,comments,articles&min_samples=${this.limits}&threshold=${ranges}`  )
                 .then(res => {
-                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Analysts')), name: `Analyst Trading Strategy`})
-                    r = res.data
-                    console.log(createPyPortfolio(res.data, 'Analysts'))
+                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Mix')), name: `Mixed Trading Strategy`})
+                    console.log(createPyPortfolio(res.data))
                 })
-                return r
+                return ''
             }
         }
 	});

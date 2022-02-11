@@ -56,7 +56,7 @@ class EAT():
         self.trading_days = set(self.portfolio[lambda x: x.symbol == "DIS"].date.values)
         self.starting_amt = start_amount
         self.dates = []
-        self.share_column = pd.DataFrame()
+        self.share = True
 
     def aggregate(self):
         articles_agg = self.articles.groupby([pd.Grouper(key="date", freq="1Y"), 'symbol'])\
@@ -86,6 +86,7 @@ class EAT():
 
     def tradeSents(self, agg, label, min_samples, min_sent):
         # add action, shares, cost
+        
         returns = self.aggs[agg][lambda x: ((x.date >= self.start) & (x[label] >= min_sent) & (x.counts >= min_samples))]
         # query portfolio for first cost add columns
         indexes = pd.Int64Index([])
@@ -116,10 +117,12 @@ class EAT():
                 self.portfolio.loc[indexes, "shares"] = shares_
 
 
-        if self.share_column.empty:
-            self.share_column = self.portfolio.loc[:, 'shares'].fillna(value=0)
+        if self.share:
+            self.share_column = self.portfolio.loc[:, 'shares']
+            self.share = False
         else:
-            self.share_column = self.portfolio.shares.fillna(0) + self.share_column
+            print('aaa')
+            self.share_column = self.portfolio.shares + self.share_column
         #print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
         print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
@@ -129,11 +132,8 @@ def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), sta
     eat.aggregate()
     for obj in wanted_sentiments:
         eat.tradeSents(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
-    
-    eat.portfolio.loc[:, ['shares']] = eat.share_column
 
-    
-    eat.portfolio
+    eat.portfolio.loc[:, ['shares']] = eat.share_column
     return eat.portfolio
 
 new_port = apiHelper()

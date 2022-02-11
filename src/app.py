@@ -46,14 +46,17 @@ def StockETL():
 @app.route('/AppAPI')
 def gather_chart_data():
     cl_time = time.perf_counter()
-    method = request.args.get("method")
-    min_samples = int(request.args.get('min_samples'))
-    sentiment_threshold = float(request.args.get('threshold').split(',')[-1])
+    methods = request.args.get("method").split(',')
+    min_samples = list(map(int, request.args.get('min_samples').split(',')))
+    sentiment_threshold = list(map(float, request.args.get('threshold').split(',')))
+    args = []
+    method_indexer = {'recommendations': {'sent_name': 'new_sent', 'range_i': 1, 'range_j': 3,'div': 1}, 'comments': {'sent_name': 'comp_sent', 'range_i': 0, 'range_j': 1, 'div': 100}, 'articles': {'sent_name': 'comp_sent', 'range_i': 2, 'range_j': 5,'div': 100}}
+    for i, m in enumerate(methods):
+        args.append({'name': m, 'sent_name': method_indexer[m].get('sent_name'), 'min_samples': min_samples[method_indexer[m].get('range_i')], 'min_sent': sentiment_threshold[method_indexer[m].get('range_j')]/method_indexer[m].get('div')})
 
-    method_indexer = {'recommendations': 'new_sent', 'comments': 'comp_sent', 'articles': 'comp_sent'}
-
+    print(args)
     # support sentiment sentiment ranges, sentiment-thresholds, named calls]
-    tada = apiHelper(wanted_sentiments=[{'name': method, 'sent_name': method_indexer[method], 'min_samples': min_samples, 'min_sent': sentiment_threshold}])
+    tada = apiHelper(wanted_sentiments=args)
     tada = tada.to_json(orient='records', double_precision=4)
 
 
