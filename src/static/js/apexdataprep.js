@@ -33,17 +33,14 @@ function createPyPortfolio(data, strat="Comments"){
             });
         })
     })
-    console.log(selectedCompanies)
     let a_key = _(temp).groupBy('start_date').map((d, i) => ({
         date: i,
         port_value: _.sumBy(d, 'start_value')
     })).value()
-    console.log(a_key)
     temp.map((t) => {let alloc = a_key.filter((f) => {return f.date == t.start_date}); t.start_alloc = +((t.start_value / alloc[0].port_value).toFixed(2)); t.end_alloc = +(( t.end_value / alloc[0].port_value).toFixed(2));
     t.start_date = (new Date(t.start_date)).toLocaleDateString(); t.end_date = (new Date(t.end_date)).toLocaleDateString();
     })
     temp.sort((a, b) => a.start_date - b.start_date)
-    console.log(temp)
     return Object.values(ans).map((a) => {return [a.date, a.port_value]})
     
 }

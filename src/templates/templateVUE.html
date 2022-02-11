@@ -160,7 +160,6 @@
 						<h5
 							align='center'
 							>Private Chatrooms</h5>
-						<br>
 						<template>
 							<v-container fluid>
 							  <v-select
@@ -217,13 +216,30 @@
 							></v-text-field>
 							</template>
 						</v-range-slider>
+						<v-row>
+							<v-col
+								class="text-center"
+								cols="6"
+							  >
+							  <v-form
+								  v-model="valid"
+							  >
+								<v-text-field
+									v-model="limits[0]"
+									label="Minimum User Mentions"
+									:rules="limitRules"
+									required
+								></v-text-field>
+								</v-form>
+							</v-col>
+						</v-row>
+
 						<v-divider></v-divider>
 						<br>
 						<!--articles-->
 						<h5
 							align='center'
 							>News Outlets</h5>
-						<br>
 						<template>
 							<v-container fluid>
 							  <v-select
@@ -247,7 +263,6 @@
 							  </v-select>
 							</v-container>
 						  </template>
-						<br>
 						<v-row>
 							<v-col
 								class="text-center"
@@ -257,7 +272,7 @@
 								  v-model="valid"
 							  >
 								<v-text-field
-									v-model="limits"
+									v-model="limits[1]"
 									label="Minimum Articles"
 									:rules="limitRules"
 									required
@@ -265,7 +280,7 @@
 								</v-form>
 							</v-col>
 						</v-row>
-						<br>
+
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="publisherSentRange"
@@ -302,8 +317,9 @@
 						<!--analysts-->
 						<h5
 							align='center'
-							>Institutional Analysts</h5>
-						<br>
+						>
+							Institutional Analysts
+						</h5>
 						<template>
 							<v-container fluid>
 							  <v-select
@@ -343,9 +359,9 @@
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="analystSentRange"
-							:max="5"
-							:min="1"
-							step=".5"
+							:max="4.5"
+							:min="1.0"
+							step=".25"
 							hide-details
 							class="align-center"
 						>
@@ -373,7 +389,6 @@
 							</template>
 						</v-range-slider>
 						<v-divider></v-divider>
-						<br>
 						<template>
 							
 							<v-row>
@@ -385,8 +400,8 @@
 								  	v-model="valid"
 								  >
 									<v-text-field
-										v-model="limits"
-										label="Minimum Analysts"
+										v-model="limits[2]"
+										label="Minimum Analyst Ratings"
 										:rules="limitRules"
 										required
 									></v-text-field>

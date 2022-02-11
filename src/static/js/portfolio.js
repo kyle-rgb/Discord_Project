@@ -14,7 +14,7 @@
                     fontFamily: 'Baloo Bhaijaan',
                     fontSize: '100px'
                 },
-                limits: 2,
+                limits: [1, 20, 10],
                 valid: false,
                 limitRules: [
                     v => !!v || 'A Limit is Required',
@@ -201,18 +201,16 @@
             this.chatSelection = this.chatArray;
             this.chatSentRange = [0, 100];
             this.publisherSentRange = [0, 100];
-            this.analystSentRange = [0, 5];
+            this.analystSentRange = [1, 4.5];
             this.analystFilter = 2;
             this.tabSelection = 'Evaluate';
             this.tradingPick = 1;
             this.desserts2 = temp;
-            console.log('DES2')
-            console.log(this.desserts2)
             
         },
         computed: {
             newSector: function(){
-                this.options.series.length > 3 ? this.options.series.pop(): undefined; 
+                this.options.series.length > 5 ? this.options.series.pop(): undefined; 
                 this.options.series.includes(this.comparisonIndex.graph) ? undefined : this.options.series.push(this.comparisonIndex.graph);
                 this.desserts = this.desserts.map((m) => m.symbol).includes(this.comparisonIndex.symbol) ? this.desserts: this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
     
@@ -226,15 +224,11 @@
             },
             onRetrieveData: function() {
                 var r;
-                console.log(`chatSentRange=${this.chatSentRange}`)
-                console.log(`publisherSentRange=${this.publisherSentRange}`)
-                console.log(`analystSentRange=${this.analystSentRange}`)
-                console.log(`analystLimits=${this.limits}`)
-                var n = (Number(this.limits)).toFixed(0);
-                axios.get('http://127.0.0.1:5000/AppAPI?method=analysts,comments'  )
+                axios.get(`http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=${this.limits[2]}&threshold=${this.analystSentRange}`  )
                 .then(res => {
-                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Analysts')), name: 'Analyst Trading Strategy'})
+                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Analysts')), name: `Analyst Trading Strategy`})
                     r = res.data
+                    console.log(createPyPortfolio(res.data, 'Analysts'))
                 })
                 return r
             }

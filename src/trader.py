@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings('ignore')
+
 import pandas as pd, numpy as np, sqlite3 as sql
 import datetime as dt, re, time, holidays, zipfile, py7zr
 from dateutil.relativedelta import relativedelta
@@ -9,7 +12,6 @@ def next_business_day(date):
     while next_day.weekday() in holidays.WEEKEND or next_day in HOLIDAYS_US:
         next_day += ONE_DAY
     return next_day
-
 
 print(time.perf_counter())
 con = sql.connect('../data/processed/temp_c.db', timeout=5000)
@@ -40,6 +42,7 @@ recommends=recommends.assign(new_sent = lambda x: x.new_grade.apply(lambda g: re
 
 # take aggregations over wanted frequency; make buy decisions based off of the frequency of data points and sentiments
 # return port with new information: shares and cost * shares
+
 class EAT():
     def __init__(self, portfolio, articles, comments, recs, start, end, start_amount):
         self.portfolio = portfolio.copy(deep=True)
@@ -53,6 +56,7 @@ class EAT():
         self.trading_days = set(self.portfolio[lambda x: x.symbol == "DIS"].date.values)
         self.starting_amt = start_amount
         self.dates = []
+        self.share_column = pd.DataFrame()
 
     def aggregate(self):
         articles_agg = self.articles.groupby([pd.Grouper(key="date", freq="1Y"), 'symbol'])\
@@ -87,7 +91,7 @@ class EAT():
         indexes = pd.Int64Index([])
         wanted_assets = returns.groupby('date').count().reset_index()
         self.dates = list(wanted_assets.date.values)
-        port_amt = self.starting_amt
+        port_amt = self.starting_amt 
         for date, sym in returns.loc[:, ['date', 'symbol']].values:
             if ~(wanted_assets.loc[wanted_assets.date==date, :].index==0)[0]:
                 port_amt = returns.groupby('date').sum().returns[self.dates.index(date)-1]
@@ -111,25 +115,27 @@ class EAT():
                 returns.loc[i, 'returns'] = shares_ * self.portfolio.loc[indexes[-1], "Close"]
                 self.portfolio.loc[indexes, "shares"] = shares_
 
+
+        if self.share_column.empty:
+            self.share_column = self.portfolio.loc[:, 'shares'].fillna(value=0)
+        else:
+            self.share_column = self.portfolio.shares.fillna(0) + self.share_column
         #print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
         print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 
 def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), starting_balance=10_000, wanted_sentiments=[{'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}]):
-    eat = EAT(port, articles, comments, recommends, date_tuple[0], date_tuple[1], starting_balance)
+    eat = EAT(port, articles, comments, recommends, date_tuple[0], date_tuple[1], starting_balance/len(wanted_sentiments))
     eat.aggregate()
     for obj in wanted_sentiments:
         eat.tradeSents(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
-        # eat.tradeSents("articles", "comp_sent", 20, 0.5)
-        # eat.tradeSents("recommendations", "new_sent", 10, 4.0)
+    
+    eat.portfolio.loc[:, ['shares']] = eat.share_column
+
     
     eat.portfolio
     return eat.portfolio
 
 new_port = apiHelper()
-
-# (wanted_sentiments=[{'name': 'articles', 'sent_name': 'comp_sent', 'min_samples': 20, 'min_sent': .5},\
-    # {'name': 'recommendations', 'sent_name': 'new_sent', 'min_sent': 4.0, 'min_samples': 10},
-    # {'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}])
 
 print(time.perf_counter())

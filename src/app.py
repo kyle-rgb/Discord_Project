@@ -21,6 +21,8 @@ from trader import new_port, apiHelper
 # # import word_cloud
 
 
+
+
 # Create an instance of Flask app
 app = Flask(__name__)
 
@@ -44,11 +46,15 @@ def StockETL():
 @app.route('/AppAPI')
 def gather_chart_data():
     cl_time = time.perf_counter()
-    method = request.args.get("method")     
-    tada = apiHelper(wanted_sentiments=[{'name': 'recommendations', 'sent_name': 'new_sent', 'min_samples': 10, 'min_sent': 4.0}])
+    method = request.args.get("method")
+    min_samples = int(request.args.get('min_samples'))
+    sentiment_threshold = float(request.args.get('threshold').split(',')[-1])
+
+    method_indexer = {'recommendations': 'new_sent', 'comments': 'comp_sent', 'articles': 'comp_sent'}
+
+    # support sentiment sentiment ranges, sentiment-thresholds, named calls]
+    tada = apiHelper(wanted_sentiments=[{'name': method, 'sent_name': method_indexer[method], 'min_samples': min_samples, 'min_sent': sentiment_threshold}])
     tada = tada.to_json(orient='records', double_precision=4)
-    print(time.perf_counter()-cl_time)
-    print(method)
 
 
     return tada
@@ -142,7 +148,6 @@ def portfolio():
 def tempateVue():
     with sql.connect('../data/processed/temp_c.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con).drop_duplicates(subset=['Date', 'symbol'])
-        print(port.info())
         recommends = pd.read_sql(f"SELECT Date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con)
         articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
         comments = pd.read_sql(f"SELECT date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY date", con=con)
@@ -150,8 +155,6 @@ def tempateVue():
         companies = tuple(port.symbol.unique())
         c_data = pd.read_sql(f"SELECT * from mentions WHERE symbol IN {companies}", con=con, index_col='pk')
 
-    print('DONE')
-    print(new_port.info())
     obj_dict = {"port": new_port.to_json(orient="records", double_precision=6), "c_data": c_data.to_json(orient="records", double_precision=2),
     "recommends": recommends.to_json(orient='records'), "articles": articles.to_json(orient="records", double_precision=4), "comments": comments.to_json(orient="records", double_precision=4)}
     
