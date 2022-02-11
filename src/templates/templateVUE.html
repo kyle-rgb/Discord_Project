@@ -361,7 +361,7 @@
 							v-model="analystSentRange"
 							:max="4.5"
 							:min="1.0"
-							step=".25"
+							step=".1"
 							hide-details
 							class="align-center"
 						>
@@ -411,11 +411,35 @@
 							
 						</template>
 						<br>
+						<template>
+							<v-container fluid>
+							  <v-select
+								v-model="methodSelection"
+								:items="methods"
+								label="Filters"
+								outlined
+								multiple
+							  >
+								<template v-slot:selection="{ item, index }">
+								  <v-chip v-if="index === 0">
+									<span>[[ item ]]</span>
+								  </v-chip>
+								  <span
+									v-if="index === 1"
+									class="grey--text text-caption"
+								  >
+									(+[[ methodSelection.length - 1 ]] others)
+								  </span>
+								</template>
+							  </v-select>
+							</v-container>
+						</template>
+						<br>
 						<v-btn
 							align='center'
 							rounded
 							color="success"
-							@click="onRetrieveData"
+							@click="onRetrieveData()"
 						>Allocate</v-btn>
 					</template>
 				<template

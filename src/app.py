@@ -15,7 +15,7 @@ import os
 import csv, json, zipfile
 import sqlite3 as sql, pandas as pd, time
 from api_key import cryptor
-from trader import new_port, apiHelper
+from trader import apiHelper, new_port
 # import ETL
 # # import yfinancex
 # # import word_cloud
@@ -50,7 +50,8 @@ def gather_chart_data():
     min_samples = list(map(int, request.args.get('min_samples').split(',')))
     sentiment_threshold = list(map(float, request.args.get('threshold').split(',')))
     args = []
-    method_indexer = {'recommendations': {'sent_name': 'new_sent', 'range_i': 1, 'range_j': 3,'div': 1}, 'comments': {'sent_name': 'comp_sent', 'range_i': 0, 'range_j': 1, 'div': 100}, 'articles': {'sent_name': 'comp_sent', 'range_i': 2, 'range_j': 5,'div': 100}}
+    method_indexer = {'recommendations': {'sent_name': 'new_sent', 'range_i': 2, 'range_j': 3,'div': 1}, 'comments': {'sent_name': 'comp_sent', 'range_i': 0, 'range_j': 1, 'div': 100}, 'articles': {'sent_name': 'comp_sent', 'range_i': 1, 'range_j': 5,'div': 100}}
+    print(methods)
     for i, m in enumerate(methods):
         args.append({'name': m, 'sent_name': method_indexer[m].get('sent_name'), 'min_samples': min_samples[method_indexer[m].get('range_i')], 'min_sent': sentiment_threshold[method_indexer[m].get('range_j')]/method_indexer[m].get('div')})
 
@@ -87,14 +88,7 @@ def cloud():
         available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
         c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
         articles_sent = pd.read_sql(f"SELECT month, symbol,COUNT(comments), AVG(comments), AVG(pos_sent), AVG(neg_sent), AVG(neu_sent), AVG(comp_sent) FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month  LIKE '2020%' OR '2021%' GROUP BY month, symbol", con=con)
-        print(articles_sent.head())
-        print(articles_sent.shape)
         
-
-
-
-        
-
 
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)

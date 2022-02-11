@@ -1,6 +1,5 @@
 (function() {
     // computed: object of run functions / watch: progress f(x) / created: set atrributes and run functions on app creation (use this) / methods to run. @click
-    var d_ = norm(createPyPortfolio(port))//  
 	var svgNS = 'http://www.w3.org/2000/svg';
 	var app = new Vue({
 		el: '#app',
@@ -25,6 +24,8 @@
                 max: 100,
                 type: 'area',
                 drawer: true,
+                methods: ['recommendations', 'articles', 'comments'],
+                methodSelection: ['comments'], 
                 headers: [
                     {
                       text: 'Symbol',
@@ -43,15 +44,13 @@
                     },
                     {text: '% Returns', value: 'returns'},
                     {text: 'Stategy', value: 'strategy'},
+                    {text: 'Time', value: 'year'},
                 ],
                 desserts2: [],
                 options: {
-                    series: [{
-                        data: d_,
-                        name: "Retail Investor Trading Strategy"
-                    },
+                    series: [
                     ],
-                    colors: ['purple', 'green', 'orange', 'red', 'blue'], 
+                    colors: ['green', 'purple', 'orange', 'red', 'blue'], 
                     dataLabels: {
                         enabled: false
                       },
@@ -78,7 +77,7 @@
                         },
                         },
                     fill: {
-                        colors: ['purple', 'green','orange',],
+                        colors: ['green', 'purple','orange', 'red', 'blue'],
                         type: 'gradient',
                         gradient: {
                           shadeIntensity: 1,
@@ -201,11 +200,13 @@
             this.chatSelection = this.chatArray;
             this.chatSentRange = [0, 15];
             this.publisherSentRange = [0, 50];
-            this.analystSentRange = [1, 4.0];
+            this.analystSentRange = [1, 4.1];
             this.analystFilter = 2;
             this.tabSelection = 'Evaluate';
             this.tradingPick = 1;
+            this.onRetrieveData('Retail Trading Strategy', 'Chat');
             this.desserts2 = temp;
+            
             
         },
         computed: {
@@ -222,15 +223,14 @@
                 this.options.series = this.options.series.slice(0, 1)
                 this.desserts = this.desserts.slice(0, 2)
             },
-            onRetrieveData: function() {
+            onRetrieveData: function(name='Mixed Trading Strategy', shortname='Mix') {
                 var r;
                 let ranges = this.chatSentRange.concat(this.analystSentRange).concat(this.publisherSentRange)
-
-                console.log(`http://127.0.0.1:5000/AppAPI?method=recommendations,comments,articles&min_samples=${this.limits}&threshold=${ranges}`)
-                axios.get(`http://127.0.0.1:5000/AppAPI?method=recommendations,comments,articles&min_samples=${this.limits}&threshold=${ranges}`  )
+                console.log(ranges)
+                console.log(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`)
+                axios.get(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
                 .then(res => {
-                    this.options.series.push({data: norm(createPyPortfolio(res.data, 'Mix')), name: `Mixed Trading Strategy`})
-                    console.log(createPyPortfolio(res.data))
+                    this.options.series.push({data: norm(createPyPortfolio(res.data, shortname)), name:  name})
                 })
                 return ''
             }

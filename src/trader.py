@@ -57,6 +57,7 @@ class EAT():
         self.starting_amt = start_amount
         self.dates = []
         self.share = True
+        self.funds_lookup = pd.DataFrame()
 
     def aggregate(self):
         articles_agg = self.articles.groupby([pd.Grouper(key="date", freq="1Y"), 'symbol'])\
@@ -77,10 +78,11 @@ class EAT():
         comments_agg.columns = ['date', 'symbol', 'pos_sent', 'neg_sent', 'neu_sent', 'comp_sent',
        'counts', 'type']
         recommends_agg.columns = ['date', 'symbol', 'new_sent', 'prev_sent', 'counts', 'type']
-        # comments_agg=comments_agg.assign(date = lambda x: x.date.apply(lambda x: x.date))
+
         self.aggs['recommendations'] = recommends_agg
         self.aggs['articles'] = articles_agg
         self.aggs['comments'] = comments_agg
+
         return None 
 
 
@@ -91,11 +93,14 @@ class EAT():
         # query portfolio for first cost add columns
         indexes = pd.Int64Index([])
         wanted_assets = returns.groupby('date').count().reset_index()
+        # print(wanted_assets)
         self.dates = list(wanted_assets.date.values)
         port_amt = self.starting_amt 
         for date, sym in returns.loc[:, ['date', 'symbol']].values:
             if ~(wanted_assets.loc[wanted_assets.date==date, :].index==0)[0]:
+                # if traded once before rollover port amt to next viable year
                 port_amt = returns.groupby('date').sum().returns[self.dates.index(date)-1]
+
     
             available_funds = port_amt / wanted_assets.loc[wanted_assets.date==date, 'symbol'].values[0]
 
@@ -118,24 +123,30 @@ class EAT():
 
 
         if self.share:
-            self.share_column = self.portfolio.loc[:, 'shares']
+            self.share_column = self.portfolio.loc[:, ['shares']].fillna(0).copy(deep=True)
             self.share = False
         else:
-            print('aaa')
-            self.share_column = self.portfolio.shares + self.share_column
+            print(agg)
+            self.share_column = self.share_column + self.portfolio.loc[:, ['shares']].fillna(0)
         #print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
-        print(returns.groupby('date').sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
+        print(returns.groupby(['date']).sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 
 def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), starting_balance=10_000, wanted_sentiments=[{'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}]):
     eat = EAT(port, articles, comments, recommends, date_tuple[0], date_tuple[1], starting_balance/len(wanted_sentiments))
     eat.aggregate()
     for obj in wanted_sentiments:
+        #eat.hotFixFilter(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
         eat.tradeSents(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
 
+    
     eat.portfolio.loc[:, ['shares']] = eat.share_column
+    
+    #print(eat.portfolio.assign(s = lambda x: x.shares * x.Close).groupby('date').sum().reset_index()[lambda x: x.date <= dt.datetime(2020, 1, 10)].tail(10))
+
     return eat.portfolio
 
 new_port = apiHelper()
+
 
 print(time.perf_counter())
