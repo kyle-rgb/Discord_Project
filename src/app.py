@@ -88,7 +88,8 @@ def cloud():
         available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
         c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
         articles_sent = pd.read_sql(f"SELECT month, symbol,COUNT(comments), AVG(comments), AVG(pos_sent), AVG(neg_sent), AVG(neu_sent), AVG(comp_sent) FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month  LIKE '2020%' OR '2021%' GROUP BY month, symbol", con=con)
-        
+        port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON')", con=con, parse_dates={'date': '%Y-%m-%d'})
+
 
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
@@ -96,7 +97,7 @@ def cloud():
         
 
 
-    obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4)}
+    obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4), 'port': port.to_json(orient='records', double_precision=4)}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 

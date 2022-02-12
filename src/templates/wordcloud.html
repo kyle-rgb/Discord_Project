@@ -31,7 +31,6 @@
 		<script>
 			{% for k, v in obj_dict.items() %}
 				var {{k}} = {{v|safe}};
-				console.log({{k}})
 			{% endfor %}
 			
 		</script>
@@ -46,6 +45,7 @@
 		<script src="https://unpkg.com/fontfaceobserver@2.1.0/fontfaceobserver.standalone.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   		<script src="../static/js/plugins/chartist.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
   		
 		  
 		
@@ -462,6 +462,15 @@
 							<apexchart type="heatmap" height="350" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
 						</div>
 				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  
+					<div id="chartTree">
+						<apexchart type="treemap" :options="chartOptionsTree" :series="humnet"></apexchart>
+					</div>
+				  </v-col>
 				</v-row>
 				</v-container>
 			</v-parallax>
@@ -473,7 +482,8 @@
 				
 			>[[ snackbarText ]] <a @click="onLinkClick"> go to page</a></v-snackbar>
 		</v-app>
-		<script src="../static/js/script.js"></script>
 		<script src="../static/js/emote.js"></script>
+		<script src="../static/js/script.js"></script>
+		
 	</body>
 </html>

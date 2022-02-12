@@ -218,6 +218,7 @@
 				spacingValues: [0, 1/4, 1/2, 1, 2],
 				wordsText: undefined,
 				wordsTextStr: undefined,
+				humnet: undefined,
 				hcolor: {
                     color: 'cyan',
                     fontFamily: 'Baloo Bhaijaan',
@@ -373,6 +374,59 @@
 						},
 						legend: {labels: {colors: 'white'}},
 					},
+				chartOptionsTree: {
+					tooltip: {
+						fillSeriesColor: true,
+						y: {
+							formatter: (s) => s.toFixed(2)+"%",
+						}
+					},
+					legend: { show: false},
+					chart: {
+						  height: 700,
+						  type: 'treemap'},
+					title: {
+						  text: 'Stock Basket Returns',
+						  align: 'center',
+						  style: {
+							  fontSize: '55px',
+							  fontFamily: "Baloo Bhaijaan",
+							  color:  '#FFFFFF'
+						  }
+
+						},
+					dataLabels: {
+						enabled: true,
+						style: {
+							fontSize: '12px',
+						},
+						formatter: function(text, op) {
+							return [text, op.value.toFixed(2)+"%"]
+						},
+						offsetY: -4
+					},
+					plotOptions: {
+						treemap: {
+							enableShades: true,
+							shadeIntensity: 0.25,
+							reverseNegativeShade: true,
+							colorScale: {
+							ranges: [
+								{
+								  from: -100,
+								  to: 0,
+								  color: '#CD363A'
+								},
+								{
+								  from: 0,
+								  to: 3500,
+								  color: '#52B12C'
+								},
+							]
+							}
+						}
+					}
+				},
 			};
 		},
 		computed: {
@@ -454,6 +508,7 @@
 			this.colorItemIndex = 3
 			this.fontFamily = "Baloo Bhaijaan"
 			this.rotationItemIndex = 1
+			this.humnet = createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
 		},
 		methods: {
 			generateWordsText: function() {
