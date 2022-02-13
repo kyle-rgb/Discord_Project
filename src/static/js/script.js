@@ -368,8 +368,11 @@
 						},
 						title: {
 							text: 'HeatMap of News Media',
+							align: 'center',
 							style: {
-								color: 'white'
+								color: 'white',
+								fontSize: '25px',
+								fontFamily:  "Baloo Bhaijaan",
 							}
 						},
 						legend: {labels: {colors: 'white'}},
@@ -383,7 +386,7 @@
 					},
 					legend: { show: false},
 					chart: {
-						  height: 700,
+						  height: 2000,
 						  type: 'treemap'},
 					title: {
 						  text: 'Stock Basket Returns',
@@ -508,7 +511,7 @@
 			this.colorItemIndex = 3
 			this.fontFamily = "Baloo Bhaijaan"
 			this.rotationItemIndex = 1
-			this.humnet = createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
+			this.humnet = this.createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
 		},
 		methods: {
 			generateWordsText: function() {
@@ -531,7 +534,25 @@
 			onLinkClick: function(w){
 				
 				open(`/gather-stock-data?ticker=${this.hrefs}`, "_blank")
-			}
+			},
+			createReturnMap: function(data, start_date, end_date){
+				start_date = new Date(start_date)
+				end_date = new Date(end_date)
+				data = data.map((m) => {m.date = new Date(m.date); return m}).filter((d) => {return ((d.date) >= start_date) & ((d.date) <= end_date)})
+				let selectedCompanies = _.groupBy(data, (item) => {
+					return item.symbol
+				})
+				_.forEach(selectedCompanies, (v, k) => {
+					selectedCompanies[k] = {y: ((_.maxBy(v, 'date').Close - _.minBy(v, 'date').Close)/_.minBy(v, 'date').Close)*100, x:k}
+				})
+				let gfg = _.sortBy(selectedCompanies, (d, i) =>{
+					return d.y
+				})
+				gfg =[{data: gfg}]
+			
+				return gfg
+			
+			},
 		},
 	});
 

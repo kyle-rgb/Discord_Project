@@ -8,6 +8,7 @@
 		data: function() {
             
 			return {
+                customerN: 1, 
                 color: {
                     color: 'cyan',
                     fontFamily: 'Baloo Bhaijaan',
@@ -224,7 +225,7 @@
                 this.desserts = this.desserts.slice(0, 2)
             },
             onRetrieveData: function(name='Mixed Trading Strategy', shortname='Mix') {
-                var r;
+                shortname == 'Mix'? shortname += ` ${customN}`: shortname;
                 let ranges = this.chatSentRange.concat(this.analystSentRange).concat(this.publisherSentRange)
                 console.log(ranges)
                 console.log(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`)

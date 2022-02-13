@@ -11,6 +11,7 @@
 			[v-cloak] {
 				display: none;
 			}
+			
 		</style>
 		<link
 			href="https://fonts.googleapis.com/css?family=Abril+Fatface|Annie+Use+Your+Telescope|Anton|Bahiana|Baloo+Bhaijaan|Barrio|Finger+Paint|Fredericka+the+Great|Gloria+Hallelujah|Indie+Flower|Life+Savers|Londrina+Sketch|Love+Ya+Like+A+Sister|Merienda|Nothing+You+Could+Do|Pacifico|Quicksand|Righteous|Roboto:100,300,400,500,700,900|Sacramento|Shadows+Into+Light"
@@ -46,7 +47,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   		<script src="../static/js/plugins/chartist.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
-  		
+		
 		  
 		
 		
@@ -305,11 +306,13 @@
 			<v-parallax
 				dark
 				src="../static/img/rm251-mind-14-g.jpg"
-				height="2000"
+				height="100%"
+				style="background-repeat: repeat"
 		  	>
 			  <v-row
 			  align="center"
 			  justify="center"
+			  style="margin-bottom: 100px; margin-top: 50px;"
 			>
 				  <v-col
 					class="text-center"
@@ -326,6 +329,7 @@
 			  <v-row
 				  align="center"
 				  justify="center"
+				  style="margin-bottom: 100px;"
 			  >
 				<v-col
 					class="text-center"
@@ -359,12 +363,12 @@
 				  </v-col>
 		
 			  </v-row>
-		  
+
 			  	<v-row
 					align="center"
 					justify="center"
 					style="
-						height: 10%;
+						height: 500px;
 						position: relative;
 						width: 100%;
 						"
@@ -446,12 +450,14 @@
 				<v-row
 				  align="center"
 				  justify="center"
+				  height="40%"
+				  width="100%" 
 			  	>
 				  <v-col
 					  class="text-center"
 					  cols="8"
 				  >
-					  <canvas id="myChart" height="40%" width="80%" style="background-color: transparent;"></canvas>
+					  <canvas id="myChart" style="background-color: transparent;"></canvas>
 				  </v-col>
 				  <v-col
 					  class="text-center"
@@ -459,7 +465,7 @@
 				  >
 					  
 						<div id="chart">
-							<apexchart type="heatmap" height="350" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
+							<apexchart type="heatmap" height="500" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
 						</div>
 				  </v-col>
 				  <v-col
@@ -482,8 +488,9 @@
 				
 			>[[ snackbarText ]] <a @click="onLinkClick"> go to page</a></v-snackbar>
 		</v-app>
-		<script src="../static/js/emote.js"></script>
+		
 		<script src="../static/js/script.js"></script>
+		<script src="../static/js/emote.js"></script>
 		
 	</body>
 </html>
