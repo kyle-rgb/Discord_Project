@@ -344,18 +344,6 @@
 							</v-container>
 						</template>
 						<br>
-						<v-slider
-							v-model='analystFilter'
-							:tick-labels="analystRatings"
-							hide-details
-							ticks
-							:max="4"
-							step="1"
-							ticks="always"
-							tick-size="4"
-							vertical
-						></v-slider>
-						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
 							v-model="analystSentRange"
@@ -482,7 +470,7 @@
                         align="center"
                         
                      >Trading Strategies Performance</h1>
-					 <h2 style="color: red">[[newSector]]</h2>
+					 <h2 style="color: black">[[newSector]]</h2>
                         <template
                             >
                                 <div

@@ -12,7 +12,7 @@
                 color: {
                     color: 'cyan',
                     fontFamily: 'Baloo Bhaijaan',
-                    fontSize: '100px'
+                    fontSize: '75px'
                 },
                 limits: [1, 20, 10],
                 valid: false,
@@ -187,6 +187,7 @@
                 tradingWindows: ['1W', '2W', '1M', '2M', '3M', '6M', '1Y'],
                 tradingPick: undefined,
                 nd: undefined,
+                marketReturns: undefined,
             }
 		},
         use: converter,
@@ -194,14 +195,13 @@
             'apexchart': converter
         },
         created: function() {
-            
+            this.chatSentRange = [0, 15];
+            this.publisherSentRange = [0, 50];
+            this.analystSentRange = [1, 4.1];
             this.comparisonIndex = this.indexItems[11];
             this.analystSelection = this.analystArray;
             this.publisherSelection = this.publisherArray;
             this.chatSelection = this.chatArray;
-            this.chatSentRange = [0, 15];
-            this.publisherSentRange = [0, 50];
-            this.analystSentRange = [1, 4.1];
             this.analystFilter = 2;
             this.tabSelection = 'Evaluate';
             this.tradingPick = 1;
@@ -215,7 +215,7 @@
                 this.options.series.length > 5 ? this.options.series.pop(): undefined; 
                 this.options.series.includes(this.comparisonIndex.graph) ? undefined : this.options.series.push(this.comparisonIndex.graph);
                 this.desserts = this.desserts.map((m) => m.symbol).includes(this.comparisonIndex.symbol) ? this.desserts: this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
-    
+                this.marketReturns = this.desserts.map((d) => {if (d.symbol == 'SPY'){return {year: d.year, returns: d.returns}}}).filter((f) => {return f})                
                 return this.comparisonIndex.sector;
             },
         },
@@ -236,7 +236,16 @@
                 console.log(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`)
                 axios.get(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
                 .then(res => {
-                    this.options.series.push({data: norm(createPyPortfolio(res.data, shortname)), name:  name})
+                    this.options.series.push({data: norm(createPyPortfolio(res.data, shortname)), name:  name});
+                    let g = _.groupBy(temp, (d) => {return d.start_date})
+                    _.forEach(g, (d, i) => {
+                        let r = (_.sumBy(d, 'end_value')-_.sumBy(d, 'start_value'))/_.sumBy(d, 'start_value')
+                        let m_r = this.marketReturns.filter((d) => {return (d.year == (new Date(i).getFullYear()))})
+                        m_r = m_r[0].returns /100
+                        this.desserts.push({returns: (r*100).toFixed(2), symbol: shortname.toUpperCase(), year: (new Date(i)).getFullYear(), alpha: ((r-m_r)*100).toFixed(2)})
+                        })
+        
+                    
                 })
                 return ''
             }

@@ -465,6 +465,15 @@
 					  cols="8"
 				  >
 					  
+						<div id="chartLine">
+							<apexchart type="line" height="350" :options="chartOptionsLine" :series="seriesSent"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  
 						<div id="chart">
 							<apexchart type="heatmap" height="500" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
 						</div>

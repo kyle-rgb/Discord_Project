@@ -76,6 +76,7 @@ def user():
 @app.route('/wordcloud/')
 def cloud():
     month_parse = {'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'}
+    ratings_parse = {'Very Bearish': 1, 'Bearish': 2, 'Neutral': 3, 'Bullish': 4, 'Very Bullish': 5}
 
     with sql.connect("../data/processed/temp_c.db") as con:
         available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
@@ -84,13 +85,41 @@ def cloud():
         comments_sent = pd.read_sql(f'SELECT date month, symbols symbol, pos_sent, neg_sent, neu_sent, comp_sent FROM symbol_comments', con=con, parse_dates={'month': '%Y-%m-%d  %H:%M:%S'})
         comments_sent = comments_sent.assign(symbol=lambda x: x.symbol.apply(str.split, sep=','))\
             .assign(month = lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y')).explode('symbol')
-        port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON')", con=con, parse_dates={'date': '%Y-%m-%d'})
+        recommendations_sent = pd.read_sql(f"SELECT Date month, symbol, Firm, Action, new_grade, prev_grade FROM recommendations", con=con, parse_dates={'month': '%Y-%m-%d %H:%M:%S'})
+        port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON', 'ING')", con=con, parse_dates={'date': '%Y-%m-%d'})
+    
+    corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
+        .assign(mo_rt = lambda x: (x['last'] - x['first'])/x['first']).mo_rt.reset_index().assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).drop('date', axis=1)
+    
+    yearly_corr= port.groupby(['symbol', pd.Grouper(key='date', freq='1Y')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
+        .assign(year_rt = lambda x: (x['last'] - x['first'])/x['first']).year_rt.reset_index().assign(year=lambda x: x.date.apply(dt.datetime.strftime, format='%Y')).drop('date', axis=1)
     
     comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
     comments_sent.columns = ['month', 'symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','engagement']
     comments_sent = comments_sent.assign(article_count = lambda x: 1)
+
     articles_sent = articles_sent.assign(month = lambda x: x.month.apply(lambda m: month_parse[m.split(sep='-')[1]] + " " + m.split(sep='-')[0]))[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
     
+    corr_df2 = comments_sent.loc[:, [ 'month', 'symbol', 'comp_sent_avg', 'pos_sent_avg','engagement', 'article_count']].merge(articles_sent.loc[:, ['comp_sent_avg', 'pos_sent_avg', 'engagement', 'month', 'symbol', 'article_count']], 'inner', on=['month', 'symbol'], suffixes=('_chat', '_news'))\
+        .merge(corr_df, 'inner', on=['month', 'symbol'])
+    recommendations_sent = recommendations_sent.assign(new_grade = lambda x: x.new_grade.apply(lambda g: ratings_parse[g])).assign(prev_grade = lambda x: x.prev_grade.apply(lambda g: ratings_parse[g])).groupby(['symbol', pd.Grouper(key='month', freq='1M'), 'Firm']).mean()
+    recommendations_sent = recommendations_sent.reset_index()#.assign(year=lambda x: x.month.apply(dt.datetime.strftime, format='%Y')).assign(month=lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y'))
+    #corr_df2= corr_df2.merge(recommendations_sent, 'inner', on=['month', 'symbol'])
+    corr_df = corr_df.assign(date = lambda x: x.month.apply(dt.datetime.strptime, args=['%b %Y'])).sort_values(['date', 'symbol'])
+    recommendations_sent = recommendations_sent.sort_values('month')
+    # test = pd.merge_ordered(corr_df2, recommendations_sent, on='date', fill_method='ffill', right_by='symbol')
+    test = pd.merge_asof(corr_df, recommendations_sent, direction='nearest', tolerance=pd.Timedelta(365, 'days'), left_on='date', right_on='month',left_by='symbol', right_by='symbol')
+    print(test.dropna())
+    print(test.dropna().groupby(['Firm', 'symbol']).mean().sort_values('new_grade').sort_index(level=0).reset_index().groupby('Firm').corr().dropna())
+
+    # print(test.dropna().loc[:, ['symbol', 'mo_rt', 'Firm', 'new_grade', 'prev_grade']])
+    
+    
+    #new_recs = recommendations_sent.merge(corr_df2, 'inner', ['symbol', 'month']).loc[:, ['symbol', 'month', 'Firm', 'new_grade', 'prev_grade','mo_rt', 'year']].merge(yearly_corr, 'inner', on=['symbol', 'year']).loc[:, ['symbol', 'month', 'year','Firm', 'new_grade', 'prev_grade','mo_rt', 'year_rt']]
+    #print(recommendations_sent)
+    
+    #print(new_recs.shape)
+
 
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)

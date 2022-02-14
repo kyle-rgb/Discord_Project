@@ -364,6 +364,7 @@
 							heatmap: {
 							shadeIntensity: 0.35,
 							radius: 0,
+							reverseNegativeShade: true, 
 							useFillColorAsStroke: true,
 							colorScale: {
 								ranges: [{
@@ -551,14 +552,95 @@
 								},
 								{
 								  from: 0,
-								  to: 3500,
-								  color: '#52B12C'
+								  to: 100.00,
+								  color: '#00FF36'
 								},
+								{
+								  from: 100.01,
+								  to: 3100,
+								  color: '#006C17'
+								}
 							]
 							}
 						}
 					}
 				},
+				        
+				seriesSent: [
+					  {
+						name: "Institutional Analysts",
+						data: [28, 29, 33, 36, 32, 32, 33, 40]
+					  },
+					  {
+						name: "Retail Traders",
+						data: [12, 11, 14, 18, 17, 25, 20, 33]
+					  },
+					  {
+						name: "News Media",
+						data: [20, 18, 15, 11, 22, 14, 19, 25]
+					  }
+					],
+				chartOptionsLine: {
+					  chart: {
+						height: 350,
+						type: 'line',
+						dropShadow: {
+						  enabled: true,
+						  color: '#000',
+						  top: 18,
+						  left: 7,
+						  blur: 10,
+						  opacity: 0.2
+						},
+						toolbar: {
+						  show: false
+						}
+					  },
+					  colors: ['#F310AB', '#CC0032', '#11AA11'],
+					  dataLabels: {
+						enabled: true,
+						style: {colors: ['#F310AB', '#CC0032', '#11AA11']}
+					  },
+					  stroke: {
+						curve: 'smooth'
+					  },
+					  title: {
+						text: 'Sentiment by Sector',
+						align: 'center',
+						style: {color:'white', fontFamily: 'Baloo Bhaijaan'},
+
+					  },
+					  markers: {
+						size: 0
+					  },
+					  xaxis: {
+						categories: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+						title: {
+						  text: 'Month',
+						  style: {color: 'white'}
+						},
+						labels: {style: {colors: 'white'}},
+						
+					  },
+					  yaxis: {
+						title: {
+						  text: 'Sentiment',
+						  style: {color: 'white'},
+						},
+						min: 5,
+						max: 40,
+						labels: {style: {colors: 'white'}}
+					  },
+					  tooltip: {fillSeriesColor: true},
+					  legend: {
+						position: 'top',
+						horizontalAlign: 'center',
+						floating: true,
+						offsetY: -10,
+						offsetX: 0,
+						labels: {colors: ['white']}
+					  }
+					},
 			};
 		},
 		computed: {
