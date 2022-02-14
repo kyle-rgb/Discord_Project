@@ -13,7 +13,7 @@ import sys
 import numpy as np
 import os
 import csv, json, zipfile
-import sqlite3 as sql, pandas as pd, time
+import sqlite3 as sql, pandas as pd, time, datetime as dt
 from api_key import cryptor
 from trader import apiHelper, new_port
 # import ETL
@@ -34,14 +34,6 @@ def index():
 @app.route('/', methods=['POST']) 
 def Stock_Select(): 
     return render_template('index.html')
-
-@app.route('/profile/')
-def profile():
-    return render_template('profile.html')
-
-@app.route('/StockETL/')
-def StockETL():
-    return render_template('charts/StockETL.html') # Candle Stick Figure from ETL.py y-finance's scrape; the placeholder for all candlesticks on prev. dashboard
 
 @app.route('/AppAPI')
 def gather_chart_data():
@@ -87,9 +79,15 @@ def cloud():
     with sql.connect("../data/processed/temp_c.db") as con:
         available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
         c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
-        articles_sent = pd.read_sql(f"SELECT month, symbol,COUNT(comments), AVG(comments), AVG(pos_sent), AVG(neg_sent), AVG(neu_sent), AVG(comp_sent) FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month  LIKE '2020%' OR '2021%' GROUP BY month, symbol", con=con)
+        articles_sent = pd.read_sql(f"SELECT month, symbol, COUNT(comments) article_count, AVG(comments) engagement, AVG(pos_sent) pos_sent_avg, AVG(neg_sent) neg_sent_avg, AVG(neu_sent) neu_sent_avg, AVG(comp_sent) comp_sent_avg FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month LIKE '2020%' OR month LIKE '2021%' GROUP BY month, symbol", con=con)
+        comments_sent = pd.read_sql(f'SELECT date month, symbols symbol, pos_sent, neg_sent, neu_sent, comp_sent FROM symbol_comments', con=con, parse_dates={'month': '%Y-%m-%d  %H:%M:%S'})
+        comments_sent = comments_sent.assign(symbol=lambda x: x.symbol.apply(str.split, sep=','))\
+            .assign(month = lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y')).explode('symbol')
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON')", con=con, parse_dates={'date': '%Y-%m-%d'})
-
+    
+    comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
+    comments_sent.columns = ['month', 'symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','count']
+    print(comments_sent)
 
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
@@ -97,7 +95,8 @@ def cloud():
         
 
 
-    obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4), 'port': port.to_json(orient='records', double_precision=4)}
+    obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4),\
+        'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4)}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 
@@ -157,7 +156,6 @@ def tempateVue():
     "recommends": recommends.to_json(orient='records'), "articles": articles.to_json(orient="records", double_precision=4), "comments": comments.to_json(orient="records", double_precision=4)}
     
     return render_template('templateVUE.html', obj_dict=obj_dict)
-
 
 if __name__ == "__main__":
     app.config['TEMPLATES_AUTO_RELOAD'] = True
