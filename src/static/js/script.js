@@ -354,6 +354,7 @@
 				  ]
 					}
 				  ],
+				seriesHeat2: [],
 				chartOptionsHeat: {
 						chart: {
 							height: 350,
@@ -361,36 +362,36 @@
 						},
 						plotOptions: {
 							heatmap: {
-							shadeIntensity: 0.5,
+							shadeIntensity: 0.35,
 							radius: 0,
 							useFillColorAsStroke: true,
 							colorScale: {
 								ranges: [{
-									from: -30,
-									to: 5,
+									from: -1,
+									to: 0,
 									name: 'low',
-									color: '#00A100'
+									color: '#9B0000'
 								},
 								{
-									from: 6,
-									to: 20,
+									from: 0.01,
+									to: 0.50,
 									name: 'medium',
-									color: '#128FD9'
+									color: '#00FF36'
 								},
 								{
-									from: 21,
-									to: 45,
+									from: 0.50,
+									to: 1,
 									name: 'high',
-									color: '#FFB200'
+									color: '#006C17'
 								},
-								{
-									from: 46,
-									to: 55,
-									name: 'extreme',
-									color: '#FF0000'
-								}
 								]
 							}
+							}
+						},
+						tooltip: {
+							fillSeriesColor: true,
+							z: {
+								title: 'Ticker: '
 							}
 						},
 						dataLabels: {
@@ -423,12 +424,88 @@
 							align: 'center',
 							style: {
 								color: 'white',
-								fontSize: '25px',
+								fontSize: '16px',
 								fontFamily:  "Baloo Bhaijaan",
 							}
 						},
 						legend: {labels: {colors: 'white'}},
+				},
+				chartOptionsHeat2: {
+					chart: {
+						height: 350,
+						type: 'heatmap',
 					},
+					plotOptions: {
+						heatmap: {
+						shadeIntensity: 0.35,
+						radius: 0,
+						useFillColorAsStroke: true,
+						reverseNegativeShade: true, 
+						colorScale: {
+							ranges: [{
+								from: -1,
+								to: 0,
+								name: 'low',
+								color: '#9B0000'
+							},
+							{
+								from: 0.01,
+								to: 0.50,
+								name: 'medium',
+								color: '#00FF36'
+							},
+							{
+								from: 0.50,
+								to: 1,
+								name: 'high',
+								color: '#006C17'
+							},
+							]
+						}
+						}
+					},
+					tooltip: {
+						fillSeriesColor: true,
+						z: {
+							title: 'Ticker: '
+						}
+					},
+					dataLabels: {
+						enabled: true
+					},
+					stroke: {
+						width: 1
+					},
+					dataLabels: {
+					style: {
+								colors: ['white']
+							}
+					},
+					yaxis: {
+						labels: {
+							style: {
+								colors: ['white']
+							}
+						}
+					},
+					xaxis: {
+						labels: {
+							style: {
+								colors: 'white'
+							},
+						}
+					},
+					title: {
+						text: 'HeatMap of Private Chats',
+						align: 'center',
+						style: {
+							color: 'white',
+							fontSize: '16px',
+							fontFamily:  "Baloo Bhaijaan",
+						}
+					},
+					legend: {labels: {colors: 'white'}},
+			},
 				chartOptionsTree: {
 					tooltip: {
 						fillSeriesColor: true,
@@ -531,18 +608,6 @@
 				
 				this.wordsTextStr = this.wordsText.join('\n').replace(/,/g, " ");
 				return this.wordsText
-					// .split(/[\r\n]+/)
-					// .map(function(line) {
-					// 	return /^(.+)\s+(-?\d+)$/.exec(line);
-					// })
-					// .filter(function(matched) {
-					// 	return matched;
-					// })
-					// .map(function(matched) {
-					// 	var text = matched[1];
-					// 	var weight = Number(matched[2]);
-					// 	return [text, weight];
-					// });
 			},
 		},
 		watch: {
@@ -564,6 +629,9 @@
 			this.fontFamily = "Baloo Bhaijaan"
 			this.rotationItemIndex = 1
 			this.treeSeries = this.createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
+			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
+			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
+			
 		},
 		methods: {
 			generateWordsText: function() {
@@ -605,6 +673,34 @@
 				return gfg
 			
 			},
+			createHeatReturns: function(data, start_date, end_date){
+				start_date = new Date(start_date)
+				end_date = new Date(end_date)
+				data = data.map((m) => {m.date = new Date(m.month); return m}).filter((d) => {return ((d.date) >= start_date) & ((d.date) <= end_date)})
+				data.sort((a, b) => {return a.date - b.date})
+				console.log(data)
+
+				let selectedDates = _.groupBy(data, (item) => {
+					return item.month
+				})
+				
+				_.forEach(selectedDates, (v, k) => {
+					selectedDates[k] = { name: k,
+						data: [{x: 'MAX AVG SENTIMENT', y: _.maxBy(v, 'comp_sent_avg').comp_sent_avg, z: _.maxBy(v, 'comp_sent_avg').symbol},
+					{x: 'MIN AVG SENTIMENT', y: _.minBy(v, 'comp_sent_avg').comp_sent_avg, z: _.minBy(v, 'comp_sent_avg').symbol},
+					{x: 'MAX POS SENTIMENT', y: _.maxBy(v, 'pos_sent_avg').pos_sent_avg, z: _.maxBy(v, 'pos_sent_avg').symbol},
+					{x: 'MAX NEG SENTIMENT', y: _.maxBy(v, 'neg_sent_avg').neg_sent_avg, z: _.minBy(v, 'neg_sent_avg').symbol},
+					{x: 'MOST ARTICLES', y: _.maxBy(v, 'article_count').article_count, z: _.maxBy(v, 'article_count').symbol},
+					{x: 'MOST ENGAGED', y: _.maxBy(v, 'engagement').engagement, z: _.maxBy(v, 'engagement').symbol},
+				]
+				}})
+
+				let gfg = _.sortBy(selectedDates, (d, i) => {
+					return new Date(i)
+				})
+				
+				return gfg
+			}
 		},
 	});
 

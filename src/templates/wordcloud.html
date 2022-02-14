@@ -474,6 +474,15 @@
 					  cols="8"
 				  >
 					  
+						<div id="chartChat">
+							<apexchart type="heatmap" height="500" :options="chartOptionsHeat2" :series="seriesHeat2"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  
 					<div id="chartTree">
 						<apexchart type="treemap" :options="chartOptionsTree" :series="treeSeries"></apexchart>
 					</div>

@@ -75,6 +75,7 @@ def user():
 
 @app.route('/wordcloud/')
 def cloud():
+    month_parse = {'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'}
 
     with sql.connect("../data/processed/temp_c.db") as con:
         available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
@@ -86,8 +87,10 @@ def cloud():
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON')", con=con, parse_dates={'date': '%Y-%m-%d'})
     
     comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
-    comments_sent.columns = ['month', 'symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','count']
-    print(comments_sent)
+    comments_sent.columns = ['month', 'symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','engagement']
+    comments_sent = comments_sent.assign(article_count = lambda x: 1)
+    articles_sent = articles_sent.assign(month = lambda x: x.month.apply(lambda m: month_parse[m.split(sep='-')[1]] + " " + m.split(sep='-')[0]))[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
+    
 
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
@@ -96,7 +99,7 @@ def cloud():
 
 
     obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4),\
-        'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4)}
+        'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4), 'commentsSent': comments_sent.to_json(orient='records', double_precision=4)}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 
