@@ -355,6 +355,149 @@
 					}
 				  ],
 				seriesHeat2: [],
+				seriesDonut: [44, 55, 41, 17, 15, 10],
+				chartOptionsDonut: {
+					chart: {
+						type: 'donut',
+						foreColor: 'white',
+					},
+					colors: ['#2E93fA', '#66DA26', '#546E7A', '#E91E63', '#FF9800', '#656360'],
+					labels: ['Very Bullish', 'Bullish', 'Neutral / Market Perform', 'Bearish', 'Very Bearish', 'n/a'],
+					responsive: [{
+					breakpoint: 480,
+					options: {
+						chart: {
+						width: 200
+						},
+						legend: {
+						position: 'bottom'
+						}
+					}
+					}]
+				},
+				seriesBar: [{
+					name: 'Positive Comments',
+					data: [44, 55, 41, 37, 22, 43, 21, 20],
+					color: '#18E100',
+				  }, {
+					name: 'Neutral Comments',
+					data: [53, 32, 33, 52, 13, 43, 32, 34],
+					color: '#FFF03D',
+				  }, {
+					name: 'Negative Comments',
+					data: [12, 17, 11, 9, 15, 11, 20, 21],
+					color: '#B32824',
+				  },],
+				chartOptionsBar: {
+					chart: {
+					  type: 'bar',
+					  height: 350,
+					  stacked: true,
+					  stackType: '100%',
+					  foreColor: 'white',
+					},
+					plotOptions: {
+					  bar: {
+						horizontal: true,
+					  },
+					},
+					dataLabels: {style: {colors: ['black']}},
+					stroke: {
+					  width: 1,
+					  colors: ['#fff']
+					},
+					title: {
+					  text: 'Private Chat Sentiments',
+					  align: 'center',
+					  style: {
+						fontFamily: 'Baloo Bhaijaan',
+						fontSize: '20px',
+					  },
+					},
+					xaxis: {
+					  categories: ["May", "June", "July", "Aug", "Sept", "Oct", 'Nov', 'Dec'],
+					},
+					tooltip: {
+					  fillSeriesColor: true,
+					  y: {
+						formatter: function (val) {
+						  return val + "K"
+						}
+					  }
+					},
+					fill: {
+					  opacity: 1,
+					  colors: ['#1A73E8', '#B32824', '#BF119A'],
+					
+					},
+					legend: {
+					  position: 'top',
+					  horizontalAlign: 'center',
+					  labels: {useSeriesColors: true,},
+					  
+					}
+				  },
+				seriesBarNews: [{
+					name: 'Positive Articles',
+					data: [50, 55, 61, 67, 62, 45, 51, 54],
+					color: '#18E100',
+				  }, {
+					name: 'Neutral Articles',
+					data: [33, 32, 33, 42, 38, 40, 30, 31],
+					color: '#FFF000',
+				  }, {
+					name: 'Negative Articles',
+					data: [22, 17, 18, 19, 18, 14, 20, 25],
+					color: '#B32800',
+				  },],
+				chartOptionsBarNews: {
+					chart: {
+					  type: 'bar',
+					  height: 350,
+					  stacked: true,
+					  stackType: '100%',
+					  foreColor: 'white',
+					},
+					plotOptions: {
+					  bar: {
+						horizontal: true,
+					  },
+					},
+					dataLabels: {style: {colors: ['black']}},
+					stroke: {
+					  width: 1,
+					  colors: ['#fff']
+					},
+					title: {
+					  text: 'Media Stories Sentiments',
+					  align: 'center',
+					  style: {
+						fontFamily: 'Baloo Bhaijaan',
+						fontSize: '20px',
+					  },
+					},
+					xaxis: {
+					  categories: ["May", "June", "July", "Aug", "Sept", "Oct", 'Nov', 'Dec'],
+					},
+					tooltip: {
+					  fillSeriesColor: true,
+					  y: {
+						formatter: function (val) {
+						  return val + "K"
+						}
+					  }
+					},
+					fill: {
+					  opacity: 1,
+					  colors: ['#1A73E8', '#B32824', '#BF119A'],
+					
+					},
+					legend: {
+					  position: 'top',
+					  horizontalAlign: 'center',
+					  
+					}
+				  },
 				chartOptionsHeat: {
 						chart: {
 							height: 350,
@@ -396,7 +539,7 @@
 							}
 						},
 						dataLabels: {
-							enabled: true
+							enabled: true,
 						},
 						stroke: {
 							width: 1
@@ -506,7 +649,7 @@
 						}
 					},
 					legend: {labels: {colors: 'white'}},
-			},
+				},
 				chartOptionsTree: {
 					tooltip: {
 						fillSeriesColor: true,
@@ -565,7 +708,35 @@
 						}
 					}
 				},
-				        
+				seriesBubb: [{
+					name: 'Bubble1',
+					data: [
+						{x: 1, y: 2.78, z:15},
+						{x: 1, y: 3.52, z:35},
+						{x: 1, y: 3.73, z:22},		
+					]
+				  },],
+				chartOptionsBubb: {
+					chart: {
+						height: 350,
+						type: 'bubble',
+						foreColor: '#ffffff',
+					},
+					tooltip: {fillSeriesColor: true},
+					dataLabels: {
+						enabled: true
+					},
+					fill: {
+						opacity: 0.8
+					},
+					title: {
+						text: 'Simple Bubble Chart'
+					},
+
+					yaxis: {
+						max: 5
+					}
+				  },
 				seriesSent: [
 					  {
 						name: "Institutional Analysts",

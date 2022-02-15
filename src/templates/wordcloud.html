@@ -323,7 +323,7 @@
 					  Retail Investor Trading
 				  </h1>
 				  <h4 class="subheading">
-					  Using Retail Traders to Beat the Market
+					  Using Retail Traders to Beat the Market!
 				  </h4>
 				  </v-col>
 			  </v-row>
@@ -464,6 +464,30 @@
 					  class="text-center"
 					  cols="8"
 				  >
+						<div id="chartBar">
+							<apexchart type="bar" height="500" :options="chartOptionsBar" :series="seriesBar"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+						<div id="chartBarNews">
+							<apexchart type="bar" height="500" :options="chartOptionsBarNews" :series="seriesBarNews"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					<div id="chartDonut">
+						<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonut"></apexchart>
+					</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
 					  
 						<div id="chartLine">
 							<apexchart type="line" height="350" :options="chartOptionsLine" :series="seriesSent"></apexchart>
@@ -496,6 +520,7 @@
 						<apexchart type="treemap" :options="chartOptionsTree" :series="treeSeries"></apexchart>
 					</div>
 				  </v-col>
+				  
 				</v-row>
 				</v-container>
 			</v-parallax>
