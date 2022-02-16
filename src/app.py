@@ -21,7 +21,13 @@ from trader import apiHelper, new_port
 # # import word_cloud
 
 
-
+def sent_help(s):
+    if s >= .1200:
+        return 'positive'
+    elif s >= 0:
+        return 'neutral'
+    else:
+        return 'negative' 
 
 # Create an instance of Flask app
 app = Flask(__name__)
@@ -87,12 +93,16 @@ def cloud():
             .assign(month = lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y')).explode('symbol')
         recommendations_sent = pd.read_sql(f"SELECT Date month, symbol, Firm, Action, new_grade, prev_grade FROM recommendations", con=con, parse_dates={'month': '%Y-%m-%d %H:%M:%S'})
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON', 'ING', 'VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con, parse_dates={'date': '%Y-%m-%d'})
-    
+        articles_pt = pd.read_sql(f"SELECT date, symbol, comments engagement, comp_sent FROM news_sentiment JOIN (SELECT pk, DATE(date) date, symbol, comments  FROM articles) USING (pk) WHERE date LIKE '2020%'", con=con, parse_dates={'date': '%Y-%m-%d'})
+
     corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(mo_rt = lambda x: (x['last'] - x['first'])/x['first']).mo_rt.reset_index().assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).drop('date', axis=1)
     
     yearly_corr= port.groupby(['symbol', pd.Grouper(key='date', freq='1Y')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(year_rt = lambda x: (x['last'] - x['first'])/x['first']).year_rt.reset_index().assign(year=lambda x: x.date.apply(dt.datetime.strftime, format='%Y')).drop('date', axis=1)
+    
+
+
     
     comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
     
@@ -101,6 +111,7 @@ def cloud():
 
     articles_sent = articles_sent.assign(month = lambda x: x.month.apply(lambda m: month_parse[m.split(sep='-')[1]] + " " + m.split(sep='-')[0]))[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
     
+
     corr_df2 = comments_sent.loc[:, [ 'month', 'symbol', 'comp_sent_avg', 'pos_sent_avg','engagement', 'article_count']].merge(articles_sent.loc[:, ['comp_sent_avg', 'pos_sent_avg', 'engagement', 'month', 'symbol', 'article_count']], 'inner', on=['month', 'symbol'], suffixes=('_chat', '_news'))\
         .merge(corr_df, 'inner', on=['month', 'symbol'])
     recommendations_sent = recommendations_sent.assign(new_grade = lambda x: x.new_grade.apply(lambda g: ratings_parse[g])).assign(prev_grade = lambda x: x.prev_grade.apply(lambda g: ratings_parse[g])).groupby(['symbol', pd.Grouper(key='month', freq='1M'), 'Firm']).mean()
@@ -115,8 +126,8 @@ def cloud():
     #print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False)).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade)\
     inital_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date < dt.datetime(2020, 4, 30))].groupby('symbol').agg({'new_grade': ['mean', 'count']})#.groupby('Firm').agg({'a': ['mean', 'count']})[lambda b: b.iloc[:, 1] > 10].sort_values([('a', 'count')]))
     
-    print(test.dropna()[lambda x: (x.date < dt.datetime(2020, 12, 31))])
-    print(corr_df2.sort_values('comp_sent_avg_chat'))
+    # print(test.dropna()[lambda x: (x.date < dt.datetime(2020, 12, 31))])
+    # print(corr_df2.sort_values('comp_sent_avg_chat'))
 
     # print(recommendations_sent.groupby('symbol').count().shape)
     # print([x for x in available_companies if x not in recommendations_sent.groupby('symbol').count().index])
@@ -135,11 +146,24 @@ def cloud():
     with sql.connect("../data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
         pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x)))).to_json(orient='records')
-        
+        comments_ = pd.read_sql("SELECT comp_sent, neg_sent, neu_sent, pos_sent,  STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
+
+
+    comments_pt = comments_.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
+        .assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y'))\
+            .loc[:, ['comp_sent', 'month', 'TYPE']].pivot(index='month', values='comp_sent', columns='TYPE').T.loc[:, ['May 2020', 'Jun 2020', 'Jul 2020', 'Aug 2020', 'Sep 2020', 'Oct 2020', 'Nov 2020', 'Dec 2020']]
+            
+    articles_pt = articles_pt.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
+        .assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).sort_values('date')\
+            .loc[:, ['comp_sent', 'month', 'TYPE']].pivot(index='month', values='comp_sent', columns='TYPE').fillna(0).T.loc[:, ['May 2020', 'Jun 2020', 'Jul 2020', 'Aug 2020', 'Sep 2020', 'Oct 2020', 'Nov 2020', 'Dec 2020']]
+            
+    print(comments_pt)
+    print(articles_pt)
 
 
     obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4),\
-        'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4), 'commentsSent': comments_sent.to_json(orient='records', double_precision=4)}
+        'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4),\
+             'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1), 'comments_pt': comments_pt.to_json(orient='split', double_precision=1)}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 

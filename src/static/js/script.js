@@ -884,7 +884,7 @@
 			this.treeSeries = this.createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
 			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
-			
+			this.createBar(comments_pt, articles_pt)
 		},
 		methods: {
 			generateWordsText: function() {
@@ -953,6 +953,18 @@
 				})
 				
 				return gfg
+			},
+			createBar: function(data, data_2){
+				// data
+				this.chartOptionsBar.xaxis.categories = data.columns;
+				this.chartOptionsBarNews.xaxis.categories = data.columns;
+				this.seriesBar[0].data = data.data[2]; // Positive
+				this.seriesBar[1].data  = data.data[1]; // Neutral
+				this.seriesBar[2].data  = data.data[0]; // Negative
+				this.seriesBarNews[0].data = data_2.data[2];
+				this.seriesBarNews[1].data = data_2.data[1];
+				this.seriesBarNews[2].data = data_2.data[0];
+
 			}
 		},
 	});
