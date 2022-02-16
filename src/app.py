@@ -85,7 +85,9 @@ def cloud():
     ratings_parse = {'Very Bearish': 1, 'Bearish': 2, 'Neutral': 3, 'Bullish': 4, 'Very Bullish': 5}
 
     with sql.connect("../data/processed/temp_c.db") as con:
-        available_companies = pd.read_sql("SELECT DISTINCT symbol from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT')", con=con).symbol.values
+        available_companies = pd.read_sql("SELECT symbol, DATE(MIN(date)) starting_date from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT', 'IT', 'PT', 'ING', 'ON') GROUP BY symbol", con=con, parse_dates={'starting_date': '%Y-%m-%d'})
+        available_companies_dates = available_companies
+        available_companies = available_companies.symbol.values
         c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
         articles_sent = pd.read_sql(f"SELECT month, symbol, COUNT(comments) article_count, AVG(comments) engagement, AVG(pos_sent) pos_sent_avg, AVG(neg_sent) neg_sent_avg, AVG(neu_sent) neu_sent_avg, AVG(comp_sent) comp_sent_avg FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month LIKE '2020%' OR month LIKE '2021%' GROUP BY month, symbol", con=con)
         comments_sent = pd.read_sql(f'SELECT date month, symbols symbol, pos_sent, neg_sent, neu_sent, comp_sent FROM symbol_comments', con=con, parse_dates={'month': '%Y-%m-%d  %H:%M:%S'})
@@ -124,7 +126,8 @@ def cloud():
     # test = pd.merge_ordered(corr_df2, recommendations_sent, on='date', fill_method='ffill', right_by='symbol')
     test = pd.merge_asof(corr_df, recommendations_sent, direction='backward', tolerance=pd.Timedelta(365, 'days'), left_on='date', right_on='month',left_by='symbol', right_by='symbol')
     #print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False)).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade)\
-    inital_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date < dt.datetime(2020, 4, 30))].groupby('symbol').agg({'new_grade': ['mean', 'count']})#.groupby('Firm').agg({'a': ['mean', 'count']})[lambda b: b.iloc[:, 1] > 10].sort_values([('a', 'count')]))
+    initial_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date <= dt.datetime(2020, 4, 30))]\
+        .groupby('symbol').agg({'new_grade': ['mean', 'count']})
     
     # print(test.dropna()[lambda x: (x.date < dt.datetime(2020, 12, 31))])
     # print(corr_df2.sort_values('comp_sent_avg_chat'))
@@ -141,6 +144,14 @@ def cloud():
     #print(recommendations_sent)
     
     #print(new_recs.shape)
+    
+    
+    initial_ratings = initial_ratings.assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
+    i_set= set(initial_ratings.symbol.values).union({'SPY', 'SQQQ', 'QQQ', 'VXX', 'BTC-USD'})
+    
+    missing_ratings = available_companies_dates[lambda x: (~(x.symbol.isin(i_set)))].assign(r=lambda df: df.starting_date.apply(lambda s: 'Not Rated' if s < dt.datetime(2020, 4, 30) else 'pre-IPO'))
+    
+    pie_ratings  = pd.concat([initial_ratings, missing_ratings.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
 
 
     with sql.connect("../data/processed/discord.db") as con:
@@ -156,14 +167,12 @@ def cloud():
     articles_pt = articles_pt.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
         .assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).sort_values('date')\
             .loc[:, ['comp_sent', 'month', 'TYPE']].pivot(index='month', values='comp_sent', columns='TYPE').fillna(0).T.loc[:, ['May 2020', 'Jun 2020', 'Jul 2020', 'Aug 2020', 'Sep 2020', 'Oct 2020', 'Nov 2020', 'Dec 2020']]
-            
-    print(comments_pt)
-    print(articles_pt)
-
+    
 
     obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4),\
         'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4),\
-             'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1), 'comments_pt': comments_pt.to_json(orient='split', double_precision=1)}
+             'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1),\
+                  'comments_pt': comments_pt.to_json(orient='split', double_precision=1), 'pieRatings': pie_ratings.to_json(orient='split')}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 

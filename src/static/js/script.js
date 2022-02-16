@@ -355,14 +355,14 @@
 					}
 				  ],
 				seriesHeat2: [],
-				seriesDonut: [44, 55, 41, 17, 15, 10],
+				seriesDonut: [],
 				chartOptionsDonut: {
 					chart: {
 						type: 'donut',
 						foreColor: 'white',
 					},
-					colors: ['#2E93fA', '#66DA26', '#546E7A', '#E91E63', '#FF9800', '#656360'],
-					labels: ['Very Bullish', 'Bullish', 'Neutral / Market Perform', 'Bearish', 'Very Bearish', 'n/a'],
+					colors: ['#FF3939', '#17FF08', '#FFF700', '#838383', '#027000', '#00D8FF'],
+					labels: ['Bearish', 'Bullish', 'Bullish/Neutral', 'Not Rated', 'Very Bullish', 'pre-IPO'],
 					responsive: [{
 					breakpoint: 480,
 					options: {
@@ -880,7 +880,8 @@
 			this.animationEasing = "linear"
 			this.colorItemIndex = 3
 			this.fontFamily = "Baloo Bhaijaan"
-			this.rotationItemIndex = 1
+			this.rotationItemIndex = 1;
+			this.seriesDonut = pieRatings.data[0];
 			this.treeSeries = this.createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
 			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
