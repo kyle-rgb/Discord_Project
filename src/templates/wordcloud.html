@@ -478,12 +478,35 @@
 				  </v-col>
 				  <v-col
 					  class="text-center"
-					  cols="8"
+					  cols="5"
 				  >
 					<div id="chartDonut">
 						<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonut"></apexchart>
 					</div>
 				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="5"
+				  >
+					<div id="chartDonut22">
+						<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonutEnd"></apexchart>
+					</div>
+				  </v-col>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					
+					<div id="synced-charts">
+						<div id="scatterNews">
+							<apexchart type="scatter" height="350" :options="chartOptionsBubbleNews" :series="seriesBubbleNews"></apexchart>
+						</div>
+						<div id="scatterChat">
+							<apexchart type="scatter" height="350" :options="chartOptionsBubbleChat" :series="seriesBubbleChat"></apexchart>
+						</div>
+					  </div>
+				  </v-col>
+				  
 				  <v-col
 					  class="text-center"
 					  cols="8"

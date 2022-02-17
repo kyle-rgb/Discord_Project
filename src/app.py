@@ -90,6 +90,7 @@ def cloud():
         available_companies = available_companies.symbol.values
         c_data = pd.read_sql(f"SELECT * from mentions LIMIT 100", con=con, index_col='pk')
         articles_sent = pd.read_sql(f"SELECT month, symbol, COUNT(comments) article_count, AVG(comments) engagement, AVG(pos_sent) pos_sent_avg, AVG(neg_sent) neg_sent_avg, AVG(neu_sent) neu_sent_avg, AVG(comp_sent) comp_sent_avg FROM news_sentiment JOIN (SELECT pk, STRFTIME('%Y-%m', date) month, symbol, comments  FROM articles) USING (pk) WHERE month LIKE '2020%' OR month LIKE '2021%' GROUP BY month, symbol", con=con)
+        narticles = pd.read_sql(f"SELECT symbol, COUNT(comments) article_count, AVG(comments) engagement, AVG(pos_sent) pos_sent_avg, AVG(neg_sent) neg_sent_avg, AVG(neu_sent) neu_sent_avg, AVG(comp_sent) comp_sent_avg FROM news_sentiment JOIN (SELECT pk, DATE(date) month, symbol, comments  FROM articles) USING (pk) WHERE month > DATE('2020-04-31') GROUP BY symbol", con=con)
         comments_sent = pd.read_sql(f'SELECT date month, symbols symbol, pos_sent, neg_sent, neu_sent, comp_sent FROM symbol_comments', con=con, parse_dates={'month': '%Y-%m-%d  %H:%M:%S'})
         comments_sent = comments_sent.assign(symbol=lambda x: x.symbol.apply(str.split, sep=','))\
             .assign(month = lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y')).explode('symbol')
@@ -100,58 +101,52 @@ def cloud():
     corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(mo_rt = lambda x: (x['last'] - x['first'])/x['first']).mo_rt.reset_index().assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).drop('date', axis=1)
     
+
     yearly_corr= port.groupby(['symbol', pd.Grouper(key='date', freq='1Y')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(year_rt = lambda x: (x['last'] - x['first'])/x['first']).year_rt.reset_index().assign(year=lambda x: x.date.apply(dt.datetime.strftime, format='%Y')).drop('date', axis=1)
     
-
-
-    
+    ncomments = comments_sent.groupby(['symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
+    ncomments.columns = ['symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','engagement']
     comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
     
     comments_sent.columns = ['month', 'symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','engagement']
     comments_sent = comments_sent.assign(article_count = lambda x: 1)
 
-    articles_sent = articles_sent.assign(month = lambda x: x.month.apply(lambda m: month_parse[m.split(sep='-')[1]] + " " + m.split(sep='-')[0]))[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
     
+    articles_sent = articles_sent.assign(month = lambda x: x.month.apply(lambda m: month_parse[m.split(sep='-')[1]] + " " + m.split(sep='-')[0]))[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
+    narticles = narticles[lambda x: ~(x.symbol.isin({'PT', 'IT', "ON", "ING"}))]
+    ntotals = narticles.merge(ncomments, on='symbol', how='inner', suffixes=('_news', '_chat'))
+    nreturns = port[lambda x: (x.date > dt.datetime(2020, 4, 30)) & (x.date < dt.datetime(2021, 1, 1))].groupby('symbol').agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
+        .assign(returns = lambda x: (x['last'] - x['first'])/x['first']).reset_index().loc[:, ['symbol', 'returns']]
+   
+    ntotals = ntotals.merge(nreturns, 'inner', 'symbol')
 
-    corr_df2 = comments_sent.loc[:, [ 'month', 'symbol', 'comp_sent_avg', 'pos_sent_avg','engagement', 'article_count']].merge(articles_sent.loc[:, ['comp_sent_avg', 'pos_sent_avg', 'engagement', 'month', 'symbol', 'article_count']], 'inner', on=['month', 'symbol'], suffixes=('_chat', '_news'))\
-        .merge(corr_df, 'inner', on=['month', 'symbol'])
+
+
     recommendations_sent = recommendations_sent.assign(new_grade = lambda x: x.new_grade.apply(lambda g: ratings_parse[g])).assign(prev_grade = lambda x: x.prev_grade.apply(lambda g: ratings_parse[g])).groupby(['symbol', pd.Grouper(key='month', freq='1M'), 'Firm']).mean()
     recommendations_sent = recommendations_sent.reset_index()#.assign(year=lambda x: x.month.apply(dt.datetime.strftime, format='%Y')).assign(month=lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y'))
     #corr_df2= corr_df2.merge(recommendations_sent, 'inner', on=['month', 'symbol'])
     corr_df = corr_df.assign(date = lambda x: x.month.apply(dt.datetime.strptime, args=['%b %Y'])).assign(year = lambda x: x.date.apply(lambda l: l.year).apply(str))
     recommendations_sent = recommendations_sent.sort_values('month')
     corr_df = corr_df.merge(yearly_corr, 'inner', ['year', 'symbol']).sort_values(['date', 'symbol'])
-    # print(corr_df)
+    corr_df2 = comments_sent.loc[:, [ 'month', 'symbol', 'comp_sent_avg', 'pos_sent_avg','engagement', 'article_count']].merge(articles_sent.loc[:, ['comp_sent_avg', 'pos_sent_avg', 'engagement', 'month', 'symbol', 'article_count']], 'inner', on=['month', 'symbol'], suffixes=('_chat', '_news'))\
+        .merge(corr_df, 'inner', on=['month', 'symbol']).sort_values('date').reset_index(drop=True)[lambda x: x.date > dt.datetime(2020, 4, 30)]
     # test = pd.merge_ordered(corr_df2, recommendations_sent, on='date', fill_method='ffill', right_by='symbol')
     test = pd.merge_asof(corr_df, recommendations_sent, direction='backward', tolerance=pd.Timedelta(365, 'days'), left_on='date', right_on='month',left_by='symbol', right_by='symbol')
     #print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False)).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade)\
     initial_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date <= dt.datetime(2020, 4, 30))]\
         .groupby('symbol').agg({'new_grade': ['mean', 'count']})
     
-    # print(test.dropna()[lambda x: (x.date < dt.datetime(2020, 12, 31))])
-    # print(corr_df2.sort_values('comp_sent_avg_chat'))
+    ending_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date < dt.datetime(2021, 1, 1))]\
+        .groupby('symbol').agg({'new_grade': ['mean', 'count']}).assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
 
-    # print(recommendations_sent.groupby('symbol').count().shape)
-    # print([x for x in available_companies if x not in recommendations_sent.groupby('symbol').count().index])
-    #print(articles_sent)
-    #print(articles_sent.merge(corr_df, 'inner', ['month', 'symbol']).loc[:, ['month', 'symbol', 'article_count','engagement', 'comp_sent_avg', 'mo_rt', 'year_rt']]\
-    #    [lambda x: x.month == 'May 2020'].sort_values('article_count', ascending=False).head(20).corr())
-    # print(test.dropna().loc[:, ['symbol', 'mo_rt', 'Firm', 'new_grade', 'prev_grade']])
-    
-    
-    #new_recs = recommendations_sent.merge(corr_df2, 'inner', ['symbol', 'month']).loc[:, ['symbol', 'month', 'Firm', 'new_grade', 'prev_grade','mo_rt', 'year']].merge(yearly_corr, 'inner', on=['symbol', 'year']).loc[:, ['symbol', 'month', 'year','Firm', 'new_grade', 'prev_grade','mo_rt', 'year_rt']]
-    #print(recommendations_sent)
-    
-    #print(new_recs.shape)
-    
-    
     initial_ratings = initial_ratings.assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
     i_set= set(initial_ratings.symbol.values).union({'SPY', 'SQQQ', 'QQQ', 'VXX', 'BTC-USD'})
-    
+    e_set = set(ending_ratings.symbol.values).union({'SPY', 'QQQ', 'SQQQ', 'VXX', 'BTC-USD'})
     missing_ratings = available_companies_dates[lambda x: (~(x.symbol.isin(i_set)))].assign(r=lambda df: df.starting_date.apply(lambda s: 'Not Rated' if s < dt.datetime(2020, 4, 30) else 'pre-IPO'))
-    
+    missing_ratings_end = available_companies_dates[lambda x: (~(x.symbol.isin(e_set)))].assign(r=lambda df: df.starting_date.apply(lambda s: 'Not Rated'))
     pie_ratings  = pd.concat([initial_ratings, missing_ratings.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
+    pie_ratings_dose  = pd.concat([ending_ratings, missing_ratings_end.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
 
 
     with sql.connect("../data/processed/discord.db") as con:
@@ -172,7 +167,8 @@ def cloud():
     obj_dict = {"cos": list(available_companies), "c_data":c_data.to_json(orient='records'), 'pop_emote': pop_emote, 'arts': articles_sent.to_json(orient='records', double_precision=4),\
         'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4),\
              'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1),\
-                  'comments_pt': comments_pt.to_json(orient='split', double_precision=1), 'pieRatings': pie_ratings.to_json(orient='split')}
+                  'comments_pt': comments_pt.to_json(orient='split', double_precision=1), 'pieRatings': pie_ratings.to_json(orient='split'),\
+                      'bubbleData': corr_df2.to_json(orient='records'), 'pieRatings2': pie_ratings_dose.to_json(orient='split'), 'nTotals': ntotals.to_json(orient='records')}
     
     return render_template('wordcloud.html', obj_dict=obj_dict)
 

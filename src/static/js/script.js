@@ -356,13 +356,14 @@
 				  ],
 				seriesHeat2: [],
 				seriesDonut: [],
+				seriesDonutEnd: [],
 				chartOptionsDonut: {
 					chart: {
 						type: 'donut',
 						foreColor: 'white',
 					},
-					colors: ['#FF3939', '#17FF08', '#FFF700', '#838383', '#027000', '#00D8FF'],
-					labels: ['Bearish', 'Bullish', 'Bullish/Neutral', 'Not Rated', 'Very Bullish', 'pre-IPO'],
+					colors: ['#FF3939', '#17FF08', '#FFD801', '#838383', '#027000', '#00D8FF'],
+					labels: ['Bearish', 'Bullish', 'Neutral', 'Not Rated', 'Very Bullish', 'pre-IPO'],
 					responsive: [{
 					breakpoint: 480,
 					options: {
@@ -702,41 +703,98 @@
 								  from: 100.01,
 								  to: 3100,
 								  color: '#006C17'
+								},
+								{
+									from: 3100.01,
+									to: 7500,
+									color: '#F39C12'
 								}
 							]
 							}
 						}
 					}
 				},
-				seriesBubb: [{
+				seriesBubbleNews: [{
 					name: 'Bubble1',
 					data: [
-						{x: 1, y: 2.78, z:15},
-						{x: 1, y: 3.52, z:35},
-						{x: 1, y: 3.73, z:22},		
+						{x: 0.333, y: 0.105, z:10},
+						{x: -.6531, y: 0.0568, z:3},
+						{x: .8912, y: 0.085, z:23},		
 					]
 				  },],
-				chartOptionsBubb: {
+				seriesBubbleChat: [{name: 'BubbleC', data: [{z: 21, x: .123, y: -0.034}]}],
+				chartOptionsBubbleChat: {
 					chart: {
 						height: 350,
-						type: 'bubble',
+						type: 'scatterChat',
 						foreColor: '#ffffff',
+						id: 'scatter-2',
+						group: 'counts',
 					},
 					tooltip: {fillSeriesColor: true},
 					dataLabels: {
-						enabled: true
+						enabled: false
 					},
 					fill: {
 						opacity: 0.8
 					},
 					title: {
-						text: 'Simple Bubble Chart'
+						text: 'Chat Mentions vs. Analyzed Period Returns',
+						align: 'center',
+						style: {
+							fontFamily: 'Baloo Bhaijaan',
+							fontSize: '20px'
+						}
 					},
-
+					xaxis: {
+						tickAmount: 12,
+						min: -1,
+						max: 12.5,
+						decimalsInFloat: 2,
+						type: 'numeric',
+					},
 					yaxis: {
-						max: 5
+						min: 0,
+						max: 500,
+						decimalsInFloat: 0,
 					}
 				  },
+				chartOptionsBubbleNews: {
+					chart: {
+						height: 350,
+						type: 'scatter',
+						foreColor: '#ffffff',
+						id: 'scatterNews',
+						group: 'counts',
+					},
+					tooltip: {fillSeriesColor: true},
+					dataLabels: {
+						enabled: false
+					},
+					fill: {
+						opacity: 0.8
+					},
+					title: {
+						text: 'Articles Written vs. Analyzed Period Returns',
+						align: 'center',
+						style: {
+							fontFamily: 'Baloo Bhaijaan',
+							fontSize: '20px',
+						}
+					},
+					xaxis: {
+						tickAmount: 12,
+						min: -1,
+						max: 12.5,
+						decimalsInFloat: 2,
+						type: 'numeric',
+					},
+					yaxis: {
+						min: 0,
+						max: 1650,
+						decimalsInFloat: 0,
+					}
+				},
 				seriesSent: [
 					  {
 						name: "Institutional Analysts",
@@ -882,10 +940,12 @@
 			this.fontFamily = "Baloo Bhaijaan"
 			this.rotationItemIndex = 1;
 			this.seriesDonut = pieRatings.data[0];
-			this.treeSeries = this.createReturnMap(port, new Date('2020-01-01'), new Date('2022-01-01'));
+			this.seriesDonutEnd = pieRatings2.data[0];
+			this.treeSeries = this.createReturnMap(port, new Date('2020-05-01'), new Date('2022-01-01'));
 			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
 			this.createBar(comments_pt, articles_pt)
+			this.createBubbles(nTotals)
 		},
 		methods: {
 			generateWordsText: function() {
@@ -965,6 +1025,21 @@
 				this.seriesBarNews[0].data = data_2.data[2];
 				this.seriesBarNews[1].data = data_2.data[1];
 				this.seriesBarNews[2].data = data_2.data[0];
+
+			},
+			createBubbles: function(data){
+				let groups = _.groupBy(data, d=>d.symbol)
+				let chatD = {};
+				let newsD = {};
+
+				_.forEach(groups, (d, i) => {
+					chatD[i] = {name: i, data: d.map((d) => {return {y: d.engagement_chat, x: d.returns, }})};
+					newsD[i] = {name: i, data: d.map((d) => {return {y: d.article_count, x: d.returns}})};
+				})
+
+				console.log(chatD)
+				this.seriesBubbleChat = Object.values(chatD)
+				this.seriesBubbleNews = Object.values(newsD)
 
 			}
 		},
