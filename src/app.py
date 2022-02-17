@@ -1,4 +1,5 @@
 # Import Dependencies 
+from inspect import isgeneratorfunction
 from flask import Flask, request, render_template, redirect, jsonify, url_for
 from flask_pymongo import PyMongo
 import psycopg2
@@ -28,6 +29,8 @@ def sent_help(s):
         return 'neutral'
     else:
         return 'negative' 
+
+
 
 # Create an instance of Flask app
 app = Flask(__name__)
@@ -97,6 +100,8 @@ def cloud():
         recommendations_sent = pd.read_sql(f"SELECT Date month, symbol, Firm, Action, new_grade, prev_grade FROM recommendations", con=con, parse_dates={'month': '%Y-%m-%d %H:%M:%S'})
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON', 'ING', 'VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con, parse_dates={'date': '%Y-%m-%d'})
         articles_pt = pd.read_sql(f"SELECT date, symbol, comments engagement, comp_sent FROM news_sentiment JOIN (SELECT pk, DATE(date) date, symbol, comments  FROM articles) USING (pk) WHERE date LIKE '2020%'", con=con, parse_dates={'date': '%Y-%m-%d'})
+        recsEval = pd.read_sql(f'SELECT * FROM recsEvaluation', con=con)
+
 
     corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(mo_rt = lambda x: (x['last'] - x['first'])/x['first']).mo_rt.reset_index().assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y')).drop('date', axis=1)
@@ -123,7 +128,8 @@ def cloud():
 
 
 
-    recommendations_sent = recommendations_sent.assign(new_grade = lambda x: x.new_grade.apply(lambda g: ratings_parse[g])).assign(prev_grade = lambda x: x.prev_grade.apply(lambda g: ratings_parse[g])).groupby(['symbol', pd.Grouper(key='month', freq='1M'), 'Firm']).mean()
+    recommendations_sent = recommendations_sent.assign(new_grade = lambda x: x.new_grade.apply(lambda g: ratings_parse[g])).assign(prev_grade = lambda x: x.prev_grade.apply(lambda g: ratings_parse[g]))
+    recommendations_sent = recommendations_sent.groupby(['symbol', pd.Grouper(key='month', freq='1M'), 'Firm']).mean()
     recommendations_sent = recommendations_sent.reset_index()#.assign(year=lambda x: x.month.apply(dt.datetime.strftime, format='%Y')).assign(month=lambda x: x.month.apply(dt.datetime.strftime, format='%b %Y'))
     #corr_df2= corr_df2.merge(recommendations_sent, 'inner', on=['month', 'symbol'])
     corr_df = corr_df.assign(date = lambda x: x.month.apply(dt.datetime.strptime, args=['%b %Y'])).assign(year = lambda x: x.date.apply(lambda l: l.year).apply(str))
@@ -132,15 +138,22 @@ def cloud():
     corr_df2 = comments_sent.loc[:, [ 'month', 'symbol', 'comp_sent_avg', 'pos_sent_avg','engagement', 'article_count']].merge(articles_sent.loc[:, ['comp_sent_avg', 'pos_sent_avg', 'engagement', 'month', 'symbol', 'article_count']], 'inner', on=['month', 'symbol'], suffixes=('_chat', '_news'))\
         .merge(corr_df, 'inner', on=['month', 'symbol']).sort_values('date').reset_index(drop=True)[lambda x: x.date > dt.datetime(2020, 4, 30)]
     # test = pd.merge_ordered(corr_df2, recommendations_sent, on='date', fill_method='ffill', right_by='symbol')
+    
+
     test = pd.merge_asof(corr_df, recommendations_sent, direction='backward', tolerance=pd.Timedelta(365, 'days'), left_on='date', right_on='month',left_by='symbol', right_by='symbol')
-    #print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False)).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade)\
+    print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade))
     initial_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date <= dt.datetime(2020, 4, 30))]\
         .groupby('symbol').agg({'new_grade': ['mean', 'count']})
     
     ending_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date < dt.datetime(2021, 1, 1))]\
-        .groupby('symbol').agg({'new_grade': ['mean', 'count']}).assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
+        .groupby('symbol').agg({'new_grade': ['mean', 'count']})
+    
 
+    inital_bars =initial_ratings.droplevel(0, axis=1).sort_values(['mean'], ascending=False)[lambda x: x['count'] >= 10].rename(columns={'': 'symbol'})
+    ending_bars = ending_ratings.droplevel(0, axis=1).sort_values(['mean'], ascending=False)[lambda x: x['count'] >= 10].rename(columns={'': 'symbol'})
     initial_ratings = initial_ratings.assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
+    ending_ratings = ending_ratings.assign(r=lambda x: x[('new_grade', 'mean')].apply(lambda z: 'Very Bullish' if z >= 4.0 else ('Bullish' if z>= 3.50 else ('Bullish Neutral' if z>= 3.0 else 'Bearish' if z>= 2.0 else 'Very Bearish')))).reset_index().loc[:, ['symbol', 'r']].droplevel(1, axis=1)
+    
     i_set= set(initial_ratings.symbol.values).union({'SPY', 'SQQQ', 'QQQ', 'VXX', 'BTC-USD'})
     e_set = set(ending_ratings.symbol.values).union({'SPY', 'QQQ', 'SQQQ', 'VXX', 'BTC-USD'})
     missing_ratings = available_companies_dates[lambda x: (~(x.symbol.isin(i_set)))].assign(r=lambda df: df.starting_date.apply(lambda s: 'Not Rated' if s < dt.datetime(2020, 4, 30) else 'pre-IPO'))
@@ -153,6 +166,17 @@ def cloud():
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
         pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x)))).to_json(orient='records')
         comments_ = pd.read_sql("SELECT comp_sent, neg_sent, neu_sent, pos_sent,  STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
+        cmts_ = pd.read_sql("SELECT content, STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
+        noun_tokens_positive = pd.read_sql("SELECT word, positive_count count, 'P' sent, type FROM tokens WHERE type = 'noun' ORDER BY positive_count DESC LIMIT 50", con=con)
+        verb_tokens_positive = pd.read_sql("SELECT word, positive_count count, 'P' sent, type FROM tokens WHERE type = 'verb' ORDER BY positive_count DESC LIMIT 50", con=con)
+        noun_tokens_negative = pd.read_sql("SELECT word, negative_count count, 'N' sent, type FROM tokens WHERE type = 'noun' ORDER BY negative_count DESC LIMIT 50", con=con)
+        verb_tokens_negative = pd.read_sql("SELECT word, negative_count count, 'N' sent, type FROM tokens WHERE type = 'verb' ORDER BY negative_count DESC LIMIT 50", con=con)
+
+
+    _n = pd.concat([noun_tokens_positive, noun_tokens_negative, verb_tokens_positive, verb_tokens_negative], axis=0, ignore_index=False)
+    print(_n)
+    
+    
 
 
     comments_pt = comments_.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
@@ -168,8 +192,10 @@ def cloud():
         'port': port.to_json(orient='records', double_precision=4), 'articlesSent': articles_sent.to_json(orient='records', double_precision=4),\
              'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1),\
                   'comments_pt': comments_pt.to_json(orient='split', double_precision=1), 'pieRatings': pie_ratings.to_json(orient='split'),\
-                      'bubbleData': corr_df2.to_json(orient='records'), 'pieRatings2': pie_ratings_dose.to_json(orient='split'), 'nTotals': ntotals.to_json(orient='records')}
+                      'bubbleData': corr_df2.to_json(orient='records'), 'pieRatings2': pie_ratings_dose.to_json(orient='split'), 'nTotals': ntotals.to_json(orient='records'), 'initialBars': inital_bars.to_json(orient='split', double_precision=3), 'endingBars': ending_bars.to_json(orient='split', double_precision=3),\
+                          'token_Json': _n.to_json(orient='records')}
     
+
     return render_template('wordcloud.html', obj_dict=obj_dict)
 
 @app.route('/gather-stock-data') 

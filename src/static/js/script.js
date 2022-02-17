@@ -270,6 +270,10 @@
 				spacingValues: [0, 1/4, 1/2, 1, 2],
 				wordsText: undefined,
 				wordsTextStr: undefined,
+				positiveNouns: undefined,
+				positiveVerbs: undefined,
+				negativeNouns: undefined,
+				negativeVerbs: undefined,
 				treeSeries: undefined,
 				hcolor: {
                     color: 'cyan',
@@ -541,6 +545,7 @@
 						},
 						dataLabels: {
 							enabled: true,
+							
 						},
 						stroke: {
 							width: 1
@@ -565,7 +570,7 @@
 							}
 						},
 						title: {
-							text: 'HeatMap of News Media',
+							text: 'Heatmap of News Media',
 							align: 'center',
 							style: {
 								color: 'white',
@@ -580,7 +585,7 @@
 						height: 350,
 						type: 'heatmap',
 					},
-					plotOptions: {
+				plotOptions: {
 						heatmap: {
 						shadeIntensity: 0.35,
 						radius: 0,
@@ -836,7 +841,7 @@
 					  title: {
 						text: 'Sentiment by Sector',
 						align: 'center',
-						style: {color:'white', fontFamily: 'Baloo Bhaijaan'},
+						style: {color:'white', fontFamily: 'Baloo Bhaijaan', fontSize: '20px'},
 
 					  },
 					  markers: {
@@ -870,6 +875,117 @@
 						labels: {colors: ['white']}
 					  }
 					},
+				seriesRecBar: [{
+						data: []
+					  }],
+				chartOptionsRecBar: {
+						chart: {
+						  type: 'bar',
+						  height: 350,
+						  foreColor: 'white',
+						},
+						plotOptions: {
+						  bar: {
+							borderRadius: 4,
+							horizontal: true,
+						  }
+						},
+						dataLabels: {
+						  enabled: false
+						},
+						colors: ['#33b2df', '#546E7A', '#d4526e', '#13d8aa', '#A5978B', '#2b908f', '#f9a3a4', '#90ee7e',
+              			'#f48024', '#69d2e7'],
+						xaxis: {
+						  categories: [
+						  ],
+						},
+						tooltip: {
+							fillSeriesColors: true,
+						},
+						title:{
+							align:'center',
+							text: 'Analyst Ratings Pre May 2020'
+						},
+						annotations: {
+							xaxis: [
+							{
+								x: 4.0,
+								label: {text: 'Very Bullish', style: {background: '#000000'}},
+							},
+							{
+								x: 3.50,
+								label: {text: 'Bullish', style: {background: '#000000'}},
+							},
+							{
+								x: 3.0,
+								label: {text: 'Neutral', style: {background: '#000000'}},
+							},
+							{
+								x: 2.0,
+								label: {text: 'Bearish', style: {background: '#000000'}},
+							},
+						],
+							points: [{
+								marker: {
+									fillColor: '#000'
+								}
+							}]
+						}
+				},
+				seriesRecBar2: [{
+					data: []
+				  }],
+				chartOptionsRecBar2: {
+						chart: {
+						type: 'bar',
+						height: 350,
+						foreColor: 'white',
+						},
+						plotOptions: {
+						bar: {
+							borderRadius: 4,
+							horizontal: true,
+						}
+						},
+						colors: ['#33b2df', '#546E7A', '#d4526e', '#13d8aa', '#A5978B', '#2b908f', '#f9a3a4', '#90ee7e',
+              			'#f48024', '#69d2e7'],
+						dataLabels: {
+						enabled: false
+						},
+						xaxis: {
+						categories: [
+						],
+						},
+						title:{
+							align:'center',
+							text: 'Analyst Ratings Ending 2020'
+						},
+						annotations: {
+							xaxis: [
+							{
+								x: 4.0,
+								label: {text: 'Very Bullish', style: {background: '#000000'}},
+							},
+							{
+								x: 3.50,
+								label: {text: 'Bullish', style: {background: '#000000'}},
+							},
+							{
+								x: 3.0,
+								label: {text: 'Neutral', style: {background: '#000000'}},
+							},
+							{
+								x: 2.0,
+								label: {text: 'Bearish', style: {background: '#000000'}},
+							},
+						],
+							points: [{
+								marker: {
+									fillColor: '#000'
+								}
+							}]
+						}
+				}
 			};
 		},
 		computed: {
@@ -881,6 +997,18 @@
 			},
 			color: function() {
 				var colors = this.colorItems[this.colorItemIndex];
+				return function() {
+					return chance.pickone(colors);
+				};
+			},
+			negColor: function(){
+				let colors = ['#FF3131', '#770737', '#986868', 	'#C04000', '#D2042D', '#DE3163'];
+				return function() {
+					return chance.pickone(colors);
+				};
+			},
+			posColor: function(){
+				let colors = ['#7FFFD4', '#00FFFF', '#097969', 	'#DFFF00', '#AFE1AF', '#50C878', '#00A36C', '#008000', '#0FFF50'];
 				return function() {
 					return chance.pickone(colors);
 				};
@@ -916,7 +1044,6 @@
 				return this.spacingValues[this.spacingValueIndex];
 			},
 			words: function() {
-				
 				this.wordsTextStr = this.wordsText.join('\n').replace(/,/g, " ");
 				return this.wordsText
 			},
@@ -946,12 +1073,17 @@
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
 			this.createBar(comments_pt, articles_pt)
 			this.createBubbles(nTotals)
+			console.log(this.negativeNouns)
+			console.log(this.negativeVerbs)
 		},
 		methods: {
 			generateWordsText: function() {
 				words_array = new Array();
 				var str = new String();
-				
+				this.positiveNouns = token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='noun'))}).map((d) => {return [d.word, d.count]});
+				this.negativeNouns= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='noun'))}).map((d) => {return [d.word, d.count]});
+				this.positiveVerbs= token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='verb'))}).map((d) => {return [d.word, d.count]});
+				this.negativeVerbs= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='verb'))}).map((d) => {return [d.word, d.count]});
 				c_data = c_data.slice(0, 100);
 				c_data.map((d) => {if (cos.includes(d.symbol)) {words_array.push([d.symbol, +d.counts])}})
 				this.wordsText = words_array//.join('\n').replace(',', " ");
@@ -1012,7 +1144,7 @@
 				let gfg = _.sortBy(selectedDates, (d, i) => {
 					return new Date(i)
 				})
-				
+				console.log(gfg)
 				return gfg
 			},
 			createBar: function(data, data_2){
@@ -1025,6 +1157,10 @@
 				this.seriesBarNews[0].data = data_2.data[2];
 				this.seriesBarNews[1].data = data_2.data[1];
 				this.seriesBarNews[2].data = data_2.data[0];
+				this.chartOptionsRecBar.xaxis.categories = initialBars.index
+				this.seriesRecBar[0].data = initialBars.data.map((m) => {return m[0]})
+				this.chartOptionsRecBar2.xaxis.categories = endingBars.index
+				this.seriesRecBar2[0].data = endingBars.data.map((m) => {return m[0]})
 
 			},
 			createBubbles: function(data){

@@ -5,6 +5,8 @@ import pandas as pd, numpy as np, sqlite3 as sql
 import datetime as dt, re, time, holidays, zipfile, py7zr
 from dateutil.relativedelta import relativedelta
 
+
+
 def next_business_day(date):
     ONE_DAY = dt.relativedelta(days=1)
     HOLIDAYS_US = holidays.US()
@@ -145,6 +147,7 @@ def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), sta
     #print(eat.portfolio.assign(s = lambda x: x.shares * x.Close).groupby('date').sum().reset_index()[lambda x: x.date <= dt.datetime(2020, 1, 10)].tail(10))
 
     return eat.portfolio
+
 
 new_port = apiHelper()
 
