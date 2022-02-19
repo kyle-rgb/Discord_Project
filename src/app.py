@@ -167,10 +167,10 @@ def cloud():
         pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x)))).to_json(orient='records')
         comments_ = pd.read_sql("SELECT comp_sent, neg_sent, neu_sent, pos_sent,  STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
         cmts_ = pd.read_sql("SELECT content, STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
-        noun_tokens_positive = pd.read_sql("SELECT word, positive_count count, 'P' sent, type FROM tokens WHERE type = 'noun' ORDER BY positive_count DESC LIMIT 50", con=con)
-        verb_tokens_positive = pd.read_sql("SELECT word, positive_count count, 'P' sent, type FROM tokens WHERE type = 'verb' ORDER BY positive_count DESC LIMIT 50", con=con)
-        noun_tokens_negative = pd.read_sql("SELECT word, negative_count count, 'N' sent, type FROM tokens WHERE type = 'noun' ORDER BY negative_count DESC LIMIT 50", con=con)
-        verb_tokens_negative = pd.read_sql("SELECT word, negative_count count, 'N' sent, type FROM tokens WHERE type = 'verb' ORDER BY negative_count DESC LIMIT 50", con=con)
+        noun_tokens_positive = pd.read_sql("SELECT word, positive_count count, ((positive_count)/(negative_count)) ratio, 'P' sent, type FROM tokens WHERE type = 'noun' ORDER BY positive_count DESC LIMIT 50", con=con)
+        verb_tokens_positive = pd.read_sql("SELECT word, positive_count count, ((positive_count)/(negative_count)) ratio, 'P' sent, type FROM tokens WHERE type = 'verb' ORDER BY positive_count DESC LIMIT 50", con=con)
+        noun_tokens_negative = pd.read_sql("SELECT word, negative_count count, ((negative_count)/(positive_count)) ratio, 'N' sent, type FROM tokens WHERE type = 'noun' ORDER BY negative_count DESC LIMIT 50", con=con)
+        verb_tokens_negative = pd.read_sql("SELECT word, negative_count count, ((negative_count)/(positive_count)) ratio, 'N' sent, type FROM tokens WHERE type = 'verb' ORDER BY negative_count DESC LIMIT 50", con=con)
 
 
     _n = pd.concat([noun_tokens_positive, noun_tokens_negative, verb_tokens_positive, verb_tokens_negative], axis=0, ignore_index=False)

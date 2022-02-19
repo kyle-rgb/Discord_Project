@@ -52,6 +52,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
   		<script src="../static/js/plugins/chartist.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.25.0/axios.min.js"></script>
 		
 		  
 		
@@ -143,7 +144,22 @@
 				  </v-col>
 		
 			  </v-row>
-
+			  <v-row
+					style="
+					height: 50px;
+					width: 100%;
+					"
+					align="center"
+					justify="center"
+					
+				>
+				<h1
+					style="font-family: Baloo Bhaijaan; font-size: 40px"
+					
+				>
+					Top Mentioned Companies
+				</h1>
+				</v-row>
 			  	<v-row
 					align="center"
 					justify="center"
@@ -186,7 +202,7 @@
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
 								:progress.sync="progress"
-								:rotation="rotation"
+								:rotation="rotation(1)"
 								:spacing="spacing"
 								:words="words"
 							>
@@ -241,7 +257,7 @@
 					style="font-family: Baloo Bhaijaan; font-size: 35px"
 					
 				>
-					Postive Words
+					Positive Words
 				</h1>
 				</v-row>
 				<v-row
@@ -271,7 +287,7 @@
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
 								:progress.sync="progress"
-								:rotation="rotation"
+								:rotation="rotation(0)"
 								:spacing="spacing"
 								:words="positiveNouns"
 							>
@@ -306,7 +322,7 @@
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
 								:progress.sync="progress"
-								:rotation="rotation"
+								:rotation="rotation(0)"
 								:spacing="spacing"
 								:words="positiveVerbs"
 							>
@@ -371,7 +387,7 @@
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
 								:progress.sync="progress"
-								:rotation="rotation"
+								:rotation="rotation(2)"
 								:spacing="spacing"
 								:words="negativeNouns"
 							>
@@ -406,7 +422,7 @@
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
 								:progress.sync="progress"
-								:rotation="rotation"
+								:rotation="rotation(2)"
 								:spacing="spacing"
 								:words="negativeVerbs"
 							>
@@ -540,7 +556,17 @@
 						<apexchart type="treemap" :options="chartOptionsTree" :series="treeSeries"></apexchart>
 					</div>
 				  </v-col>
-				  
+				  <v-col
+				  	class="text-center"
+					cols="8" 
+				  >
+				  <div id="returnChart">
+					
+					<div id="chartTimeline">
+						<apexchart type="area" height="350" ref="chart" :options="chartOptionsReturns" :series="seriesReturns"></apexchart>
+				  	</div>
+				  </div>
+				  </v-col>
 				</v-row>
 				</v-container>
 			</v-parallax>
@@ -552,7 +578,7 @@
 				
 			>[[ snackbarText ]] <a @click="onLinkClick"> go to page</a></v-snackbar>
 		</v-app>
-		
+		<script src="../static/js/apexdataprep.js"></script>
 		<script src="../static/js/script.js"></script>
 		<script src="../static/js/emote.js"></script>
 		

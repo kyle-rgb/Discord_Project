@@ -985,7 +985,83 @@
 								}
 							}]
 						}
-				}
+				},
+				seriesReturns: [
+				{
+					name: 'Chats',
+					data: [],
+				},
+				{
+					name: 'News',
+					data: [],
+				},
+				{
+					name: 'Recommendations',
+					data: [],
+				},
+				
+				],
+				chartOptionsReturns: {
+					chart: {
+					  id: 'area-datetime',
+					  type: 'area',
+					  height: 350,
+					  zoom: {
+						autoScaleYaxis: true
+					  },
+					  foreColor: 'white',
+					  
+					},
+					annotations: {
+					  xaxis: [{
+						x: new Date('14 Nov 2012').getTime(),
+						borderColor: '#999',
+						yAxisIndex: 0,
+						label: {
+						  show: true,
+						  text: 'Rally',
+						  style: {
+							color: "#fff",
+							background: '#775DD0'
+						  }
+						}
+					  }]
+					},
+					dataLabels: {
+					  enabled: false,
+					},
+					markers: {
+					  size: 0,
+					  style: 'hollow',
+					},
+					xaxis: {
+					  type: 'datetime',
+					  min: new Date('01 Jan 2020').getTime(),
+					  tickAmount: 6,
+					},
+					yaxis: {
+						min: 0,
+						max: 20,
+						decimalsInFloat: 2,
+						
+					},
+					tooltip: {
+					  x: {
+						format: 'dd MMM yyyy'
+					  }
+					},
+					title: {text: 'Returns', style: {fontFamily: 'Baloo Bhaijaan', fontSize: '28px'}, align:'center'},
+					fill: {
+					  type: 'gradient',
+					  gradient: {
+						shadeIntensity: 1,
+						opacityFrom: 0.7,
+						opacityTo: 0.9,
+						stops: [0, 100]
+					  }
+					},
+				  },
+				
 			};
 		},
 		computed: {
@@ -1036,10 +1112,6 @@
 					})
 					.join(' ');
 			},
-			rotation: function() {
-				var item = this.rotationItems[this.rotationItemIndex];
-				return item.value;
-			},
 			spacing: function() {
 				return this.spacingValues[this.spacingValueIndex];
 			},
@@ -1073,8 +1145,10 @@
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
 			this.createBar(comments_pt, articles_pt)
 			this.createBubbles(nTotals)
-			console.log(this.negativeNouns)
-			console.log(this.negativeVerbs)
+			this.createFinalReturns();
+		},
+		mounted: function(){
+			console.log(this.$refs.chart);
 		},
 		methods: {
 			generateWordsText: function() {
@@ -1093,6 +1167,10 @@
 				return (new FontFaceObserver(fontFamily, {style: fontStyle, weight: fontWeight})).load(text);
 			},
 			onWordClick: function(word) {
+				console.log(`${'*'.repeat(20)}`)
+				let tt = token_Json.filter((a) => {return a.word === word[0]})
+				console.log(tt)
+				console.log(`${'*'.repeat(20)}`)
 				this.snackbarVisible = true;
 				this.snackbarText = word[0] + " references: " + word[1];
 				this.hrefs = word[0]
@@ -1124,7 +1202,7 @@
 				end_date = new Date(end_date)
 				data = data.map((m) => {m.date = new Date(m.month); return m}).filter((d) => {return ((d.date) >= start_date) & ((d.date) <= end_date)})
 				data.sort((a, b) => {return a.date - b.date})
-				console.log(data)
+				
 
 				let selectedDates = _.groupBy(data, (item) => {
 					return item.month
@@ -1144,7 +1222,6 @@
 				let gfg = _.sortBy(selectedDates, (d, i) => {
 					return new Date(i)
 				})
-				console.log(gfg)
 				return gfg
 			},
 			createBar: function(data, data_2){
@@ -1173,11 +1250,26 @@
 					newsD[i] = {name: i, data: d.map((d) => {return {y: d.article_count, x: d.returns}})};
 				})
 
-				console.log(chatD)
 				this.seriesBubbleChat = Object.values(chatD)
 				this.seriesBubbleNews = Object.values(newsD)
 
-			}
+			},
+			createFinalReturns: function(){
+				let urls = ["http://127.0.0.1:5000/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
+				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,5,10&threshold=0,15,1,4.1,0,50",
+				"http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
+				for (let i =0 ; i < urls.length; i++){
+					axios.get(urls[i]).then((res, err) => {
+						this.seriesReturns[i].data = norm(createPyPortfolio(res.data))		
+                	});		
+				};
+				setTimeout(function() { window.dispatchEvent(new Event('resize')); },4000);
+				return null;
+			},
+			rotation: function(i) {
+				var item = this.rotationItems[i];
+				return item.value;
+			},
 		},
 	});
 
