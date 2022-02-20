@@ -1060,8 +1060,9 @@
 						stops: [0, 100]
 					  }
 					},
-				  },
-				
+				},
+				infoSeries: undefined,
+				 
 			};
 		},
 		computed: {
@@ -1133,6 +1134,7 @@
         },
 		created: function() {
 			this.generateWordsText();
+			this.infoSeries = company_info;
 			this.animation = this.animationItems[5].value;
 			this.animationEasing = "linear"
 			this.colorItemIndex = 3

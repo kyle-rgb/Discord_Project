@@ -6,7 +6,7 @@
 			content="width=device-width,initial-scale=1"
 			name="viewport"
 		/>
-		<title>VueWordCloud</title>
+		<title>Project Summary</title>
 		<style>
 			[v-cloak] {
 				display: none;
@@ -143,6 +143,32 @@
 					</h5>
 				  </v-col>
 		
+			  </v-row>
+			  <v-row
+				align="center"
+				justify="center"
+			  >
+			  	<h1 :style="hcolor">Most Talked About Companies</h1>
+			  	<v-col
+				  cols="12"
+				>
+			  		
+					<div>
+						<img  v-for="(item, iIndex) in infoSeries" :src=[[item.logo_url]] style="width: 50px; height: 50px;"></img>
+					</div>
+			  </v-row>
+			  <v-row>
+				<v-col cols="2"></v-col>
+				<v-col
+					class="text-center"
+					cols="8"
+				>
+					
+					<div id="chartLine">
+						<apexchart type="line" height="350" :options="chartOptionsLine" :series="seriesSent"></apexchart>
+					</div>
+				</v-col>
+				<v-col cols="2"></v-col>
 			  </v-row>
 			  <v-row
 					style="
@@ -520,15 +546,6 @@
 					  </div>
 				  </v-col>
 				  
-				  <v-col
-					  class="text-center"
-					  cols="8"
-				  >
-					  
-						<div id="chartLine">
-							<apexchart type="line" height="350" :options="chartOptionsLine" :series="seriesSent"></apexchart>
-						</div>
-				  </v-col>
 				  <v-col
 					  class="text-center"
 					  cols="8"

@@ -82,7 +82,7 @@ def hword():
 def user():
     return render_template('user.html')
 
-@app.route('/wordcloud/')
+@app.route('/summary/')
 def cloud():
     month_parse = {'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'}
     ratings_parse = {'Very Bearish': 1, 'Bearish': 2, 'Neutral': 3, 'Bullish': 4, 'Very Bullish': 5}
@@ -101,6 +101,7 @@ def cloud():
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON', 'ING', 'VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con, parse_dates={'date': '%Y-%m-%d'})
         articles_pt = pd.read_sql(f"SELECT date, symbol, comments engagement, comp_sent FROM news_sentiment JOIN (SELECT pk, DATE(date) date, symbol, comments  FROM articles) USING (pk) WHERE date LIKE '2020%'", con=con, parse_dates={'date': '%Y-%m-%d'})
         recsEval = pd.read_sql(f'SELECT * FROM recsEvaluation', con=con)
+        company_pics = pd.read_sql('SELECT symbol, logo_url, sector, industry from info WHERE logo_url != \'\'', con=con)
 
 
     corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
@@ -141,7 +142,6 @@ def cloud():
     
 
     test = pd.merge_asof(corr_df, recommendations_sent, direction='backward', tolerance=pd.Timedelta(365, 'days'), left_on='date', right_on='month',left_by='symbol', right_by='symbol')
-    print(test.dropna().assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(a = lambda x: x.year_rt * x.new_grade).sort_values('a', ascending=False).assign(g = lambda x: x.new_grade-x.prev_grade))
     initial_ratings = test.dropna().drop_duplicates(subset=['month_y', 'Firm', 'new_grade'])[lambda x: (x.date <= dt.datetime(2020, 4, 30))]\
         .groupby('symbol').agg({'new_grade': ['mean', 'count']})
     
@@ -174,9 +174,9 @@ def cloud():
 
 
     _n = pd.concat([noun_tokens_positive, noun_tokens_negative, verb_tokens_positive, verb_tokens_negative], axis=0, ignore_index=False)
-    print(_n)
-    
-    
+    print(company_pics)
+    # add: Best Scoring Firms by Recommendations via alpha/returns (whos ratings best matched those with analyst higher ratings) {ie. did the security actual outperform, underperform or perform inline with the market given analyst expectations}
+    # <- done: via recsEval
 
 
     comments_pt = comments_.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
@@ -193,7 +193,7 @@ def cloud():
              'commentsSent': comments_sent.to_json(orient='records', double_precision=4), 'articles_pt': articles_pt.to_json(orient='split', double_precision=1),\
                   'comments_pt': comments_pt.to_json(orient='split', double_precision=1), 'pieRatings': pie_ratings.to_json(orient='split'),\
                       'bubbleData': corr_df2.to_json(orient='records'), 'pieRatings2': pie_ratings_dose.to_json(orient='split'), 'nTotals': ntotals.to_json(orient='records'), 'initialBars': inital_bars.to_json(orient='split', double_precision=3), 'endingBars': ending_bars.to_json(orient='split', double_precision=3),\
-                          'token_Json': _n.to_json(orient='records')}
+                          'token_Json': _n.to_json(orient='records'), 'company_info': company_pics.to_json(orient='records')}
     
 
     return render_template('wordcloud.html', obj_dict=obj_dict)
