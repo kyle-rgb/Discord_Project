@@ -101,7 +101,7 @@ def cloud():
         port = pd.read_sql("SELECT DATE(Date) date, Open, Close, Volatility, symbol FROM daily WHERE symbol NOT IN ('IT', 'PT', 'ON', 'ING', 'VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX')", con=con, parse_dates={'date': '%Y-%m-%d'})
         articles_pt = pd.read_sql(f"SELECT date, symbol, comments engagement, comp_sent FROM news_sentiment JOIN (SELECT pk, DATE(date) date, symbol, comments  FROM articles) USING (pk) WHERE date LIKE '2020%'", con=con, parse_dates={'date': '%Y-%m-%d'})
         recsEval = pd.read_sql(f'SELECT * FROM recsEvaluation', con=con)
-        company_pics = pd.read_sql('SELECT symbol, logo_url, sector, industry from info WHERE logo_url != \'\'', con=con)
+        company_pics = pd.read_sql('SELECT shortname name, longName, symbol, logo_url, sector, industry from info WHERE longName NOT LIKE \'Vanguard%\'', con=con)
 
 
     corr_df = port.groupby(['symbol', pd.Grouper(key='date', freq='1M')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
@@ -111,6 +111,11 @@ def cloud():
     yearly_corr= port.groupby(['symbol', pd.Grouper(key='date', freq='1Y')]).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
         .assign(year_rt = lambda x: (x['last'] - x['first'])/x['first']).year_rt.reset_index().assign(year=lambda x: x.date.apply(dt.datetime.strftime, format='%Y')).drop('date', axis=1)
     
+    info_corr= port.groupby(['symbol']).agg({'Close': ['first', 'last']}).droplevel(0, axis=1)\
+        .assign(value = lambda x: (x['last'] - x['first'])/x['first']).value.reset_index()
+    
+    company_pics = company_pics.merge(info_corr, 'inner', on='symbol')
+
     ncomments = comments_sent.groupby(['symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)
     ncomments.columns = ['symbol', 'pos_sent_avg', 'neg_sent_avg', 'neu_sent_avg', 'comp_sent_avg','engagement']
     comments_sent = comments_sent.groupby(['month', 'symbol']).agg({'pos_sent': 'mean', 'neg_sent': 'mean', 'neu_sent': 'mean', 'comp_sent': ['mean', 'count']}).reset_index().droplevel(0, axis=1)

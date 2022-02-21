@@ -244,8 +244,6 @@
                         m_r = m_r[0].returns /100
                         this.desserts.push({returns: (r*100).toFixed(2), symbol: shortname.toUpperCase(), year: (new Date(i)).getFullYear(), alpha: ((r-m_r)*100).toFixed(2)})
                         })
-        
-                    
                 })
                 return ''
             }
