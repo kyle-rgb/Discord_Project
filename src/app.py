@@ -1,26 +1,12 @@
 # Import Dependencies 
-from inspect import isgeneratorfunction
-from flask import Flask, request, render_template, redirect, jsonify, url_for
-from flask_pymongo import PyMongo
-import psycopg2
-import sys
-from datetime import datetime
-from pymongo import MongoClient
-from bson.json_util import dumps
-from bson.objectid import ObjectId
-# import datetime as dt
-from dateutil.parser import parse
-import sys
-import numpy as np
-import os
-import csv, json, zipfile
-import sqlite3 as sql, pandas as pd, time, datetime as dt
-from api_key import cryptor
+# Custom Methods
 from trader import apiHelper, new_port
-# import ETL
-# # import yfinancex
-# # import word_cloud
-
+# Framework/Server 
+from flask import Flask, request, render_template
+# 3rd Party Data Handling
+import sqlite3 as sql, pandas as pd,  numpy as np
+# Utils
+import datetime as dt, time, sys, os
 
 def sent_help(s):
     if s >= .1200:
@@ -30,19 +16,8 @@ def sent_help(s):
     else:
         return 'negative' 
 
-
-
 # Create an instance of Flask app
 app = Flask(__name__)
-
-@app.route('/')
-def index():
-    
-    return render_template('index.html')
-
-@app.route('/', methods=['POST']) 
-def Stock_Select(): 
-    return render_template('index.html')
 
 @app.route('/AppAPI')
 def gather_chart_data():
@@ -52,42 +27,21 @@ def gather_chart_data():
     sentiment_threshold = list(map(float, request.args.get('threshold').split(',')))
     args = []
     method_indexer = {'recommendations': {'sent_name': 'new_sent', 'range_i': 2, 'range_j': 3,'div': 1}, 'comments': {'sent_name': 'comp_sent', 'range_i': 0, 'range_j': 1, 'div': 100}, 'articles': {'sent_name': 'comp_sent', 'range_i': 1, 'range_j': 5,'div': 100}}
-    print(methods)
     for i, m in enumerate(methods):
         args.append({'name': m, 'sent_name': method_indexer[m].get('sent_name'), 'min_samples': min_samples[method_indexer[m].get('range_i')], 'min_sent': sentiment_threshold[method_indexer[m].get('range_j')]/method_indexer[m].get('div')})
-
-    print(args)
     # support sentiment sentiment ranges, sentiment-thresholds, named calls]
     tada = apiHelper(wanted_sentiments=args)
-    tada = tada.to_json(orient='records', double_precision=4)
+    tada = tada[lambda x: x.shares > 0].to_json(orient='records', double_precision=4)
 
 
     return tada
 
-@app.route('/dashboard')
-def dash():
-
-    return render_template('dashboard.html')
-
-@app.route('/frequency/')
-def sword():
-    return render_template('charts/word.html')
-
-@app.route('/lword/')
-def hword():
-    return render_template('charts/lword.html')
-
-
-@app.route('/User-Profile/')
-def user():
-    return render_template('user.html')
-
-@app.route('/summary/')
+@app.route('/')
 def cloud():
     month_parse = {'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr', '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug', '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'}
     ratings_parse = {'Very Bearish': 1, 'Bearish': 2, 'Neutral': 3, 'Bullish': 4, 'Very Bullish': 5}
 
-    with sql.connect("../data/processed/temp_c.db") as con:
+    with sql.connect("data/processed/temp_c.db") as con:
         available_companies = pd.read_sql("SELECT symbol, DATE(MIN(date)) starting_date from daily WHERE symbol NOT IN ('VPU', 'VNQ', 'VAW', 'VGT', 'VIS', 'VHT', 'VFH', 'VDE', 'VDC', 'VCR', 'VOX', 'PT', 'IT', 'PT', 'ING', 'ON') GROUP BY symbol", con=con, parse_dates={'starting_date': '%Y-%m-%d'})
         available_companies_dates = available_companies
         available_companies = available_companies.symbol.values
@@ -167,7 +121,7 @@ def cloud():
     pie_ratings_dose  = pd.concat([ending_ratings, missing_ratings_end.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
 
 
-    with sql.connect("../data/processed/discord.db") as con:
+    with sql.connect("data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
         pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x)))).to_json(orient='records')
         comments_ = pd.read_sql("SELECT comp_sent, neg_sent, neu_sent, pos_sent,  STRFTIME('%Y-%m-%d', timestamp) date FROM comments", con=con, parse_dates={'date': '%Y-%m-%d'})
@@ -179,7 +133,7 @@ def cloud():
 
 
     _n = pd.concat([noun_tokens_positive, noun_tokens_negative, verb_tokens_positive, verb_tokens_negative], axis=0, ignore_index=False)
-    print(company_pics)
+    
     # add: Best Scoring Firms by Recommendations via alpha/returns (whos ratings best matched those with analyst higher ratings) {ie. did the security actual outperform, underperform or perform inline with the market given analyst expectations}
     # <- done: via recsEval
 
@@ -206,18 +160,18 @@ def cloud():
 @app.route('/gather-stock-data') 
 def candle():
         wanted_stock = request.args.get("ticker")     
-        with sql.connect("../data/processed/temp_c.db") as con:
-            info = pd.read_sql(f"SELECT * FROM info JOIN (SELECT shortName compName, sector, symbol compSymbol FROM info WHERE compName LIKE '%Vanguard%' OR '%SPDR%') USING (sector) WHERE symbol='{wanted_stock}'", con=con, index_col='pk')
+        with sql.connect("data/processed/temp_c.db") as con:
+            info = pd.read_sql(f"SELECT * FROM info JOIN (SELECT shortName compName, sector, symbol compSymbol FROM info WHERE compName LIKE '%Vanguard%' OR compName LIKE '%SPDR%') USING (sector) WHERE symbol='{wanted_stock}'", con=con, index_col='pk')
             daily_comps = pd.read_sql(f"SELECT * FROM daily WHERE symbol IN ('{info.compSymbol.values[0]}', 'SPY')", con=con).drop_duplicates(subset=['symbol', 'Date']).to_json(orient="records", double_precision=6)
             daily_data = pd.read_sql(f"SELECT * FROM daily WHERE symbol = '{wanted_stock}'", con=con).to_json(orient="records", double_precision=6)
             recomends = pd.read_sql(f"SELECT * from recommendations WHERE symbol = '{wanted_stock}'", con=con, parse_dates={'Date': '%Y-%m-%d %H:%M:%S'})
-            recomends = recomends.assign(Date = lambda x: x.Date.apply(datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
+            recomends = recomends.assign(Date = lambda x: x.Date.apply(dt.datetime.strftime, format='%Y-%m-%d')).to_json(orient='records')
             comments = pd.read_sql(f"SELECT * from symbol_comments", con=con)
             comp_sentiment = comments.comp_sent.mean()
             arts =pd.read_sql(f"SELECT date, symbol, pos_sent, neu_sent, neg_sent, comp_sent, symbol FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk)) WHERE symbol ='{wanted_stock}'", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
         
         arts = arts.iloc[:, :-1]
-        arts = arts.assign(date = lambda x: x.date.apply(datetime.strftime, format='%Y-%m-%d'))\
+        arts = arts.assign(date = lambda x: x.date.apply(dt.datetime.strftime, format='%Y-%m-%d'))\
             .to_json(orient='records', double_precision=4)
         
         info = info.to_json(orient="records")
@@ -228,25 +182,9 @@ def candle():
         return render_template("symbol.html", obj_dict=obj_dict)
 
 
-@app.route('/emote/')
-def emote():
-    with sql.connect('../data/processed/discord.db') as con:
-        pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)
-        pop_emote = pop_emote.assign(code = lambda x: x.emote.apply(lambda x: "U+{:X}".format(ord(x)))).to_json(orient='records')
-    obj_dict = {"emoji_data": pop_emote}
-    return render_template('emote.html', obj_dict=obj_dict)
-
-
-@app.route('/portfolio/')
-def portfolio():
-    with sql.connect('../data/processed/temp_c.db') as con:
-        port = pd.read_sql(f"SELECT * FROM daily", con=con).drop_duplicates(subset=['Date', 'symbol'])
-    obj_dict = {"port": port.to_json(orient="records", double_precision=2)}
-    return render_template('template.html', obj_dict=obj_dict)
-
-@app.route('/templateVue/')
+@app.route('/trading_application/')
 def tempateVue():
-    with sql.connect('../data/processed/temp_c.db') as con:
+    with sql.connect('data/processed/temp_c.db') as con:
         port = pd.read_sql(f"SELECT * FROM daily ORDER BY Date", con=con).drop_duplicates(subset=['Date', 'symbol'])
         recommends = pd.read_sql(f"SELECT Date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con)
         articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})

@@ -1,8 +1,6 @@
-import warnings
-warnings.filterwarnings('ignore')
 
-import pandas as pd, numpy as np, sqlite3 as sql
-import datetime as dt, re, time, holidays, zipfile, py7zr
+import pandas as pd, sqlite3 as sql
+import datetime as dt, re, time, holidays
 from dateutil.relativedelta import relativedelta
 
 
@@ -16,7 +14,7 @@ def next_business_day(date):
     return next_day
 
 print(time.perf_counter())
-con = sql.connect('../data/processed/temp_c.db', timeout=5000)
+con = sql.connect('data/processed/temp_c.db', timeout=5000)
 port = pd.read_sql(f"SELECT Date date, Open, High, Low, Close, Volume, Volatility, Turnover, symbol FROM daily ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})\
         .drop_duplicates(subset=['date', 'symbol'])
 articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
@@ -128,9 +126,7 @@ class EAT():
             self.share_column = self.portfolio.loc[:, ['shares']].fillna(0).copy(deep=True)
             self.share = False
         else:
-            print(agg)
             self.share_column = self.share_column + self.portfolio.loc[:, ['shares']].fillna(0)
-        #print(returns.assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_values('pct', ascending=False))
         print(returns.groupby(['date']).sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 

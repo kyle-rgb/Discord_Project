@@ -85,125 +85,131 @@ var config = {
 Chart.defaults.color = "#fff";
 const myChart = new Chart(ctx, config)
 
-var color = d3.scaleSequential([9, 0], d3.interpolateMagma)
-let format = d3.format(",d")
-let height = 500
-let width = 1000
-let treemap = data => d3.treemap().size([width, height])
-    .paddingOuter(3)
-    .paddingTop(19)
-    .paddingInner(1)
-    .round(true)
-    (d3.hierarchy(data)
-    .sum(d => d.value)
-    .sort((a, b) => b.value - a.value))
+// var color = d3.scaleSequential([10, 0], d3.interpolateMagma)
+// let format = d3.format(",d")
+// let height = 1500
+// let width = 1500
+// let treemap = data => d3.treemap().size([width, height])
+//     .paddingOuter(3)
+//     .paddingTop(19)
+//     .paddingInner(10)
+//     .round(true)
+//     .tile(d3.treemapSquarify.ratio(10))
+//     (d3.hierarchy(data)
+//     .sum(d => d.value)
+//     .sort((a, b) => b.value - a.value))
 
 
-company_info.map((c) => {
-    if (c.industry === ''){
-        if (c.symbol === 'BTC-USD'){
-            c.sector = 'Other';
-            c.industry = 'Currency';
-        } else {
-            c.industry = c.sector;
-            c.sector = 'Other';
-        }
-    }
-})
+// company_info.map((c) => {
+//     if (c.industry === ''){
+//         if (c.symbol === 'BTC-USD'){
+//             c.sector = 'Other';
+//             c.industry = 'Currency';
+//         } else {
+//             c.industry = c.sector;
+//             c.sector = 'Other';
+//         }
+//     };
+//     c.value = (c.value * 100)
+// })
 
-let prelim = _.groupBy(company_info, d=>d.sector)
+// let prelim = _.groupBy(company_info, d=>d.sector)
 
-Object.entries(prelim).map((d, i) => {
-    prelim[d[0]] = _.groupBy(d[1], d=>d.industry)
-})
+// Object.entries(prelim).map((d, i) => {
+//     prelim[d[0]] = _.groupBy(d[1], d=>d.industry)
+// })
 
 
 
-let chart_obj = {name: 'Securities', children: []};
+// let chart_obj = {name: 'Securities', children: []};
 
-Object.entries(prelim).map((d, i)=>{
-    chart_obj.children.push({name: d[0], children: Object.entries(d[1]).map((dx, ix) => {return {name: dx[0], children: dx[1]}})})
-})
+// Object.entries(prelim).map((d, i)=>{
+//     chart_obj.children.push({name: d[0], children: Object.entries(d[1]).map((dx, ix) => {return {name: dx[0], children: dx[1]}})})
+// })
 
-console.log('+'.repeat(20))
-console.log(chart_obj)
-console.log('+'.repeat(20))
 
-function new_chart(data) {
-    const root = treemap(data);
+
+// function new_chart(data) {
+//     const root = treemap(data);
+//     console.log('+'.repeat(20))
+//     console.log(root)
+//     console.log('+'.repeat(20))
+//     console.log(root.tile)
+
+//     const svg = d3.create("svg")
+//             .attr("viewBox", [0, 0, width, height])
+//             .style("font", "10px sans-serif");
       
-    const svg = d3.create("svg")
-            .attr("viewBox", [0, 0, width, height])
-            .style("font", "10px sans-serif");
+//     const shadow = uid("shadow");
       
-    const shadow = uid("shadow");
+//     svg.append("filter")
+//             .attr("id", shadow.id)
+//           .append("feDropShadow")
+//             .attr("dx", 0);
       
-    svg.append("filter")
-            .attr("id", shadow.id)
-          .append("feDropShadow")
-            .attr("dx", 0);
+//     const node = svg.selectAll("g")
+//           .data(d3.group(root, d => d.height))
+//           .join("g")
+//             .attr("filter", shadow)
+//           .selectAll("g")
+//           .data(d => d[1])
+//           .join("g")
+//             .attr("transform", d => `translate(${d.x0},${d.y0})`)
+            
       
-    const node = svg.selectAll("g")
-          .data(d3.group(root, d => d.height))
-          .join("g")
-            .attr("filter", shadow)
-          .selectAll("g")
-          .data(d => d[1])
-          .join("g")
-            .attr("transform", d => `translate(${d.x0},${d.y0})`);
+//     node.append("title")
+//             .text(d => `${d.ancestors().reverse().map(d => d.data.name).join("/")}\n${format(d.value)}`);
       
-    node.append("title")
-            .text(d => `${d.ancestors().reverse().map(d => d.data.name).join("/")}\n${format(d.value)}`);
+//     node.append("rect")
+//             .attr("id", d => (d.nodeUid = uid("node")).id)
+//             .attr("fill", d => color(d.height))
+//             .attr("width", d => d.x1-d.x0)
+//             .attr("height", d => d.y1-d.y0)
+           
       
-    node.append("rect")
-            .attr("id", d => (d.nodeUid = uid("node")).id)
-            .attr("fill", d => color(d.height))
-            .attr("width", d => d.x1 - d.x0)
-            .attr("height", d => d.y1 - d.y0);
+//     node.append("clipPath")
+//             .attr("id", d => (d.clipUid = uid("clip")).id)
+//           .append("use")
+//             .attr("xlink:href", d => d.nodeUid.href);
       
-    node.append("clipPath")
-            .attr("id", d => (d.clipUid = uid("clip")).id)
-          .append("use")
-            .attr("xlink:href", d => d.nodeUid.href);
+//     node.append("text")
+//             .attr("clip-path", d => d.clipUid)
+//           .selectAll("tspan")
+//           .data(d =>{return d.data.name.split(/(?=[A-Z][^A-Z])/g).map((s) => {return s.trim()}).concat(format(d.value))})
+//           .join("tspan")
+//             .attr("fill-opacity", (d, i, nodes) => i === nodes.length - 1 ? 0.7 : null)
+//             .text(d => d);
       
-    node.append("text")
-            .attr("clip-path", d => d.clipUid)
-          .selectAll("tspan")
-          .data(d =>{return d.data.name.split(/(?=[A-Z][^A-Z])/g).concat(format(d.value))})
-          .join("tspan")
-            .attr("fill-opacity", (d, i, nodes) => i === nodes.length - 1 ? 0.7 : null)
-            .text(d => d);
+//     node.filter(d => d.children).selectAll("tspan")
+//             .attr("dx", 3)
+//             .attr("y", 13);
       
-    node.filter(d => d.children).selectAll("tspan")
-            .attr("dx", 3)
-            .attr("y", 13);
+//     node.filter(d => !d.children).selectAll("tspan")
+//             .attr("x", 3)
+//             .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`);
       
-    node.filter(d => !d.children).selectAll("tspan")
-            .attr("x", 3)
-            .attr("y", (d, i, nodes) => `${(i === nodes.length - 1) * 0.3 + 1.1 + i * 0.9}em`);
-      
-    return svg.node();
-}
+//     return svg.node();
+// }
 
 
-var count = 0;
+// var count = 0;
 
- function uid(name) {
-  return new Id("O-" + (name == null ? "" : name + "-") + ++count);
-}
+//  function uid(name) {
+//   return new Id("O-" + (name == null ? "" : name + "-") + ++count);
+// }
 
-function Id(id) {
-  this.id = id;
-  this.href = new URL(`#${id}`, location) + "";
-}
+// function Id(id) {
+//   this.id = id;
+//   this.href = new URL(`#${id}`, location) + "";
+// }
 
-Id.prototype.toString = function() {
-  return "url(" + this.href + ")";
-};
+// Id.prototype.toString = function() {
+//   return "url(" + this.href + ")";
+// };
 
-let nested_node = new_chart(chart_obj)
+// let nested_node = new_chart(chart_obj)
 
-d3.select('#nestedTM').append(() => {return nested_node})
+// d3.select('#nestedTM').append(() => {return nested_node})
 
 
 

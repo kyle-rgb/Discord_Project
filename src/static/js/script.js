@@ -1258,7 +1258,7 @@
 			},
 			createFinalReturns: function(){
 				let urls = ["http://127.0.0.1:5000/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
-				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,5,10&threshold=0,15,1,4.1,0,50",
+				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,5,10&threshold=0,15,1,4.1,0,0",
 				"http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
 				for (let i =0 ; i < urls.length; i++){
 					axios.get(urls[i]).then((res, err) => {
