@@ -120,6 +120,11 @@ def cloud():
     pie_ratings  = pd.concat([initial_ratings, missing_ratings.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
     pie_ratings_dose  = pd.concat([ending_ratings, missing_ratings_end.loc[:, ['symbol', 'r']]], axis=0, ignore_index=True).groupby('r').count().T
 
+    print('*'*29)
+    c_data=c_data.merge(company_pics.loc[:, ['symbol', 'sector', 'industry', 'name']], 'inner', 'symbol')
+    print(c_data[lambda x: x.sector == 'Healthcare'])
+    print('*'*29)
+  
 
     with sql.connect("data/processed/discord.db") as con:
         pop_emote = pd.read_sql("SELECT * FROM chatEmotes WHERE unicode_name NOT LIKE '%skin_tone:' ORDER BY count DESC LIMIT 26", con=con)

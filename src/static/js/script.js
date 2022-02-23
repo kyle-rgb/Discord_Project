@@ -286,9 +286,9 @@
                     fontSize: '55px',
                 },
                 hcolor3: {
-                    color: 'Green',
-                    fontFamily: 'Share Tech Mono',
-                    fontSize: '45px',
+                    color: 'white',
+                    fontFamily: 'Baloo Bhaijaan',
+                    fontSize: '28px',
                 },
 				seriesHeat: [
 					{
@@ -426,7 +426,7 @@
 					  fillSeriesColor: true,
 					  y: {
 						formatter: function (val) {
-						  return val + "K"
+						  return val 
 						}
 					  }
 					},
@@ -488,7 +488,7 @@
 					  fillSeriesColor: true,
 					  y: {
 						formatter: function (val) {
-						  return val + "K"
+						  return val 
 						}
 					  }
 					},
@@ -754,7 +754,7 @@
 					xaxis: {
 						tickAmount: 12,
 						min: -1,
-						max: 12.5,
+						max: 25,
 						decimalsInFloat: 2,
 						type: 'numeric',
 					},
@@ -790,7 +790,7 @@
 					xaxis: {
 						tickAmount: 12,
 						min: -1,
-						max: 12.5,
+						max: 25,
 						decimalsInFloat: 2,
 						type: 'numeric',
 					},
@@ -1041,7 +1041,7 @@
 					},
 					yaxis: {
 						min: 0,
-						max: 20,
+						max: 4,
 						decimalsInFloat: 2,
 						
 					},
@@ -1142,15 +1142,12 @@
 			this.rotationItemIndex = 1;
 			this.seriesDonut = pieRatings.data[0];
 			this.seriesDonutEnd = pieRatings2.data[0];
-			this.treeSeries = this.createReturnMap(port, new Date('2020-05-01'), new Date('2022-01-01'));
+			this.treeSeries = this.createReturnMap(port, new Date('2020-05-01'), new Date('2021-01-01'));
 			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
 			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
 			this.createBar(comments_pt, articles_pt)
 			this.createBubbles(nTotals)
 			this.createFinalReturns();
-		},
-		mounted: function(){
-			console.log(this.$refs.chart);
 		},
 		methods: {
 			generateWordsText: function() {
@@ -1169,17 +1166,19 @@
 				return (new FontFaceObserver(fontFamily, {style: fontStyle, weight: fontWeight})).load(text);
 			},
 			onWordClick: function(word) {
-				console.log(`${'*'.repeat(20)}`)
-				let tt = token_Json.filter((a) => {return a.word === word[0]})
-				console.log(tt)
-				console.log(`${'*'.repeat(20)}`)
+				let re = /^[A-Z]*$/
+				let tt = token_Json.filter((a) => {return a.word === word[0]})	
 				this.snackbarVisible = true;
 				this.snackbarText = word[0] + " references: " + word[1];
-				this.hrefs = word[0]
+				if (word[0].match(re)){
+					this.hrefs = word[0]
+				}		
 			},
 			onLinkClick: function(w){
+				if (this.hrefs){
+					open(`/gather-stock-data?ticker=${this.hrefs}`, "_blank")
+				} 
 				
-				open(`/gather-stock-data?ticker=${this.hrefs}`, "_blank")
 			},
 			createReturnMap: function(data, start_date, end_date){
 				start_date = new Date(start_date)
@@ -1257,15 +1256,15 @@
 
 			},
 			createFinalReturns: function(){
-				let urls = ["http://127.0.0.1:5000/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
-				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,5,10&threshold=0,15,1,4.1,0,0",
-				"http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
+				let urls = ["https://discord-traders.herokuapp.com/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
+				"https://discord-traders.herokuapp.com/AppAPI?method=articles&min_samples=1,10,10&threshold=0,15,1,4.1,0,0",
+				"https://discord-traders.herokuapp.com/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
 				for (let i =0 ; i < urls.length; i++){
 					axios.get(urls[i]).then((res, err) => {
 						this.seriesReturns[i].data = norm(createPyPortfolio(res.data))		
                 	});		
 				};
-				setTimeout(function() { window.dispatchEvent(new Event('resize')); },4000);
+				setTimeout(function() { window.dispatchEvent(new Event('resize')); },5000);
 				return null;
 			},
 			rotation: function(i) {
