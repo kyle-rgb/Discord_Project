@@ -83,6 +83,11 @@
 				progress: undefined,
 				progressVisible: true,
 				rotationItemIndex: undefined,
+				newColorObj: {'Consumer Discretionary': '#ffd077', 'Technology':'#3bc4c7',  'Financials':'#3a9eea', 'Healthcare': '#ff4e69',  'Communications Services': '#dd0000',
+				'Industrials':'#31a50d', 'Consumer Staples': '#d1b022',  'Materials':'#74482a',  'Utilities': '#403030', 'Energy':'#f97a7a',
+				 'Real Estate':'#d99cd1','Inverse Equity': '#c99cd1', 'Mutual Fund':'#b99cd1',
+				},
+				nco: -1,
 				rotationItems: [
 					{
 						// straight-line
@@ -288,7 +293,7 @@
                 hcolor3: {
                     color: 'white',
                     fontFamily: 'Baloo Bhaijaan',
-                    fontSize: '28px',
+                    fontSize: '20px',
                 },
 				seriesHeat: [
 					{
@@ -1072,10 +1077,11 @@
 			animationOverlap: function() {
 				return this.animationOverlapValues[this.animationOverlapValueIndex];
 			},
-			color: function() {
+			color: function(word) {
 				var colors = this.colorItems[this.colorItemIndex];
 				return function() {
-					return chance.pickone(colors);
+					this.nco++
+					return this.newColorObj[this.wordsText[this.nco][2]];
 				};
 			},
 			negColor: function(){
@@ -1133,6 +1139,7 @@
             'apexchart': converter
         },
 		created: function() {
+			console.log(this.rotationItems)
 			this.generateWordsText();
 			this.infoSeries = company_info;
 			this.animation = this.animationItems[5].value;
@@ -1148,17 +1155,18 @@
 			this.createBar(comments_pt, articles_pt)
 			this.createBubbles(nTotals)
 			this.createFinalReturns();
+			
 		},
 		methods: {
 			generateWordsText: function() {
 				words_array = new Array();
 				var str = new String();
-				this.positiveNouns = token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='noun'))}).map((d) => {return [d.word, d.count]});
-				this.negativeNouns= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='noun'))}).map((d) => {return [d.word, d.count]});
-				this.positiveVerbs= token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='verb'))}).map((d) => {return [d.word, d.count]});
-				this.negativeVerbs= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='verb'))}).map((d) => {return [d.word, d.count]});
+				this.positiveNouns = token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='noun'))}).map((d) => {return {text: d.word,weight: d.count}});
+				this.negativeNouns= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='noun'))}).map((d) => {return {text:d.word, weight:d.count}});
+				this.positiveVerbs= token_Json.filter((f) => {return ((f.sent=='P')&(f.type==='verb'))}).map((d) => {return {text:d.word, weight:d.count}});
+				this.negativeVerbs= token_Json.filter((f) => {return ((f.sent=='N')&(f.type==='verb'))}).map((d) => {return {text:d.word, weight:d.count}});
 				c_data = c_data.slice(0, 100);
-				c_data.map((d) => {if (cos.includes(d.symbol)) {words_array.push([d.symbol, +d.counts])}})
+				c_data.map((d) => {if (cos.includes(d.symbol)) {words_array.push({text: d.symbol, weight: +d.counts, color: this.newColorObj[d.sector]})}})
 				this.wordsText = words_array//.join('\n').replace(',', " ");
 				return words_array;
 			},
@@ -1167,11 +1175,11 @@
 			},
 			onWordClick: function(word) {
 				let re = /^[A-Z]*$/
-				let tt = token_Json.filter((a) => {return a.word === word[0]})	
+				let tt = token_Json.filter((a) => {return a.word === word.text})	
 				this.snackbarVisible = true;
-				this.snackbarText = word[0] + " references: " + word[1];
-				if (word[0].match(re)){
-					this.hrefs = word[0]
+				this.snackbarText = word.text + " references: " + word.weight;
+				if (word.text.match(re)){
+					this.hrefs = word.text
 				}		
 			},
 			onLinkClick: function(w){
@@ -1256,9 +1264,9 @@
 
 			},
 			createFinalReturns: function(){
-				let urls = ["https://discord-traders.herokuapp.com/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
-				"https://discord-traders.herokuapp.com/AppAPI?method=articles&min_samples=1,10,10&threshold=0,15,1,4.1,0,0",
-				"https://discord-traders.herokuapp.com/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
+				let urls = ["http://127.0.0.1:5000/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
+				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,10,10&threshold=0,15,1,4.1,0,0",
+				"http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
 				for (let i =0 ; i < urls.length; i++){
 					axios.get(urls[i]).then((res, err) => {
 						this.seriesReturns[i].data = norm(createPyPortfolio(res.data))		

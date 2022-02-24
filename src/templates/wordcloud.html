@@ -144,7 +144,6 @@
 				  </v-col>
 		
 			  </v-row>
-			
 			  <v-row>
 				<v-col cols="2"></v-col>
 				<v-col
@@ -152,8 +151,9 @@
 					cols="8"
 				>
 					
-					<div id="chartLine">
-						<apexchart type="line" height="350" :options="chartOptionsLine" :series="seriesSent"></apexchart>
+					<div :style="hcolor3">
+						<p>2021 was the year of the retail trader. The launch of long languishing stocks such as GameStop and AMC into new valuation stratospheres through the collective action of individual investors and the subsequent reaction of institutional brokers brought the stock market back into the center of American culture in a way not seen since the high flying days of the Dotcom Bubble. The power of retail investors and day traders has made Elon Musk the richest person on the planet, extended the life of fledgling businesses and shattered the impervious veneer of hedge fund managers across Wall Street. Still, the main questions left in the wake of these events has to be why the financial industry and the financial news media in particular was caught so off-guard by these actions and how can future trading applications account for the retail investor?</p>
+						<p>The goal of this project is to develop a trading program that answers the latter question through Sentiment Analysis. Comments and postings of retail traders in private Discord chatrooms will be collected, cleaned, analyzed, and transformed into sentiment scores that will be fed to a custom trading algorithm in order to create a balanced portfolio based on the interest and mood of retail investors. The success and validity of these trading strategies will be compared to trading strategies that rely solely on institutional information sources. The institutional sources for this project will be (1) financial news on public companies from Investing.com and Seeking Alpha and (2) analyst recommendations from investment banks and investment research institutions. The final product is a custom web application built on Vue.js that showcases the sentiment and wording structure of the separate data sources and visualizes the returns on a portfolio through each trading strategy.</p>
 					</div>
 				</v-col>
 				<v-col cols="2"></v-col>
@@ -209,7 +209,7 @@
 								:animation-duration="animationDuration"
 								:animation-easing="animationEasing"
 								:animation-overlap="animationOverlap"
-								:color="color"
+							
 								:enter-animation="enterAnimation"
 								:font-family="fontFamily"
 								:font-size-ratio="fontSizeRatio"
@@ -241,7 +241,7 @@
 								v-if="progressVisible && progress"
 								:rotate="-90"
 								:size="200"
-								:value="(progress.completedWords / progress.totalWords) * 200"
+								:value="(progress.completedWords / progress.totalWords) * 175"
 								:width="20"
 								class="v-no-animation"
 								color="primary"
@@ -300,7 +300,7 @@
 								:font-size-ratio="fontSizeRatio"
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
-								:progress.sync="progress"
+							
 								:rotation="rotation(0)"
 								:spacing="spacing"
 								:words="positiveNouns"
@@ -335,7 +335,7 @@
 								:font-size-ratio="fontSizeRatio"
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
-								:progress.sync="progress"
+			
 								:rotation="rotation(0)"
 								:spacing="spacing"
 								:words="positiveVerbs"
@@ -400,8 +400,8 @@
 								:font-size-ratio="fontSizeRatio"
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
-								:progress.sync="progress"
-								:rotation="rotation(2)"
+
+								:rotation="rotation(1)"
 								:spacing="spacing"
 								:words="negativeNouns"
 							>
@@ -435,8 +435,7 @@
 								:font-size-ratio="fontSizeRatio"
 								:leave-animation="leaveAnimation"
 								:load-font="loadFont"
-								:progress.sync="progress"
-								:rotation="rotation(2)"
+								:rotation="rotation(1)"
 								:spacing="spacing"
 								:words="negativeVerbs"
 							>
@@ -457,6 +456,7 @@
 						</vue-word-cloud>
 					</v-col>
 				</v-row>
+
 				<v-row
 				  align="center"
 				  justify="center"
@@ -478,6 +478,21 @@
 						</div>
 				  </v-col>
 				  <v-col
+					class="text-center"
+					cols="8"
+				  >
+				  	<p :style="hcolor3">
+					Private chatrooms were selected in lieu of other social media sources for three primary reasons: one, there are barriers to entry for users (must by invited), two, the structure of the chat server into topic channels allows the scraped data to arrive at storage pre-sorted and, three, the chat-based format provides quick access to a range of different opinions across the userbase. With their large userbases and infinite amount of topics, traditional social media channels, such as Twitter and Reddit, generate a larger, but more fragmented volume of data. Moreover, the self-censoring inherent to public posts, especially concerning financial information, can reduce the efficacy of any analysis results. The risk of losing the signal through the noise of crypto promoters and fake accounts is far greater.
+					</p>
+					<p :style="hcolor3">As our guiding light through this project, the comments of retail investors had to be thoroughly cleaned and segmented in order to provide meaningful value to a trading program. Mentions, gifs, links, and bots were filtered out to remove discord syntax and non-text data. Next, the mentioned tickers were identified and tagged to provide an initial distribution of all the mentioned companies listed on the NYSE or the NASDAQ. These tags were then paired down to the top 100 most mentioned companies and retagged to catch non-ticker mentions of these popular companies (via their company names). Once these additional mentions were accounted for, comments could be directly paired to the underlying security and its price movements.
+					</p>
+					<p :style="hcolor3">To obtain sentiment scores, the Vader module’s Sentiment Intensity Analyzer was used on the cleaned comments.  The Sentiment Analyzer’s lexicon accounts for abbreviations and emojis, perfect for casual chat data. The majority of the comments were neutral and the balance of positive to negative comments was 2:1. The media had a far rosier viewpoint for these same companies. Three-quarters of the news articles were positive overall, the ratio of positive to negative articles was 3:1 while the percentage of neutral stories was negligible. Against intuition, the news industry does not simply report the given facts, but also shapes wider public perception of companies through framing a company and its results. The Discord sentiment results make sense in a more discussion-based context. The chatroom’s main motivation for existing is to provide a private space for conversation and questions about upcoming earnings, IPOs, and public investment opportunities with other knowledgeable retail traders. The analyzed chatrooms were often run by moderators who offered teaching assistance on technical fundamentals and trade recommendations as funnels for their subscription offerings. 
+					</p>
+					<p :style="hcolor3">The visualizations below showcase the most mentioned companies and emotes across all analyzed Discord groups sized by mention. The technology sector was the most represented, balanced across multiple different industries. Mega-cap players of Apple and Amazon, electrical vehicle manufacturers Nio and Tesla and semiconductor giants AMD, Intel and Nvidia generated the most discussion amongst retail traders. The healthcare industry was the second most talked about sector. Previously high-flying cannabis stocks such as Sundial Growers (SNDL), Aurora Cannabis (ACB) and Canopy Growth (CGC) generated much of the discussion as the red-hot sector of cooled down considerably from a furious run up in 2018-19 due to Canadian legalization and buy-in from institutional investors such as Constellation Brands. The biotechnology companies Liminal Biosciences (LMNL), Xeris (XERS), and newly public Aditxt (ADTX) also peaked the chats interest as retail investors tried to profit off a notoriously volatile industry. Beyond individual securities, members also frequently talked about ETFs and inverse equities. The largest ETF is the world, the SPDR S&P 500 (SPY), was the most talked about individual security and acted as a gauge for short term market sentiment. Key events such as FED meetings and COVID-19 case increases were used to develop trading strategies based on the expected market reaction. The technology centric ETF, QQQ, was also discussed, since its major holdings (AAPL, TSLA, AMZN) overlap with the most talked about companies. Retail investors also showed a willingness to play both sides of the market as evidenced by the inclusion of the inverse equities SQQQ and VXX. These bearish equities allow investors to profit off of volatility and the losses by QQQ, respectively. Both of these securities lost more than 50% of their value throughout the analyzed period and the chat sentiment mirrored this drastic performance as each one had the worst average sentiment in the chatrooms for December and November respectfully. Their inclusion and their associated sentiment show a knowledgeable investor class who looks for opportunities to profit off of both sides of the market. 
+					The remaining word clouds show the most used nouns and verbs associated with the positive and negative chat comments with the stop words removed. Unsurprisingly, the most common nouns all have to short-term time periods (today, tomorrow, week, months, etc.) and financial related terms (options, stocks, earnings, profits, etc.). The verbs tell a more interesting story. The highest usage verbs mostly had to do with an action completed. Sold, made, took, and trimmed (slang for sold part or whole of an investment) comprise the top positive verbs indicating the most excite comments come with locking in profits. The most negative nouns again include short time horizons (today, tomorrow, week), broader events that influence business as a whole (election, news), and terms denoting the entirety of the market (market, stocks, vix (i.e., volatility), index, futures). Curiously, the word investment only appears in the top negative nouns. A stock must become an investment once it starts to decline. The negative verbs match closely to the positive ones while adding those associated with a decline (dropped, dumped, stopped, falling).
+					</p>
+				  </v-col>
+				  <v-col
 					  class="text-center"
 					  cols="8"
 				  >
@@ -485,6 +500,16 @@
 							<apexchart type="bar" height="500" :options="chartOptionsBarNews" :series="seriesBarNews"></apexchart>
 						</div>
 				  </v-col>
+				  <v-col
+				  	cols="10"
+				  >
+				  <br>
+				  	<p
+					  :style="hcolor3"
+					>
+						In order to gather on these companies and develop a robust trading program based on several different perspectives, the news media was analyzed. Explanation of sentiment and article counts (most talked about companies vs. those with the highest returns). Where there are gaps in this strategy. 
+					</p>
+				  </v-col> 
 				  <v-col
 					  class="text-center"
 					  cols="5"
@@ -519,6 +544,14 @@
 						<apexchart type="bar" height="500" :options="chartOptionsRecBar2" :series="seriesRecBar2"></apexchart>
 					</div>
 				  </v-col>
+				  <v-col
+				  	cols="10"
+				  >
+				  <br>
+				  	<p :style="hcolor3">
+						The institutional analysts were analyzed. Sentiment of given stocks. The competing interests. The missing stocks (small to low caps). Flaws with this sole strategy. 
+					</p>
+				  </v-col> 
 				  <v-col
 					  class="text-center"
 					  cols="8"
@@ -570,7 +603,22 @@
 					<div id="chartTimeline">
 						<apexchart type="area" height="350" ref="chart" :options="chartOptionsReturns" :series="seriesReturns"></apexchart>
 				  	</div>
+
 				  </div>
+				  	<br>
+				  	<p :style="hcolor3">
+						The retail trading strategy has a heavy focus on technology and growth stocks. In a low interest, low inflationary environment this led to a portfolio that outperformed the market nicely in 2020. It is a strategy that would have paid off for most of the past decade too. However, with the resurgence of energy and real estate since 2021 and the increase in inflation and interest rates, expectations for technology companies are increasing fast. The stock market is becoming harder to beat and data from all available perspectives needs to be accounted for. The button below leads to the final trading application which visualizes each strategy, its returns, and its allocation against the overall market. The strategies can be mixed and matched to develop your custom portfolio and see how you stack up against the market. Click below for more. 
+					</p>
+					<v-btn
+				  		rounded
+						target="_blank"
+						href="http://127.0.0.1:5000/trading_application/"
+						color="success"
+						
+					>
+					<v-icon style="margin-right: 10px">mdi-account-cash</v-icon>
+					Try It Out!
+					</v-btn>
 				  </v-col>
 				</v-row>
 				</v-container>

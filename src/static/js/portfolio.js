@@ -231,7 +231,7 @@
                 }
                 console.log('+'.repeat(20))
                 let ranges = this.chatSentRange.concat(this.analystSentRange).concat(this.publisherSentRange)
-                axios.get(`https://discord-traders.herokuapp.com/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
+                axios.get(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
                 .then(res => {
                     this.options.series.push({data: norm(createPyPortfolio(res.data, shortname)), name:  name});
                     let g = _.groupBy(temp, (d) => {return d.start_date})

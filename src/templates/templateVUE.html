@@ -95,6 +95,7 @@
 						<v-tabs
 							background-color="deep-purple accent-4"
 							dark
+							fixed-tabs
 							show-arrows
 							v-model="tabSelection"
 						>
@@ -107,15 +108,12 @@
 						</v-tabs>
 					</template>
 					<template
-						v-if="tabSelection === 0"
+						v-if="tabSelection === 1"
 					>
-						<br>
-							<v-btn
-								block
-								color="secondary"
-								@click="onResetClick"
-								><v-icon>mdi-refresh</v-icon>Reset</v-btn>
-							<v-divider></v-divider>
+							<br>
+							<h5 align="center" style="color: rgb(99, 15, 255)">
+								Compare Trading Returns to sector specific Mutual Funds, Invesco QQQ and Bitcoin!
+							</h5>
 							<br>
 							<h5
 								align='center'
@@ -129,6 +127,11 @@
 									return-object
 								>
 								</v-select>
+							<br>
+							<h5 align="center" style="color: rgb(99, 15, 255)">
+								Yearly Returns. Alpha represents the percentage difference between the Trading Strategy's portfolio and the S&P's Returns.
+							</h5>
+							<br>
 							<h5
 								align='center'
 								>Performance</h5>
@@ -141,6 +144,10 @@
 							>
 							</v-data-table>
 							<br>
+							<h5 align="center" style="color: rgb(99, 15, 255)">
+								Individual Security Performance by Year and Trading Strategy
+							</h5>
+							<br>
 							<h5
 								align='center'
 								>Allocation</h5>
@@ -152,15 +159,28 @@
 							>
 							</v-data-table>
 							<br>
+							<v-divider></v-divider>
+							<v-btn
+								block
+								color="secondary"
+								@click="onResetClick"
+								><v-icon>mdi-refresh</v-icon>Reset</v-btn>
+							
 					</template>
 					<template
-						v-else-if="tabSelection === 1"
+						v-else-if="tabSelection === 0"
+						align="'center"
 					>
 						<br>
+						<h5 align="center" style="color: rgb(99, 15, 255)">
+							Can you beat the market?
+							Build Your Own Trading Strategy Below By Selecting the Minimum Samples and Sentiment Ranges for each Stakeholder group and Press Trade!
+						</h5>
+						<br>
 						<h5
-							align='center'
+							align="center"
 							>Private Chatrooms</h5>
-						<template>
+						<!-- <template>
 							<v-container fluid>
 							  <v-select
 								v-model="chatSelection"
@@ -182,8 +202,8 @@
 								</template>
 							  </v-select>
 							</v-container>
-						  </template>
-						</v-select>
+						  </template> -->
+						
 						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
@@ -240,7 +260,7 @@
 						<h5
 							align='center'
 							>News Outlets</h5>
-						<template>
+						<!-- <template>
 							<v-container fluid>
 							  <v-select
 								v-model="publisherSelection"
@@ -262,7 +282,7 @@
 								</template>
 							  </v-select>
 							</v-container>
-						  </template>
+						  </template> -->
 						<v-row>
 							<v-col
 								class="text-center"
@@ -320,7 +340,7 @@
 						>
 							Institutional Analysts
 						</h5>
-						<template>
+						<!-- <template>
 							<v-container fluid>
 							  <v-select
 								v-model="analystSelection"
@@ -342,7 +362,7 @@
 								</template>
 							  </v-select>
 							</v-container>
-						</template>
+						</template> -->
 						<br>
 						<h6>Sentiment Ranges</h6>
 						<v-range-slider
@@ -400,7 +420,14 @@
 						</template>
 						<br>
 						<template>
-							<v-container fluid>
+							<v-container fluid align='center'>
+								<h5
+									
+								>
+									Stakeholder Selector
+								</h5>
+								
+							  <br>
 							  <v-select
 								v-model="methodSelection"
 								:items="methods"
@@ -428,31 +455,9 @@
 							rounded
 							color="success"
 							@click="onRetrieveData()"
-						>Allocate</v-btn>
+						>Trade!</v-btn>
 					</template>
-				<template
-					v-else-if="tabSelection === 2"
-				>
-					<br>
-					<h5>Trading Window</h5>
-					<v-slider
-							v-model='tradingPick'
-							:tick-labels="tradingWindows"
-							hide-details
-							ticks
-							:max="tradingWindows.length-1"
-							step="1"
-							ticks="always"
-							tick-size="6"
-						></v-slider>
-					<br>
-					<h5>Buying Strategy</h5>
-					<h6>Trading Window : [[tradingWindows.at(tradingPick)]]</h6>
-					<v-divider></v-divider>
-					<br>
-					<h5>Selling Strategy</h5>
-					<v-divider></v-divider>
-				</template>
+				
 				</div>
 					<div
 						style="
