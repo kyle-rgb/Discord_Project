@@ -14,7 +14,7 @@
 Here, I explore the insights gained from each individual source of data through a series of diverse visualizations. 
 </p>
 
-<p>To jump straight to trading, <a src="https://discord-traders.herokuapp.com">please visit my application page here.</a>
+<p>To jump straight to trading, <a src="https://discord-traders.herokuapp.com/trading_application/">please visit my application page here.</a>
 The interactive app allows you to create custom trading strategies based on the project data and evaluate their performance against the market, GICS sector ETFs, Bitcoin, and other trading strategies. The starting trading strategy is based off of the sentiment and mention frequency of Discord comments.
 </p>
 
