@@ -10,13 +10,20 @@
 ## Getting Started 
 ![](src/static/img/app.png)
 
-The application begins with an introduction to the project and a summary of the text-based analysis of the three analyzed sectors. Trading Strategies are then visualized through an interactive app that allows for users to create custom trading strategies and evaluate their performance against the market or a selected GICS sector. 
+<p>For a walkthrough on the dataset and an analysis of the text-based and sentiment features, <a src="https://discord-traders.herokuapp.com">please visit my analysis page here.</a>
+Here, I explore the insights gained from each individual source of data through a series of diverse visualizations. 
+</p>
+
+<p>To jump straight to trading, <a src="https://discord-traders.herokuapp.com">please visit my application page here.</a>
+The interactive app allows you to create custom trading strategies based on the project data and evaluate their performance against the market, GICS sector ETFs, Bitcoin, and other trading strategies. The starting trading strategy is based off of the sentiment and mention frequency of Discord comments.
+</p>
+
 
 ### Toolset
 * Languages: Python, JavaScript, HTML5, CSS3, SQL
 * Frameworks: Flask, Vue.js
 * NLP and Text Processing: Emosent, Emoji, NLTK, VaderSentiment
-* Data Collection: PyAutoGUI, BeautifulSoup4, Selenium, YFinance
+* Data Collection: PyAutoGUI, BeautifulSoup4, Selenium, Yahoo Finance API
 * Data Storage and Querying: SQLAlchemy, Pandas
 * Visualization: Vue.js, Vuetify.js, VueSVG.js, VueWordCloud.js, JQuery.js, ApexCharts.js, Chart.js, Animate.js, D3.js  
 
@@ -25,8 +32,10 @@ Kyle Lewis – kylel9815@gmail.com
 
 
 ### Version History
-* 0.0.1
-    * Work in Progress
+* 1.0.1
+    * Deployed to Heroku
+    * Released Interactive Trading Program
+    * Released Visualization and Analysis PAge
 
 ## Acknowledgments
 
