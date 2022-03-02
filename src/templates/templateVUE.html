@@ -177,9 +177,59 @@
 							Build Your Own Trading Strategy Below By Selecting the Minimum Samples and Sentiment Ranges for each Stakeholder group and Press Trade!
 						</h5>
 						<br>
+						<template>
+							<v-container fluid align='center'>
+								<h5
+								align='center'
+								>
+									Stakeholder Selector
+								</h5>
+								
+							  <br>
+							  <v-select
+								v-model="methodSelection"
+								:items="methods"
+								label="Filters"
+								outlined
+								multiple
+							  >
+								<template v-slot:selection="{ item, index }">
+								  <v-chip v-if="index === 0">
+									<span>[[ item ]]</span>
+								  </v-chip>
+								  <span
+									v-if="index === 1"
+									class="grey--text text-caption"
+								  >
+									(+[[ methodSelection.length - 1 ]] others)
+								  </span>
+								</template>
+							  </v-select>
+							</v-container>
+						</template>
+						
 						<h5
 							align="center"
-							>Private Chatrooms</h5>
+							>Private Chatrooms
+						</h5>
+					
+						<h6
+							align="center"
+							>Sentiment Ranges
+						</h6>
+						
+						<br>
+						<br>
+						
+						<v-slider
+							v-model="sliderChats"
+							:thumb-size="45"
+							thumb-label="always"
+						  >
+							<template v-slot:thumb-label="{ value }" >
+							 <h1> [[ satisfactionEmojis[Math.min(Math.floor(value / 10), 9)] ]]</h1>
+							</template>
+						  </v-slider>
 						<!-- <template>
 							<v-container fluid>
 							  <v-select
@@ -204,9 +254,7 @@
 							</v-container>
 						  </template> -->
 						
-						<br>
-						<h6>Sentiment Ranges</h6>
-						<v-range-slider
+						<!-- <v-range-slider
 							v-model="chatSentRange"
 							:max="max"
 							:min="min"
@@ -235,8 +283,11 @@
 								@change="$set(chatSentRange, 1, $event)"
 							></v-text-field>
 							</template>
-						</v-range-slider>
+						</v-range-slider> -->
 						<v-row>
+							<v-col
+								cols="3"
+							></v-col>
 							<v-col
 								class="text-center"
 								cols="6"
@@ -252,6 +303,9 @@
 								></v-text-field>
 								</v-form>
 							</v-col>
+							<v-col
+								cols="3"
+							></v-col>
 						</v-row>
 
 						<v-divider></v-divider>
@@ -259,7 +313,23 @@
 						<!--articles-->
 						<h5
 							align='center'
-							>News Outlets</h5>
+							>News Outlets
+						</h5>
+						
+						<h6
+								align="center"
+								>Sentiment Ranges</h6>
+						<br>
+						<br>
+						<v-slider
+							v-model="sliderNews"
+							:thumb-size="45"
+							thumb-label="always"
+						  >
+							<template v-slot:thumb-label="{ value }" >
+							 <h1> [[ satisfactionEmojis[Math.min(Math.floor(value / 10), 9)] ]]</h1>
+							</template>
+						  </v-slider>
 						<!-- <template>
 							<v-container fluid>
 							  <v-select
@@ -284,6 +354,7 @@
 							</v-container>
 						  </template> -->
 						<v-row>
+							<v-col cols="3"></v-col>
 							<v-col
 								class="text-center"
 								cols="6"
@@ -299,39 +370,9 @@
 								></v-text-field>
 								</v-form>
 							</v-col>
+							<v-col cols="3"></v-col>
 						</v-row>
 
-						<h6>Sentiment Ranges</h6>
-						<v-range-slider
-							v-model="publisherSentRange"
-							:max="max"
-							:min="min"
-							hide-details
-							class="align-center"
-						>
-							<template v-slot:prepend>
-							<v-text-field
-								:value="publisherSentRange[0]"
-								class="mt-0 pt-0"
-								hide-details
-								single-line
-								type="number"
-								style="width: 60px"
-								@change="$set(publisherSentRange, 0, $event)"
-							></v-text-field>
-							</template>
-							<template v-slot:append>
-							<v-text-field
-								:value="publisherSentRange[1]"
-								class="mt-0 pt-0"
-								hide-details
-								single-line
-								type="number"
-								style="width: 60px"
-								@change="$set(publisherSentRange, 1, $event)"
-							></v-text-field>
-							</template>
-						</v-range-slider>
 						<v-divider></v-divider>
 						<br>
 						<!--analysts-->
@@ -340,6 +381,22 @@
 						>
 							Institutional Analysts
 						</h5>
+						
+						<h6
+							align="center"
+						>Sentiment Ranges</h6>
+						<br>
+						<br>
+						
+						<v-slider
+							v-model="sliderAnalysts"
+							:thumb-size="45"
+							thumb-label="always"
+						  >
+							<template v-slot:thumb-label="{ value }" >
+							 <h1> [[ satisfactionEmojis[Math.min(Math.floor(value / 10), 9)] ]]</h1>
+							</template>
+						  </v-slider>
 						<!-- <template>
 							<v-container fluid>
 							  <v-select
@@ -363,9 +420,9 @@
 							  </v-select>
 							</v-container>
 						</template> -->
-						<br>
-						<h6>Sentiment Ranges</h6>
-						<v-range-slider
+						
+						
+						<!-- <v-range-slider
 							v-model="analystSentRange"
 							:max="4.5"
 							:min="1.0"
@@ -395,11 +452,13 @@
 								@change="$set(analystSentRange, 1, $event)"
 							></v-text-field>
 							</template>
-						</v-range-slider>
-						<v-divider></v-divider>
+						</v-range-slider> -->
 						<template>
 							
-							<v-row>
+							<v-row
+								align="center"
+							>
+								<v-col cols="3"></v-col>
 								<v-col
 									class="text-center"
 									cols="6"
@@ -415,47 +474,26 @@
 									></v-text-field>
 									</v-form>
 								</v-col>
+								<v-col cols="3"></v-col>
 							</v-row>
 							
+						
 						</template>
+						<v-divider></v-divider>
 						<br>
-						<template>
-							<v-container fluid align='center'>
-								<h5
-									
-								>
-									Stakeholder Selector
-								</h5>
-								
-							  <br>
-							  <v-select
-								v-model="methodSelection"
-								:items="methods"
-								label="Filters"
-								outlined
-								multiple
-							  >
-								<template v-slot:selection="{ item, index }">
-								  <v-chip v-if="index === 0">
-									<span>[[ item ]]</span>
-								  </v-chip>
-								  <span
-									v-if="index === 1"
-									class="grey--text text-caption"
-								  >
-									(+[[ methodSelection.length - 1 ]] others)
-								  </span>
-								</template>
-							  </v-select>
-							</v-container>
-						</template>
-						<br>
-						<v-btn
-							align='center'
-							rounded
-							color="success"
-							@click="onRetrieveData()"
-						>Trade!</v-btn>
+						<v-row>
+							<v-col cols="4"></v-col>
+							<v-col cols="6">
+								<v-btn
+									align='center'
+									rounded
+									color="success"
+									@click="onRetrieveData()"
+								>Trade!</v-btn>
+							</v-col>
+							
+						</v-row>
+						
 					</template>
 				
 				</div>

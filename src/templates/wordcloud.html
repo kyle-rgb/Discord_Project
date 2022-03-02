@@ -102,7 +102,7 @@
 				  <h1 class="text-h4" :style="hcolor">
 					  Retail Investor Trading
 				  </h1>
-				  <h4 class="subheading">
+				  <h4 class="subheading" >
 					  Using Retail Traders to Beat the Market!
 				  </h4>
 				  </v-col>
@@ -150,14 +150,31 @@
 					class="text-center"
 					cols="8"
 				>
-					
+					<h3 class="text-h3" :style="hcolor">Introduction</h3>
 					<div :style="hcolor3">
-						<p>2021 was the year of the retail trader. The launch of long languishing stocks such as GameStop and AMC into new valuation stratospheres through the collective action of individual investors and the subsequent reaction of institutional brokers brought the stock market back into the center of American culture in a way not seen since the high flying days of the Dotcom Bubble. The power of retail investors and day traders has made Elon Musk the richest person on the planet, extended the life of fledgling businesses and shattered the impervious veneer of hedge fund managers across Wall Street. Still, the main questions left in the wake of these events has to be why the financial industry and the financial news media in particular was caught so off-guard by these actions and how can future trading applications account for the retail investor?</p>
+						<p>2021 was the year of the retail trader. The launch of long languishing stocks such as GameStop and AMC into new valuation stratospheres through the collective action of individual investors and the subsequent reaction of institutional brokers brought the stock market back into the center of American culture in a way not seen since the high-flying days of the Dotcom Bubble. The power of retail investors and day traders has made Elon Musk the richest person on the planet, extended the life of fledgling businesses and shattered the impervious veneer of hedge fund managers across Wall Street. Still, the main questions left in the wake of these events has to be why the financial industry and the financial news media in particular was caught so off-guard by these actions and how can future trading applications account for the retail investor?</p>
 						<p>The goal of this project is to develop a trading program that answers the latter question through Sentiment Analysis. Comments and postings of retail traders in private Discord chatrooms will be collected, cleaned, analyzed, and transformed into sentiment scores that will be fed to a custom trading algorithm in order to create a balanced portfolio based on the interest and mood of retail investors. The success and validity of these trading strategies will be compared to trading strategies that rely solely on institutional information sources. The institutional sources for this project will be (1) financial news on public companies from Investing.com and Seeking Alpha and (2) analyst recommendations from investment banks and investment research institutions. The final product is a custom web application built on Vue.js that showcases the sentiment and wording structure of the separate data sources and visualizes the returns on a portfolio through each trading strategy.</p>
 					</div>
 				</v-col>
 				<v-col cols="2"></v-col>
 			  </v-row>
+			  <v-row>
+				<v-col cols="2"></v-col>
+				<v-col
+					class="text-center"
+					cols="8"
+				>
+					<h3 class="text-h3" :style="hcolor">Retail Traders</h3>
+					<div >
+						<p :style="hcolor3">
+							Private chatrooms were selected in lieu of other social media sources for three primary reasons: one, there are barriers to entry for users (must by invited), two, the structure of the chat server into topic channels allows the scraped data to arrive at storage pre-sorted and, three, the chat-based format provides quick access to a range of different opinions across the userbase. With their large userbases and infinite amount of topics, traditional social media channels, such as Twitter and Reddit, generate a larger, but more fragmented volume of data. Moreover, the self-censoring inherent to public posts, especially concerning financial information, can reduce the efficacy of any analysis results. The risk of losing the signal through the noise of crypto promoters and fake accounts is far greater.
+						</p>
+						<p :style="hcolor3">As our guiding light through this project, the comments of retail investors had to be thoroughly cleaned and segmented in order to provide meaningful value to a trading program. Mentions, gifs, links, and bots were filtered out to remove discord syntax and non-text data. Next, the mentioned tickers were identified and tagged to provide an initial distribution of all the mentioned companies listed on the NYSE or the NASDAQ. These tags were then paired down to the top 100 most mentioned companies and retagged to catch non-ticker mentions of these popular companies (via their company names). Once these additional mentions were accounted for, comments could be directly paired to the underlying security and its price movements.
+						</p>
+					</div>
+				</v-col>
+				<v-col cols="2"></v-col>
+			  	</v-row>
 			  <v-row
 					style="
 					height: 50px;
@@ -256,6 +273,27 @@
 							>[[ progress.completedWords ]] of [[ progress.totalWords ]]</v-progress-circular>
 						</v-scale-transition>
 					</v-col>
+				</v-row>
+				
+				<v-row
+				  align="center"
+				  justify="center"
+				  height="40%"
+				  width="100%" 
+			  	>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+					  
+					<div id="chartTree">
+						<apexchart type="treemap" :options="chartOptionsTree" :series="treeSeries"></apexchart>
+					</div>
+				  </v-col>
+				  <v-col class="text-center" cols="8">
+					<p :style="hcolor3">The visualizations above showcase the most mentioned companies across all analyzed Discord groups sized by mention and the returns of these securities from May 2020 to the start of 2021. The technology sector was the most represented, balanced across multiple different industries. Mega-cap players of Apple and Amazon, electrical vehicle manufacturers Nio and Tesla and semiconductor giants AMD, Intel and Nvidia generated the most discussion amongst retail traders. The healthcare industry was the second most talked about sector. Previously high-flying cannabis stocks such as Sundial Growers (SNDL), Aurora Cannabis (ACB) and Canopy Growth (CGC) generated much of the discussion as the red-hot sector of cooled down considerably from a furious run up in 2018-19 due to Canadian legalization and buy-in from institutional investors such as Constellation Brands. The biotechnology companies Liminal Biosciences (LMNL), Xeris (XERS), and newly public Aditxt (ADTX) also peaked the chats interest as retail investors tried to profit off a notoriously volatile industry. </p>
+					<p :style="hcolor3">Beyond individual stocks, members also frequently talked about ETFs and inverse equities. The largest ETF is the world, the SPDR S&P 500 (SPY), was the most talked about individual security and acted as a gauge for short term market sentiment. Key events such as FED meetings and COVID-19 case increases were used to develop trading strategies based on the expected market reaction. The technology centric ETF, QQQ, was also discussed, since its major holdings (AAPL, TSLA, AMZN) overlap with the most talked about companies. Retail investors also showed a willingness to play both sides of the market as evidenced by the inclusion of the inverse equities SQQQ and VXX. These bearish equities allow investors to profit off of volatility and the losses by QQQ, respectively. Both of these securities lost more than 50% of their value through the bullish analyzed period and the chat sentiment mirrored this drastic performance as each one had the worst average sentiment in the chatrooms for December and November respectfully. Their inclusion and their associated sentiment show a knowledgeable investor class who looks for opportunities to profit off of both sides of the market.</p>
+				  </v-col>
 				</v-row>
 				<br>
 				<v-row
@@ -456,6 +494,17 @@
 						</vue-word-cloud>
 					</v-col>
 				</v-row>
+				<v-row>
+					<v-col cols="2"></v-col>
+					<v-col
+						class="text-center"
+						cols="8"
+				  	>
+				  	<p :style="hcolor3">
+					The remaining word clouds show the most used nouns and verbs associated with the positive and negative chat comments with the stop words removed. Unsurprisingly, the most common nouns all have to short-term time periods (today, tomorrow, week, months, etc.) and financial related terms (options, stocks, earnings, profits, etc.). The verbs tell a more interesting story. The highest usage verbs mostly had to do with an action completed. Sold, made, took, and trimmed (slang for sold part or whole of an investment) comprise the top positive verbs indicating the most excite comments come with locking in profits. The most negative nouns again include short time horizons (today, tomorrow, week), broader events that influence business as a whole (election, news), and terms denoting the entirety of the market (market, stocks, vix (i.e., volatility), index, futures). Curiously, the word investment only appears in the top negative nouns. A stock must become an investment once it starts to decline. The negative verbs match closely to the positive ones while adding those associated with a decline (dropped, dumped, stopped, falling).
+					</p>
+					<v-col cols="2"></v-col>
+				</v-row>
 
 				<v-row
 				  align="center"
@@ -463,12 +512,25 @@
 				  height="40%"
 				  width="100%" 
 			  	>
+				  <v-col cols="2"></v-col>
 				  <v-col
 					  class="text-center"
 					  cols="8"
 				  >
 					  <canvas id="myChart" style="background-color: transparent;"></canvas>
 				  </v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col
+				  	class="text-center"
+				  	cols="8"
+				  >
+					<p :style="hcolor3">
+						Emojis are a valuable resource in sentiment analysis as they have the ability to clarify the mood of an individual comment through a single character. This is particularly helpful when dealing with short form data like chatroom comments. Through these signifiers, we can continue to learn more about the sentiment and composition of retail traders. Most of the emotes are faces denoting joy (face with tears of joy, rolling on the floor laughing, slightly smiling face) and objects indicating successful trades (money bag, fire, and rocket). The hand symbols were most commonly used in conversations between members concerning collaborative trades. They signified trust and thanks between members sharing their trade ideas. The second most common emote, eyes, calls back to the previous word clouds nicely. The second most common verb, for both positive and negative comments, was looking and see, respectively. Whether it was a technical trend in a security’s price graph or future growth in a company’s market share, sight held the most influence over investors. Timing is everything in the market, so relying on sight and input from other investors helped retail traders make quick trading decisions in the market. The male sign accompanied most of the userbase’s emotes and demonstrate that males are over-represented in this population.  
+					</p>
+				  </v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col cols="2"></v-col>
 				  <v-col
 					  class="text-center"
 					  cols="8"
@@ -477,80 +539,68 @@
 							<apexchart type="bar" height="500" :options="chartOptionsBar" :series="seriesBar"></apexchart>
 						</div>
 				  </v-col>
-				  <v-col
-					class="text-center"
-					cols="8"
-				  >
-				  	<p :style="hcolor3">
-					Private chatrooms were selected in lieu of other social media sources for three primary reasons: one, there are barriers to entry for users (must by invited), two, the structure of the chat server into topic channels allows the scraped data to arrive at storage pre-sorted and, three, the chat-based format provides quick access to a range of different opinions across the userbase. With their large userbases and infinite amount of topics, traditional social media channels, such as Twitter and Reddit, generate a larger, but more fragmented volume of data. Moreover, the self-censoring inherent to public posts, especially concerning financial information, can reduce the efficacy of any analysis results. The risk of losing the signal through the noise of crypto promoters and fake accounts is far greater.
-					</p>
-					<p :style="hcolor3">As our guiding light through this project, the comments of retail investors had to be thoroughly cleaned and segmented in order to provide meaningful value to a trading program. Mentions, gifs, links, and bots were filtered out to remove discord syntax and non-text data. Next, the mentioned tickers were identified and tagged to provide an initial distribution of all the mentioned companies listed on the NYSE or the NASDAQ. These tags were then paired down to the top 100 most mentioned companies and retagged to catch non-ticker mentions of these popular companies (via their company names). Once these additional mentions were accounted for, comments could be directly paired to the underlying security and its price movements.
-					</p>
-					<p :style="hcolor3">To obtain sentiment scores, the Vader module’s Sentiment Intensity Analyzer was used on the cleaned comments.  The Sentiment Analyzer’s lexicon accounts for abbreviations and emojis, perfect for casual chat data. The majority of the comments were neutral and the balance of positive to negative comments was 2:1. The media had a far rosier viewpoint for these same companies. Three-quarters of the news articles were positive overall, the ratio of positive to negative articles was 3:1 while the percentage of neutral stories was negligible. Against intuition, the news industry does not simply report the given facts, but also shapes wider public perception of companies through framing a company and its results. The Discord sentiment results make sense in a more discussion-based context. The chatroom’s main motivation for existing is to provide a private space for conversation and questions about upcoming earnings, IPOs, and public investment opportunities with other knowledgeable retail traders. The analyzed chatrooms were often run by moderators who offered teaching assistance on technical fundamentals and trade recommendations as funnels for their subscription offerings. 
-					</p>
-					<p :style="hcolor3">The visualizations below showcase the most mentioned companies and emotes across all analyzed Discord groups sized by mention. The technology sector was the most represented, balanced across multiple different industries. Mega-cap players of Apple and Amazon, electrical vehicle manufacturers Nio and Tesla and semiconductor giants AMD, Intel and Nvidia generated the most discussion amongst retail traders. The healthcare industry was the second most talked about sector. Previously high-flying cannabis stocks such as Sundial Growers (SNDL), Aurora Cannabis (ACB) and Canopy Growth (CGC) generated much of the discussion as the red-hot sector of cooled down considerably from a furious run up in 2018-19 due to Canadian legalization and buy-in from institutional investors such as Constellation Brands. The biotechnology companies Liminal Biosciences (LMNL), Xeris (XERS), and newly public Aditxt (ADTX) also peaked the chats interest as retail investors tried to profit off a notoriously volatile industry. Beyond individual securities, members also frequently talked about ETFs and inverse equities. The largest ETF is the world, the SPDR S&P 500 (SPY), was the most talked about individual security and acted as a gauge for short term market sentiment. Key events such as FED meetings and COVID-19 case increases were used to develop trading strategies based on the expected market reaction. The technology centric ETF, QQQ, was also discussed, since its major holdings (AAPL, TSLA, AMZN) overlap with the most talked about companies. Retail investors also showed a willingness to play both sides of the market as evidenced by the inclusion of the inverse equities SQQQ and VXX. These bearish equities allow investors to profit off of volatility and the losses by QQQ, respectively. Both of these securities lost more than 50% of their value throughout the analyzed period and the chat sentiment mirrored this drastic performance as each one had the worst average sentiment in the chatrooms for December and November respectfully. Their inclusion and their associated sentiment show a knowledgeable investor class who looks for opportunities to profit off of both sides of the market. 
-					The remaining word clouds show the most used nouns and verbs associated with the positive and negative chat comments with the stop words removed. Unsurprisingly, the most common nouns all have to short-term time periods (today, tomorrow, week, months, etc.) and financial related terms (options, stocks, earnings, profits, etc.). The verbs tell a more interesting story. The highest usage verbs mostly had to do with an action completed. Sold, made, took, and trimmed (slang for sold part or whole of an investment) comprise the top positive verbs indicating the most excite comments come with locking in profits. The most negative nouns again include short time horizons (today, tomorrow, week), broader events that influence business as a whole (election, news), and terms denoting the entirety of the market (market, stocks, vix (i.e., volatility), index, futures). Curiously, the word investment only appears in the top negative nouns. A stock must become an investment once it starts to decline. The negative verbs match closely to the positive ones while adding those associated with a decline (dropped, dumped, stopped, falling).
-					</p>
-				  </v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col cols="2"></v-col>
 				  <v-col
 					  class="text-center"
 					  cols="8"
 				  >
+					  
+						<div id="chartChat">
+							<apexchart type="heatmap" height="500" :options="chartOptionsHeat2" :series="seriesHeat2"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col
+				  	class="text-center"
+				  	cols="8"
+				  >
+						<div id="scatterChat">
+							<apexchart type="scatter" height="350" :options="chartOptionsBubbleChat" :series="seriesBubbleChat"></apexchart>
+						</div>
+				  </v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col cols="2"></v-col>
+				  <v-col
+				  	class="text-center"
+				  	cols="8"
+				  >
+					<p :style="hcolor3">
+						To obtain sentiment scores, the Vader module’s Sentiment Intensity Analyzer was used on the cleaned comments.  The Sentiment Analyzer’s lexicon accounts for abbreviations and emojis, perfect for casual chat data. The majority of the comments were neutral and the balance of positive to negative comments was 2:1. The Discord sentiment results make sense in a discussion-based context. The chatroom’s main motivation for existing is to provide a private space for conversation and questions about upcoming earnings, IPOs, and public investment opportunities with other knowledgeable retail traders. The analyzed chatrooms were often run by moderators who offered teaching assistance on technical fundamentals and trade recommendations through subscription offerings.</p>
+					<p :style="hcolor3">The most talked about companies in the chatrooms were Tesla, Apple, and the S&P 500 ETF, SPY. Elon generates a lot of discussion in the 24-hour news cycle and has a high approval rating amongst retail traders for his detain towards the traditional elements of the financial sector. May 2020 began the ascent of Tesla in becoming one of the largest companies in the world and its success brought along massive increases in all the adjacent EV industries; Plug Power, Nio Inc. and Blink Charging all rose at least 7x in 8 short months. The greatest gains of the retail trader’s stock basket are owed to Elon. Retail trader sentiment was lowest towards the newly public Aditxt, Boeing and Alibaba. After only 2 months on the market, Aditxt lost over half of its IPO price, a trend it has continued to this day. Early COVID-19 uncertainty hammered airlines the hardest and retail investor negativity became rampant in the plane manufactures, Boeing, and their customers (American Airlines). Despite a bullish environment for tech stocks overall, the Luckin Coffee scandal in April caused increased scrutiny and skepticism towards Chinese technology firms and even the largest retailer in the world, Alibaba, could not shake this negative sentiment. The sentiments and mention frequency exhibit an intelligent investor class who focuses on winners.  
+
+					</p>
+				  </v-col>
+				  <v-row>
+					
+					<v-col
+						class="text-center"
+						cols="12"
+					>
+						
+						
+					</v-col>
+					
+					</v-row>
+				  <v-col
+					  class="text-center"
+					  cols="8"
+				  >
+				  		<h3 class="text-h3" :style="hcolor">The Media</h3>
+					  	<br>
 						<div id="chartBarNews">
 							<apexchart type="bar" height="500" :options="chartOptionsBarNews" :series="seriesBarNews"></apexchart>
 						</div>
 				  </v-col>
 				  <v-col
-				  	cols="10"
-				  >
-				  <br>
-				  	<p
-					  :style="hcolor3"
-					>
-						In order to gather on these companies and develop a robust trading program based on several different perspectives, the news media was analyzed. Explanation of sentiment and article counts (most talked about companies vs. those with the highest returns). Where there are gaps in this strategy. 
-					</p>
-				  </v-col> 
-				  <v-col
 					  class="text-center"
-					  cols="5"
-				  >
-					<div id="chartDonut">
-						<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonut"></apexchart>
-					</div>
-				  </v-col>
-				  <v-col
-					  class="text-center"
-					  cols="5"
-				  >
-					<div id="chartDonut22">
-						<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonutEnd"></apexchart>
-					</div>
-				  </v-col>
-				  <v-col
-						class="text-center"
-						cols="5" 
+					  cols="8"
 				  >
 					  
-					<div id="chartRecsBar">
-						<apexchart type="bar" height="500" :options="chartOptionsRecBar" :series="seriesRecBar"></apexchart>
-					</div>
-				  </v-col>
-				  <v-col
-						class="text-center"
-						cols="5" 
-				  >
-					  
-					<div id="chartRecsBar">
-						<apexchart type="bar" height="500" :options="chartOptionsRecBar2" :series="seriesRecBar2"></apexchart>
-					</div>
-				  </v-col>
-				  <v-col
-				  	cols="10"
-				  >
-				  <br>
-				  	<p :style="hcolor3">
-						The institutional analysts were analyzed. Sentiment of given stocks. The competing interests. The missing stocks (small to low caps). Flaws with this sole strategy. 
-					</p>
+						<div id="chart">
+							<apexchart type="heatmap" height="500" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
+						</div>
 				  </v-col> 
 				  <v-col
 					  class="text-center"
@@ -561,39 +611,89 @@
 						<div id="scatterNews">
 							<apexchart type="scatter" height="350" :options="chartOptionsBubbleNews" :series="seriesBubbleNews"></apexchart>
 						</div>
-						<div id="scatterChat">
-							<apexchart type="scatter" height="350" :options="chartOptionsBubbleChat" :series="seriesBubbleChat"></apexchart>
+						
+					</div>
+				  </v-col>
+				  <v-col
+				  	class="text-center"
+				  	cols="8"
+				  >
+					<p :style="hcolor3">The media had a far rosier viewpoint for these same companies.
+						Three-quarters of the news articles were positive overall, the ratio of positive to negative articles was 3:1 while the percentage of neutral stories was negligible. Against intuition, the news industry does not simply report the given facts, but also shapes wider public perception of companies through framing a company and its results.
+						Most of the news's coverage revolved around the largest companies. Apple, Tesla and Facebook dominated the news coverage each for different reasons; Apple for being the largest company in the world, Tesla for Elon, and Facebook for the election.
+						This over emphasis on large market cap company can lead investors to not see the whole picture and miss out on financial opportunities on smaller companies, who have more room for growth.					</p>
+				  </v-col>
+				  <v-col
+					class="text-center"
+					cols="10"
+				  >
+				  		<h3 class="text-h3" :style="hcolor">The Analysts</h3>
+				  </v-col>
+				 			
+				  <v-col
+					  class="text-center"
+					  cols="5"
+				  >
+
+						<div id="chartDonut">
+							<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonut"></apexchart>
 						</div>
-					  </div>
+				  </v-col>
+				  
+					<v-col
+							class="text-center"
+							cols="5"
+						>
+							<div id="chartDonut22">
+								<apexchart type="donut" height="350" :options="chartOptionsDonut" :series="seriesDonutEnd"></apexchart>
+							</div>
+				  	</v-col>
+
+				  <v-col
+						class="text-center"
+						cols="5" 
+				  >
+					  
+					<div 
+					>
+						<apexchart
+					  		
+							type="bar" height="500" :options="chartOptionsRecBar" :series="seriesRecBar"
+						></apexchart>
+						<div>
+							<apexchart type="scatter" height="350" :options="chartOptionsRatings" :series="ratingsSeries"></apexchart>
+						</div>
+					</div>
+				  </v-col>
+				  <v-col
+						class="text-center"
+						cols="5" 
+				  >
+					<div
+					>
+						<apexchart
+				  
+							type="bar" height="500" :options="chartOptionsRecBar2" :series="seriesRecBar2"
+						></apexchart>
+					</div>
+					<div>
+						<apexchart type="scatter" height="350" :options="chartOptionsRatings2" :series="ratingsSeries2"></apexchart>
+					</div>
 				  </v-col>
 				  
 				  <v-col
-					  class="text-center"
-					  cols="8"
+				  	cols="10"
+					class="text-center"
 				  >
-					  
-						<div id="chart">
-							<apexchart type="heatmap" height="500" :options="chartOptionsHeat" :series="seriesHeat"></apexchart>
-						</div>
+				  <br>
+				  	<p :style="hcolor3">
+						Analysts are insiders who have specialized knowledge in specific companies and sectors and work for financial institutions, such as investment banks and research firms. Using their understanding of a company, its competitors, and the trends they project to influence the sector, analysts provide ratings on stocks to inform investors for 12-to-18-month periods. These ratings provide a measurable history of institutional confidence for a public company. The ratings use the overall market as its baseline and fit into 5 categories: Very Bullish, Bullish, Neutral, Bearish, and Very Bearish. These ratings can come in the form of actual trading recommendations (Buy, Sell, Hold, Accumulate) or general projections (Market Perform, Sector Perform, Underperform). They tend to make the most news when key institutions such as Morgan Stanley or Goldman Sachs make large upgrades or downgrades based on new market conditions. Single ratings can move a stock 10% on a slow news day.
+					</p>
+					<p :style="hcolor3">
+						There can be a whole range of competing interests involved in a rating. Financial institutions can give out investment advice to consumers that say one thing and loans to the same companies that say another. They can also spend months promoting and selling investors on a new, exciting private company in the run up to its IPO and release a contradictory rating months later. Moreover, analysts are selective in what public companies receive ratings, often focusing on the large market cap companies and ignoring middle and small cap companies. Relying only on these ratings can create large opportunity costs for investors since million-dollar companies have more headroom for growth than their trillion-dollar counterparts. Still, it is a helpful history and gives us a simple, aggregate opinion of how important money managers think of our current companies.
+					</p>
 				  </v-col>
-				  <v-col
-					  class="text-center"
-					  cols="8"
-				  >
-					  
-						<div id="chartChat">
-							<apexchart type="heatmap" height="500" :options="chartOptionsHeat2" :series="seriesHeat2"></apexchart>
-						</div>
-				  </v-col>
-				  <v-col
-					  class="text-center"
-					  cols="8"
-				  >
-					  
-					<div id="chartTree">
-						<apexchart type="treemap" :options="chartOptionsTree" :series="treeSeries"></apexchart>
-					</div>
-				  </v-col>
+
 				  <v-col
 				  	class="text-center"
 					cols="8" 
@@ -607,12 +707,13 @@
 				  </div>
 				  	<br>
 				  	<p :style="hcolor3">
-						The retail trading strategy has a heavy focus on technology and growth stocks. In a low interest, low inflationary environment this led to a portfolio that outperformed the market nicely in 2020. It is a strategy that would have paid off for most of the past decade too. However, with the resurgence of energy and real estate since 2021 and the increase in inflation and interest rates, expectations for technology companies are increasing fast. The stock market is becoming harder to beat and data from all available perspectives needs to be accounted for. The button below leads to the final trading application which visualizes each strategy, its returns, and its allocation against the overall market. The strategies can be mixed and matched to develop your custom portfolio and see how you stack up against the market. Click below for more. 
+						The retail trading strategy has a heavy focus on technology and growth stocks. In a low interest, low inflationary environment this led to a portfolio that outperformed the market nicely in 2020. It is a strategy that would have paid off for most of the past decade too. However, with the resurgence of energy and real estate since 2021 and the increase in inflation and interest rates, expectations for technology companies are increasing fast. The stock market is becoming harder to beat and data from all available perspectives needs to be accounted for. The button below leads to the final trading application which visualizes each strategy, its returns, and its allocation against the overall market. The strategies can be mixed and matched to develop your custom portfolio and see how you stack up against the market.
+						Click below to start trading!
 					</p>
 					<v-btn
 				  		rounded
 						target="_blank"
-						href="http://127.0.0.1:5000/trading_application/"
+						href="https://discord-traders.herokuapp.com/trading_application/"
 						color="success"
 						
 					>
@@ -625,7 +726,7 @@
 			</v-parallax>
 			</v-content>
 			<v-snackbar
-				:timeout="15000"
+				:timeout="5000"
 				bottom
 				v-model="snackbarVisible"
 				
