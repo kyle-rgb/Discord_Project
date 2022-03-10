@@ -39,6 +39,10 @@
                     {text: 'Alpha', value: 'alpha'}
                   ],
                 desserts: [],
+                satisfactionEmojis: ['😭', '😢', '☹️', '🙁', '😐', '🙂', '😊', '😁', '😄', '😍'],
+                sliderChats: 50,
+                sliderNews: 50,
+                sliderAnalysts: 50, 
                 headersAlloc: [
                     {
                         text: 'Security', align: 'start', sortable:true, value: 'symbol'
@@ -211,12 +215,15 @@
         },
         computed: {
             newSector: function(){
-                this.options.series.length > 5 ? this.options.series.pop(): undefined; 
+                this.options.series.length > 5 ? this.onResetClick(): undefined; 
                 this.options.series.includes(this.comparisonIndex.graph) ? undefined : this.options.series.push(this.comparisonIndex.graph);
                 this.desserts = this.desserts.map((m) => m.symbol).includes(this.comparisonIndex.symbol) ? this.desserts: this.desserts.concat(evalOverTime(port, this.comparisonIndex.symbol))
                 this.marketReturns = this.desserts.map((d) => {if (d.symbol == 'SPY'){return {year: d.year, returns: d.returns}}}).filter((f) => {return f})                
                 return this.comparisonIndex.sector;
             },
+            sents: function(){
+				return [converterAPI(this.sliderAnalysts, 'recs'), converterAPI(this.sliderChats, 'comments'), converterAPI(this.sliderNews, 'news')]
+			},
         },
         methods: {
             onResetClick: function() {
@@ -229,9 +236,10 @@
                     shortname +=` ${this.customN}`
                     name +=` ${this.customN}`
                 }
-                console.log('+'.repeat(20))
-                let ranges = this.chatSentRange.concat(this.analystSentRange).concat(this.publisherSentRange)
-                axios.get(`http://127.0.0.1:5000/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
+                
+                let ranges = [0, converterAPI(this.sliderChats, 'comments')].concat([1, converterAPI(this.sliderAnalysts, 'recs')]).concat([0, converterAPI(this.sliderNews, 'news')])
+            
+                axios.get(`https://discord-traders.herokuapp.com/AppAPI?method=${this.methodSelection}&min_samples=${this.limits}&threshold=${ranges}`  )
                 .then(res => {
                     this.options.series.push({data: norm(createPyPortfolio(res.data, shortname)), name:  name});
                     let g = _.groupBy(temp, (d) => {return d.start_date})

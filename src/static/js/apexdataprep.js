@@ -245,3 +245,48 @@ function reducer (data){
     return r.flat()
 }
 
+function converterAPI(x, type){
+    if (type=='recs'){
+        if (x>= 90){
+            return 4.1
+        } else if (x>=80){
+            return 4.0
+        } else if (x>=70){
+            return 3.8
+        } else if (x>=60){
+           return  3.5
+        } else if (x>=50){
+            return 3.25
+        } else if (x>=40){
+           return 3
+        } else if (x>=30){
+           return 2.9
+        } else if (x>=20){
+            return 2.8
+        } else{
+           return  1
+        } 
+    } else if (type==='comments'){
+        if (x>= 90){
+            return 50
+        } else if (x>=80){
+            return 35
+        } else if (x>=70){
+            return 25
+        } else if (x>=60){
+           return  12.5
+        } else if (x>=50){
+            return 12
+        } else if (x>=40){
+           return 0
+        } else if (x>=30){
+           return -12.5
+        } else if (x>=20){
+            return -12.0
+        } else{
+           return  -25.0
+        } 
+    } else{
+        return x
+    }
+}

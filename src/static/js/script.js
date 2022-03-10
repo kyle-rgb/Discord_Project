@@ -530,7 +530,7 @@
 									from: 0.01,
 									to: 0.50,
 									name: 'medium',
-									color: '#00FF36'
+									color: '#FFA942'
 								},
 								{
 									from: 0.50,
@@ -607,7 +607,7 @@
 								from: 0.01,
 								to: 0.50,
 								name: 'medium',
-								color: '#00FF36'
+								color: '#FFA942'
 							},
 							{
 								from: 0.50,
@@ -651,7 +651,7 @@
 						}
 					},
 					title: {
-						text: 'HeatMap of Private Chats',
+						text: 'Heatmap of Private Chats',
 						align: 'center',
 						style: {
 							color: 'white',
@@ -888,6 +888,8 @@
 						  type: 'bar',
 						  height: 350,
 						  foreColor: 'white',
+						  id: 'scatterReturns',
+						  groups: 'count'
 						},
 						plotOptions: {
 						  bar: {
@@ -990,6 +992,88 @@
 								}
 							}]
 						}
+				},
+				ratingsSeries: [
+					{
+						name: 'May 2020',
+						data: [],
+					},
+				],
+				ratingsSeries2: [
+					{
+						name: 'End 2020',
+						data: [],
+					},
+				],
+				chartOptionsRatings: {
+					chart: {
+						height: 350,
+						type: 'scatter',
+						foreColor: '#ffffff',
+						
+					},
+					tooltip: {fillSeriesColor: true, z: {title: 'company - '}},
+					dataLabels: {
+						enabled: false
+					},
+					fill: {
+						opacity: 0.8
+					},
+					title: {
+						text: 'Initial Ratings vs. Period Returns',
+						align: 'center',
+						style: {
+							fontFamily: 'Baloo Bhaijaan',
+							fontSize: '20px',
+						}
+					},
+					xaxis: {
+						tickAmount: 12,
+						min: -1,
+						max: 5,
+						decimalsInFloat: 3,
+						type: 'numeric',
+					},
+					yaxis: {
+						min: 0,
+						max: 5,
+						decimalsInFloat: 3,
+					}
+				},
+				chartOptionsRatings2: {
+					chart: {
+						height: 350,
+						type: 'scatter',
+						foreColor: '#ffffff',
+						
+					},
+					tooltip: {fillSeriesColor: true},
+					dataLabels: {
+						enabled: false
+					},
+					fill: {
+						opacity: 0.8
+					},
+					title: {
+						text: 'Ending Ratings vs. Ending 2021 Returns',
+						align: 'center',
+						style: {
+							fontFamily: 'Baloo Bhaijaan',
+							fontSize: '20px',
+						}
+					},
+					xaxis: {
+						tickAmount: 12,
+						min: -1,
+						max: 25,
+						decimalsInFloat: 3,
+						type: 'numeric',
+					},
+					yaxis: {
+						min: 0,
+						max: 5,
+						decimalsInFloat: 3,
+					}
 				},
 				seriesReturns: [
 				{
@@ -1151,7 +1235,7 @@
 			this.seriesDonutEnd = pieRatings2.data[0];
 			this.treeSeries = this.createReturnMap(port, new Date('2020-05-01'), new Date('2021-01-01'));
 			this.seriesHeat = this.createHeatReturns(articlesSent, 'May 2020', 'Dec 2020')
-			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020')
+			this.seriesHeat2 = this.createHeatReturns(commentsSent, 'May 2020', 'Dec 2020', false)
 			this.createBar(comments_pt, articles_pt)
 			this.createBubbles(nTotals)
 			this.createFinalReturns();
@@ -1175,10 +1259,11 @@
 			},
 			onWordClick: function(word) {
 				let re = /^[A-Z]*$/
+				let rebit = /BTC-USD/
 				let tt = token_Json.filter((a) => {return a.word === word.text})	
 				this.snackbarVisible = true;
 				this.snackbarText = word.text + " references: " + word.weight;
-				if (word.text.match(re)){
+				if ((word.text.match(re))||(word.text.match(rebit))){
 					this.hrefs = word.text
 				}		
 			},
@@ -1206,7 +1291,7 @@
 				return gfg
 			
 			},
-			createHeatReturns: function(data, start_date, end_date){
+			createHeatReturns: function(data, start_date, end_date, article_bin=true){
 				start_date = new Date(start_date)
 				end_date = new Date(end_date)
 				data = data.map((m) => {m.date = new Date(m.month); return m}).filter((d) => {return ((d.date) >= start_date) & ((d.date) <= end_date)})
@@ -1219,18 +1304,20 @@
 				
 				_.forEach(selectedDates, (v, k) => {
 					selectedDates[k] = { name: k,
-						data: [{x: 'MAX AVG SENTIMENT', y: _.maxBy(v, 'comp_sent_avg').comp_sent_avg, z: _.maxBy(v, 'comp_sent_avg').symbol},
-					{x: 'MIN AVG SENTIMENT', y: _.minBy(v, 'comp_sent_avg').comp_sent_avg, z: _.minBy(v, 'comp_sent_avg').symbol},
-					{x: 'MAX POS SENTIMENT', y: _.maxBy(v, 'pos_sent_avg').pos_sent_avg, z: _.maxBy(v, 'pos_sent_avg').symbol},
-					{x: 'MAX NEG SENTIMENT', y: _.maxBy(v, 'neg_sent_avg').neg_sent_avg, z: _.minBy(v, 'neg_sent_avg').symbol},
-					{x: 'MOST ARTICLES', y: _.maxBy(v, 'article_count').article_count, z: _.maxBy(v, 'article_count').symbol},
-					{x: 'MOST ENGAGED', y: _.maxBy(v, 'engagement').engagement, z: _.maxBy(v, 'engagement').symbol},
-				]
-				}})
+						data: [{x: 'Highest Avg. Sent', y: _.maxBy(v, 'comp_sent_avg').comp_sent_avg, z: _.maxBy(v, 'comp_sent_avg').symbol},
+					{x: 'Lowest Avg. Sent', y: _.minBy(v, 'comp_sent_avg').comp_sent_avg, z: _.minBy(v, 'comp_sent_avg').symbol},
+					{x: 'Highest Pos. Sent', y: _.maxBy(v, 'pos_sent_avg').pos_sent_avg, z: _.maxBy(v, 'pos_sent_avg').symbol},
+					{x: 'Highest Neg. Sent', y: _.maxBy(v, 'neg_sent_avg').neg_sent_avg, z: _.minBy(v, 'neg_sent_avg').symbol},
+					{x: 'Most Mentions', y: _.maxBy(v, 'engagement').engagement, z: _.maxBy(v, 'engagement').symbol},
+					]}
+					if (article_bin){
+						selectedDates[k].data.push({x: 'Most Articles', y: _.maxBy(v, 'article_count').article_count, z: _.maxBy(v, 'article_count').symbol},)
+					}
+				})
 
 				let gfg = _.sortBy(selectedDates, (d, i) => {
 					return new Date(i)
-				})
+				}).reverse()
 				return gfg
 			},
 			createBar: function(data, data_2){
@@ -1243,10 +1330,13 @@
 				this.seriesBarNews[0].data = data_2.data[2];
 				this.seriesBarNews[1].data = data_2.data[1];
 				this.seriesBarNews[2].data = data_2.data[0];
-				this.chartOptionsRecBar.xaxis.categories = initialBars.index
-				this.seriesRecBar[0].data = initialBars.data.map((m) => {return m[0]})
-				this.chartOptionsRecBar2.xaxis.categories = endingBars.index
-				this.seriesRecBar2[0].data = endingBars.data.map((m) => {return m[0]})
+				this.chartOptionsRecBar.xaxis.categories = initialBars.data.map((m) => {return m[0]})
+				this.ratingsSeries[0].data = initialBars.data.map((m) => {return [m[3], m[1], m[0]]})
+				this.ratingsSeries2[0].data = endingBars.data.map((m) => {return [m[3], m[1], m[0]]})
+				this.chartOptionsRecBar.xaxis.categories = initialBars.data.map((m) => {return m[0]})
+				this.seriesRecBar[0].data = initialBars.data.map((m) => {return m[1]})
+				this.chartOptionsRecBar2.xaxis.categories = endingBars.data.map((m) => {return m[0]})
+				this.seriesRecBar2[0].data = endingBars.data.map((m) => {return m[1]})
 
 			},
 			createBubbles: function(data){
@@ -1264,9 +1354,9 @@
 
 			},
 			createFinalReturns: function(){
-				let urls = ["http://127.0.0.1:5000/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
-				"http://127.0.0.1:5000/AppAPI?method=articles&min_samples=1,10,10&threshold=0,15,1,4.1,0,0",
-				"http://127.0.0.1:5000/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
+				let urls = ["https://discord-traders.herokuapp.com/AppAPI?method=comments&min_samples=1,20,10&threshold=0,15,1,4.1,0,50",
+				"https://discord-traders.herokuapp.com/AppAPI?method=articles&min_samples=1,10,10&threshold=0,15,1,4.1,0,0",
+				"https://discord-traders.herokuapp.com/AppAPI?method=recommendations&min_samples=1,5,5&threshold=0,15,1,3.5,0,50",]
 				for (let i =0 ; i < urls.length; i++){
 					axios.get(urls[i]).then((res, err) => {
 						this.seriesReturns[i].data = norm(createPyPortfolio(res.data))		
