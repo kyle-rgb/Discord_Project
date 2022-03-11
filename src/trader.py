@@ -3,8 +3,7 @@ import pandas as pd, sqlite3 as sql
 import datetime as dt, re, time, holidays
 from dateutil.relativedelta import relativedelta
 
-
-
+# Shift nontrading days data to next available trading day
 def next_business_day(date):
     ONE_DAY = dt.relativedelta(days=1)
     HOLIDAYS_US = holidays.US()
@@ -13,15 +12,14 @@ def next_business_day(date):
         next_day += ONE_DAY
     return next_day
 
+# Time it to CL to Make sure Imported Script Does Not Weigh Down Server Since it needs to be Run First
 print(time.perf_counter())
+# Gather Data Sources via SQL Queries
 con = sql.connect('data/processed/temp_c.db', timeout=5000)
 port = pd.read_sql(f"SELECT Date date, Open, High, Low, Close, Volume, Volatility, Turnover, symbol FROM daily ORDER BY date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})\
         .drop_duplicates(subset=['date', 'symbol'])
 articles =pd.read_sql("SELECT date, symbol, publisher, pos_sent, neu_sent, neg_sent, comp_sent FROM (SELECT * FROM news_sentiment JOIN (SELECT * FROM articles) USING (pk))", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
 recommends = pd.read_sql(f"SELECT Date date, symbol, Firm, new_grade, prev_grade, Action from recommendations ORDER BY Date", con=con, parse_dates={'date': '%Y-%m-%d %H:%M:%S'})
-
-
-
 comments = pd.read_sql(f"SELECT date, channel, symbols, pos_sent, neu_sent, neg_sent, comp_sent from symbol_comments ORDER BY date", parse_dates={'date': '%Y-%m-%d'}, con=con)
 comments.loc[:, "symbols"] = comments.symbols.apply(lambda x: x.replace('BTC', 'BTC-USD'))
 companies = tuple(port.symbol.unique())
@@ -35,14 +33,14 @@ comments = comments.assign(symbols = lambda x: x.symbols.apply(lambda x: re.sub(
     .explode('symbols').reset_index().rename(columns={'index': 'comment_index'})
 comments = comments[lambda x:(~( x.comment_index.isnull()) & (x.symbols.isin(companies)))]
 
-
+# Translate Ratings
 recommendsDict = {"Very Bearish": 1, "Bearish": 2, "Neutral": 3, "Bullish": 4, "Very Bullish": 5}
 recommends=recommends.assign(new_sent = lambda x: x.new_grade.apply(lambda g: recommendsDict[g]))\
     .assign(prev_sent = lambda x: x.prev_grade.apply(lambda g: recommendsDict[g]))
 
 # take aggregations over wanted frequency; make buy decisions based off of the frequency of data points and sentiments
 # return port with new information: shares and cost * shares
-
+# Aggregate Data Source to Obtained Average Ratings to pick Stocks and Allocate Portfolio Amount to Match Back with Security Daily Data 
 class EAT():
     def __init__(self, portfolio, articles, comments, recs, start, end, start_amount):
         self.portfolio = portfolio.copy(deep=True)
@@ -85,7 +83,7 @@ class EAT():
 
         return None 
 
-
+    # Which Aggregation to use, sentiment name, minimum_samples, minimum_avg_sentiment
     def tradeSents(self, agg, label, min_samples, min_sent):
         # add action, shares, cost
         
@@ -130,22 +128,16 @@ class EAT():
         print(returns.groupby(['date']).sum().assign(pct=lambda x: (x.returns-x.cost) / x.cost).sort_index())
         return self.portfolio.fillna(value=0)
 
+# API Help to Define Bounds for Portfolio and Automate Process
 def apiHelper(date_tuple=(dt.datetime(2019, 1, 1), dt.datetime(2021, 1, 1)), starting_balance=10_000, wanted_sentiments=[{'name': 'comments', 'sent_name': 'comp_sent', 'min_samples': 1, 'min_sent': .15}]):
     eat = EAT(port, articles, comments, recommends, date_tuple[0], date_tuple[1], starting_balance/len(wanted_sentiments))
     eat.aggregate()
     for obj in wanted_sentiments:
-        #eat.hotFixFilter(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
         eat.tradeSents(obj.get('name'), obj.get('sent_name'), obj.get('min_samples'), obj.get('min_sent'))
 
-    
     eat.portfolio.loc[:, ['shares']] = eat.share_column
-    
-    #print(eat.portfolio.assign(s = lambda x: x.shares * x.Close).groupby('date').sum().reset_index()[lambda x: x.date <= dt.datetime(2020, 1, 10)].tail(10))
-
     return eat.portfolio
 
-
 new_port = apiHelper()
-
-
+# Finish Script
 print(time.perf_counter())

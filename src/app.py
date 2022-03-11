@@ -18,7 +18,7 @@ def sent_help(s):
 
 # Create an instance of Flask app
 app = Flask(__name__)
-
+ 
 @app.route('/AppAPI')
 def gather_chart_data():
     cl_time = time.perf_counter()
@@ -30,11 +30,9 @@ def gather_chart_data():
     for i, m in enumerate(methods):
         args.append({'name': m, 'sent_name': method_indexer[m].get('sent_name'), 'min_samples': min_samples[method_indexer[m].get('range_i')], 'min_sent': sentiment_threshold[method_indexer[m].get('range_j')]/method_indexer[m].get('div')})
     # support sentiment sentiment ranges, sentiment-thresholds, named calls]
-    tada = apiHelper(wanted_sentiments=args)
-    tada = tada[lambda x: x.shares > 0].to_json(orient='records', double_precision=4)
-
-
-    return tada
+    api_return = apiHelper(wanted_sentiments=args)
+    api_return = api_return[lambda x: x.shares > 0].to_json(orient='records', double_precision=4)
+    return api_return
 
 @app.route('/')
 def cloud():
@@ -138,11 +136,6 @@ def cloud():
 
 
     _n = pd.concat([noun_tokens_positive, noun_tokens_negative, verb_tokens_positive, verb_tokens_negative], axis=0, ignore_index=False)
-    
-    # add: Best Scoring Firms by Recommendations via alpha/returns (whos ratings best matched those with analyst higher ratings) {ie. did the security actual outperform, underperform or perform inline with the market given analyst expectations}
-    # <- done: via recsEval
-
-
     comments_pt = comments_.assign(TYPE=lambda x: x.comp_sent.apply(sent_help)).groupby([pd.Grouper(key='date', freq='1M'), 'TYPE']).count().reset_index()\
         .assign(month=lambda x: x.date.apply(dt.datetime.strftime, format='%b %Y'))\
             .loc[:, ['comp_sent', 'month', 'TYPE']].pivot(index='month', values='comp_sent', columns='TYPE').T.loc[:, ['May 2020', 'Jun 2020', 'Jul 2020', 'Aug 2020', 'Sep 2020', 'Oct 2020', 'Nov 2020', 'Dec 2020']]
@@ -204,7 +197,7 @@ def tempateVue():
     return render_template('templateVUE.html', obj_dict=obj_dict)
 
 if __name__ == "__main__":
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug = True)
+    # app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.run(debug = False)
 
 
